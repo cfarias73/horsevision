@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Builds & caches
+dist/
+build/
+.pytest_cache/
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+
+# Temporary data, uploads & Supabase temp
+backend/uploads/*
+!backend/uploads/.gitkeep
+supabase/.temp/
+
+# System files
+.DS_Store
+Thumbs.db
+.agent/

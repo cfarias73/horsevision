@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+
+<html lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"secondary-fixed-dim":"#e9c080","primary-fixed":"#e2e3e0","surface-container-high":"#e9e8e1","surface-bright":"#fbf9f2","outline-variant":"#c4c7c4","surface-container":"#efeee7","inverse-on-surface":"#f2f1ea","background":"#fbf9f2","outline":"#747875","on-error":"#ffffff","primary-container":"#1a1c1b","inverse-primary":"#c6c7c4","on-secondary-fixed-variant":"#5d420d","on-secondary":"#ffffff","surface-dim":"#dbdad4","tertiary-fixed-dim":"#00daf3","primary-fixed-dim":"#c6c7c4","on-primary-fixed":"#1a1c1b","on-background":"#1b1c18","tertiary-container":"#001f24","surface-variant":"#e3e3dc","secondary-fixed":"#ffdeac","surface-container-highest":"#e3e3dc","on-primary-container":"#838482","inverse-surface":"#30312c","secondary":"#785923","on-surface":"#1b1c18","tertiary-fixed":"#9cf0ff","on-primary-fixed-variant":"#454746","on-surface-variant":"#444845","on-tertiary-fixed-variant":"#004f58","on-secondary-container":"#785a24","on-primary":"#ffffff","error":"#ba1a1a","on-tertiary":"#ffffff","primary":"#000000","surface":"#fbf9f2","surface-tint":"#5d5f5d","on-error-container":"#93000a","on-secondary-fixed":"#281900","surface-container-lowest":"#ffffff","surface-container-low":"#f5f4ed","error-container":"#ffdad6","on-tertiary-fixed":"#001f24","tertiary":"#000000","secondary-container":"#fed492","on-tertiary-container":"#0091a2"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-xl":"2.5rem","gutter":"1.5rem","gutter-mobile":"1rem","space-md":"1rem","space-lg":"1.5rem","margin-mobile":"1.25rem","margin":"3rem","space-sm":"0.5rem","space-xs":"0.25rem"},"fontFamily":{"title-md":["Plus Jakarta Sans"],"title-lg":["Plus Jakarta Sans"],"headline-lg-mobile":["Newsreader"],"headline-lg":["Newsreader"],"label-sm":["JetBrains Mono"],"body-sm":["Plus Jakarta Sans"],"headline-xl":["Newsreader"],"label-md":["JetBrains Mono"],"body-lg":["Plus Jakarta Sans"],"headline-md":["Newsreader"],"headline-sm":["Newsreader"],"body-md":["Plus Jakarta Sans"],"headline-xl-mobile":["Newsreader"]},"fontSize":{"title-md":["15px",{"lineHeight":"22px","fontWeight":"500"}],"title-lg":["18px",{"lineHeight":"26px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-lg-mobile":["28px",{"lineHeight":"36px","letterSpacing":"-0.01em","fontWeight":"400"}],"headline-lg":["40px",{"lineHeight":"48px","letterSpacing":"-0.015em","fontWeight":"400"}],"label-sm":["10px",{"lineHeight":"14px","letterSpacing":"0.1em","fontWeight":"400"}],"body-sm":["12px",{"lineHeight":"18px","fontWeight":"400"}],"headline-xl":["56px",{"lineHeight":"64px","letterSpacing":"-0.02em","fontWeight":"400"}],"label-md":["11px",{"lineHeight":"16px","letterSpacing":"0.08em","fontWeight":"500"}],"body-lg":["16px",{"lineHeight":"26px","fontWeight":"400"}],"headline-md":["28px",{"lineHeight":"36px","fontWeight":"400"}],"headline-sm":["22px",{"lineHeight":"30px","fontWeight":"500"}],"body-md":["14px",{"lineHeight":"22px","fontWeight":"400"}],"headline-xl-mobile":["36px",{"lineHeight":"44px","letterSpacing":"-0.01em","fontWeight":"400"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased selection:bg-surface-variant selection:text-primary"><header class="fixed top-0 left-0 right-0 w-full z-50 bg-surface/90 backdrop-blur-md border-b border-surface-container-highest"><div class="h-20 w-full px-margin flex items-center justify-between gap-gutter"><div class="flex items-center gap-space-lg"><a class="group flex flex-col items-start leading-none tracking-tight" data-path="manifesto" href="#"><span class="font-label-md text-label-md font-medium tracking-[0.22em] text-primary uppercase">HorseVision</span><span class="font-label-sm text-label-sm text-on-surface-variant tracking-[0.16em] uppercase mt-space-xs">Clinical Motion Lab // Zürich</span></a></div><nav class="hidden xl:flex items-center gap-space-xl" data-active-classes="text-primary font-medium border-b border-primary pb-space-xs"><a aria-current="page" class="uppercase tracking-[0.12em] transition-colors py-space-xs text-primary font-medium border-b border-primary pb-space-xs" data-path="manifesto" href="#">Manifesto</a><a class="font-label-md text-label-md uppercase tracking-[0.12em] text-on-surface-variant hover:text-primary transition-colors py-space-xs" data-path="telemetria" href="#">Telemetría</a><a class="font-label-md text-label-md uppercase tracking-[0.12em] text-on-surface-variant hover:text-primary transition-colors py-space-xs" data-path="galeria-clinica" href="#">Galería Clínica</a><a class="font-label-md text-label-md uppercase tracking-[0.12em] text-on-surface-variant hover:text-primary transition-colors py-space-xs" data-path="estudios-fei" href="#">Estudios FEI</a><a class="font-label-md text-label-md uppercase tracking-[0.12em] text-on-surface-variant hover:text-primary transition-colors py-space-xs" data-path="licencias" href="#">Licencias</a></nav><div class="flex items-center gap-space-lg"><a class="hidden sm:inline-flex items-center justify-center px-space-lg py-space-sm rounded-full bg-primary text-on-primary font-label-md text-label-md tracking-[0.08em] hover:bg-surface-container-highest hover:text-primary border border-primary transition-all" data-path="solicitar-acceso-clinico" href="#">Solicitar Acceso Clínico</a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-20 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- SECTION 1: HERO / THE KINEMATIC VITRINE -->
+<section class="w-full px-margin pt-space-xl pb-margin flex flex-col items-center">
+<!-- Micro-pill Authority Badge -->
+<div class="inline-flex items-center gap-space-sm px-space-md py-space-xs rounded-full bg-surface-container-high border-none mb-space-lg shadow-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-on-surface uppercase tracking-[0.18em]">
+        FEI Precision Certificate 2025 // Sub-Millimeter Optical Kinematics
+      </span>
+</div>
+<!-- Editorial Typography Title -->
+<div class="max-w-5xl text-center space-y-space-md mb-space-xl">
+<h1 class="font-headline-xl text-headline-xl text-primary font-normal tracking-tight">
+        La Perfección del Trote. <br/>
+<span class="italic font-headline-xl text-primary font-normal">Cuantificada al Milímetro.</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
+        Visión computacional sin marcadores para caballos de Gran Premio y sementales de élite. Transformamos cualquier grabación de vídeo en pista en telemetría ortopédica de grado quirúrgico en 60 segundos.
+      </p>
+<!-- CTA Matrix -->
+<div class="flex flex-wrap items-center justify-center gap-space-md pt-space-sm">
+<a class="inline-flex items-center justify-center px-space-xl py-space-sm rounded-full bg-primary text-on-primary font-label-md text-label-md tracking-[0.1em] hover:bg-inverse-surface shadow-md transition-all" href="#solicitar">
+          Solicitar Acceso Clínico
+        </a>
+<a class="inline-flex items-center justify-center px-space-xl py-space-sm rounded-full bg-surface-container-high text-primary font-label-md text-label-md tracking-[0.1em] hover:bg-surface-container-highest transition-all" href="#caso-clinico">
+          Explorar Caso Clínico Interactivo
+        </a>
+</div>
+</div>
+<!-- Centerpiece Gallery Card: Horological HUD Vitrine -->
+<div class="w-full max-w-6xl relative rounded-xl bg-surface-container-lowest p-space-md shadow-xl overflow-hidden">
+<!-- HUD Calibration Header -->
+<div class="flex items-center justify-between px-space-md py-space-xs pb-space-sm text-on-surface-variant">
+<div class="flex items-center gap-space-md">
+<span class="font-label-sm text-label-sm uppercase tracking-[0.2em] text-primary font-medium">CANAL 01 // CALIBRE 44.8Z</span>
+<span class="hidden sm:inline font-label-sm text-label-sm text-on-surface-variant">LATENCIA: 1.4ms</span>
+</div>
+<div class="flex items-center gap-space-lg">
+<span class="font-label-sm text-label-sm text-secondary uppercase font-medium">Tracking Nodal: Activo</span>
+<span class="font-label-sm text-label-sm font-medium text-primary">60 FPS 4K RAW</span>
+</div>
+</div>
+<!-- Main Visual Container -->
+<div class="relative w-full h-[620px] rounded-lg overflow-hidden bg-primary">
+<img alt="Biomechanical Kinetic Equine Analysis" class="w-full h-full object-cover object-center opacity-95" src="https://lh3.googleusercontent.com/aida/ALJJyrCmRBHW8CbjOCi9878iRzR4FeO0vUy4ixsgM79h_57NIE4J-fmzKz4vysISv5XwjHWXW_Fxk0K8_cQKvamSBx6b_DTxdxjG5_eYBHwyJ3tftSAXupPtr4O5gmHUvNVI7P1KEf8pzpStNH04ScdMpj4Oda07u0BbWZUh8vYKMnR6KFNU-yFOPX0JfDy5ZgbFdn6J4btKhpQgDPnku0zqL62VP1xSlKY6d5m_occ_6DIV"/>
+<!-- Subtle Optical Reticle / Crosshair Overlay -->
+<div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+<div class="w-48 h-48 rounded-full border border-dashed border-white/20 flex items-center justify-center">
+<div class="w-2 h-2 rounded-full bg-tertiary-fixed"></div>
+</div>
+<!-- Fine Grid Markers -->
+<div class="absolute top-8 left-8 font-label-sm text-label-sm text-white/60 tracking-widest">[+00.284 // X: 119.20]</div>
+<div class="absolute bottom-8 right-8 font-label-sm text-label-sm text-white/60 tracking-widest">[TENSOR REF: KIN-889]</div>
+</div>
+<!-- Floating Glass Telemetry Widgets -->
+<div class="absolute top-space-lg right-space-lg flex flex-col gap-space-sm max-w-xs">
+<!-- Widget 1 -->
+<div class="bg-primary/85 backdrop-blur-md px-space-md py-space-sm rounded-lg shadow-lg text-on-primary">
+<div class="flex items-center justify-between gap-space-md">
+<span class="font-label-sm text-label-sm text-white/60 uppercase">Keypoint Confidence</span>
+<span class="font-label-md text-label-md text-tertiary-fixed font-medium">99.8%</span>
+</div>
+<div class="w-full bg-white/10 h-1 rounded-full mt-1.5 overflow-hidden">
+<div class="bg-tertiary-fixed h-full w-[99.8%]"></div>
+</div>
+</div>
+<!-- Widget 2 -->
+<div class="bg-primary/85 backdrop-blur-md px-space-md py-space-sm rounded-lg shadow-lg text-on-primary">
+<div class="flex items-center justify-between gap-space-md">
+<span class="font-label-sm text-label-sm text-white/60 uppercase">Nodal Oscillation</span>
+<span class="font-label-md text-label-md text-secondary-fixed font-medium">0.74 mm</span>
+</div>
+<p class="font-body-sm text-body-sm text-white/50 text-[11px] mt-0.5">Tolerancia FEI A-1 aprobada</p>
+</div>
+<!-- Widget 3 -->
+<div class="bg-primary/85 backdrop-blur-md px-space-md py-space-sm rounded-lg shadow-lg text-on-primary">
+<div class="flex items-center justify-between gap-space-md">
+<span class="font-label-sm text-label-sm text-white/60 uppercase">Stance Time Symmetry</span>
+<span class="font-label-md text-label-md text-white font-medium">99.4%</span>
+</div>
+<div class="flex items-center gap-1 mt-1.5">
+<span class="font-label-sm text-label-sm text-white/40">L: 50.1%</span>
+<span class="text-white/20 font-label-sm text-label-sm">/</span>
+<span class="font-label-sm text-label-sm text-tertiary-fixed">R: 49.9%</span>
+</div>
+</div>
+</div>
+<!-- Floating Dynamic Joint Angle Pills on Image Canvas -->
+<div class="absolute bottom-16 left-12 hidden md:flex items-center gap-space-md">
+<div class="px-space-md py-space-xs rounded-full bg-surface-container-lowest/90 backdrop-blur-md shadow-md flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-primary">Tarso Posterior: 142.6°</span>
+</div>
+<div class="px-space-md py-space-xs rounded-full bg-surface-container-lowest/90 backdrop-blur-md shadow-md flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-primary">Flexión Menudillo: 118.2°</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 2: NUMERICAL PURITY & METRICS STRIP -->
+<section class="w-full px-margin py-space-xl bg-surface-container-low">
+<div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- Metric 1 -->
+<div class="p-space-lg bg-surface rounded-lg shadow-sm flex flex-col justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-[0.16em] text-on-surface-variant">Tolerancia Absoluta</span>
+<div class="my-space-md">
+<div class="font-headline-xl text-headline-xl text-primary font-normal leading-none tracking-tight">±0.8<span class="text-headline-md font-headline-md text-secondary">mm</span></div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface">Tolerancia Óptica Sub-milimétrica validada en pistas sintéticas y césped.</p>
+</div>
+<!-- Metric 2 -->
+<div class="p-space-lg bg-surface rounded-lg shadow-sm flex flex-col justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-[0.16em] text-on-surface-variant">Arquitectura Biomecánica</span>
+<div class="my-space-md">
+<div class="font-headline-xl text-headline-xl text-primary font-normal leading-none tracking-tight">17 <span class="text-headline-md font-headline-md text-secondary">Nodos</span></div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface">Topología Anatómica FEI Sincronizada con escaneo en tiempo real.</p>
+</div>
+<!-- Metric 3 -->
+<div class="p-space-lg bg-surface rounded-lg shadow-sm flex flex-col justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-[0.16em] text-on-surface-variant">Intervención Médica</span>
+<div class="my-space-md">
+<div class="font-headline-xl text-headline-xl text-primary font-normal leading-none tracking-tight">0 <span class="text-headline-md font-headline-md text-secondary">Sensores</span></div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface">Cero Invasión ni Estrés Animal. Detección por visión computacional pura.</p>
+</div>
+<!-- Metric 4 -->
+<div class="p-space-lg bg-surface rounded-lg shadow-sm flex flex-col justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-[0.16em] text-on-surface-variant">Ventana Preventiva</span>
+<div class="my-space-md">
+<div class="font-headline-xl text-headline-xl text-primary font-normal leading-none tracking-tight">28 <span class="text-headline-md font-headline-md text-secondary">Días</span></div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface">Anticipación Preemptiva de Lesión Articular antes de cualquier manifestación clínica.</p>
+</div>
+</div>
+</section>
+<!-- SECTION 3: EDITORIAL CHAPTER -->
+<section class="w-full px-margin py-margin">
+<div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center">
+<!-- Left Column: Portrait & Quote -->
+<div class="lg:col-span-5 flex flex-col gap-space-lg">
+<div class="relative rounded-xl overflow-hidden shadow-lg bg-surface-container-high aspect-[3/4]">
+<img alt="Champion dressage warmblood stallion portrait" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/ALJJyrAAqyP2L33XVH7kUeBy6LbmpF9MRTzM6ir-yRDLzOR4zguHvNM23O6lmyE-BcguAfZ_OVS9lydqdqFmCchKBNKtO1znSDAmmz1ooTVYq_5aDxt9c2ltq6_IEluyAh2otZiwPYCJKyWt33AlmW3S58wUXK61ePIUdKVATnqASocUrTNumQuzndO2-anH7vcbAibkL258yrOcnzzweykm4Kuy2MZ2FmIOPSBtxWFcqSQG"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-space-lg left-space-lg right-space-lg text-white">
+<span class="font-label-sm text-label-sm uppercase tracking-[0.2em] text-secondary-fixed">Semental Hannoveriano GPH</span>
+<div class="font-headline-sm text-headline-sm font-normal text-white mt-space-xs">Calibración en Reposo &amp; Trote Reunido</div>
+</div>
+</div>
+<div class="p-space-lg bg-surface-container rounded-lg shadow-sm">
+<p class="font-headline-sm text-headline-sm italic text-primary leading-relaxed">
+            “En el nivel olímpico, medio segundo de duda en la impulsión del corvejón es la distancia entre el oro y una baja de seis meses.”
+          </p>
+<div class="mt-space-md flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface font-medium">H. van den Berg</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Director Técnico de Salto, Aachen</span>
+</div>
+</div>
+</div>
+<!-- Right Column: Typographic Manifesto -->
+<div class="lg:col-span-7 flex flex-col justify-center lg:pl-space-xl space-y-space-lg">
+<div class="inline-flex items-center gap-space-xs text-secondary font-label-sm text-label-sm uppercase tracking-[0.25em]">
+<span>Capítulo 01</span>
+<span>//</span>
+<span>Resolución Mecánica</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-primary font-normal leading-tight tracking-tight">
+          El ojo humano tiene un límite. <br/>
+<span class="italic font-headline-lg text-primary">La óptica suiza no.</span>
+</h2>
+<div class="space-y-space-md text-on-surface-variant font-body-lg text-body-lg leading-relaxed">
+<p>
+            Una asimetría de 3 milímetros en el corvejón o en el menudillo posterior es completamente indetectable a simple vista para el jinete más experimentado del mundo. Cuando un caballo de doma o salto manifiesta una cojera apreciable (Grado 2 de la escala AAEP), la degeneración del cartílago o el estrés microfibrilar del ligamento suspensorio ya se encuentra en fase aguda.
+          </p>
+<p>
+            HorseVision extrae la curva de suspensión parabólica a partir de cualquier toma a 90°. Nuestros algoritmos calculan la aceleración angular instantánea y la comparan con la huella ortopédica óptima del ejemplar. Cada sesión genera un índice de simetría con 99.8% de fiabilidad, identificando alteraciones tensionales semanas antes de que aparezca el primer signo visible.
+          </p>
+</div>
+<!-- Micro Comparison Spec -->
+<div class="pt-space-md grid grid-cols-2 gap-space-md">
+<div class="p-space-md bg-surface-container-low rounded-lg">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Observación Convencional</span>
+<span class="font-headline-sm text-headline-sm text-primary font-normal block mt-space-xs">±15 mm</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant block mt-space-xs">Resolución visual subjetiva en pista</span>
+</div>
+<div class="p-space-md bg-surface-container-highest rounded-lg">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider block font-medium">HorseVision Lab</span>
+<span class="font-headline-sm text-headline-sm text-primary font-normal block mt-space-xs">±0.4 mm</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant block mt-space-xs">Precisión fotogramétrica multi-cuadro</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 4: THE CLINICAL TRILOGY -->
+<section class="w-full px-margin py-margin bg-surface-container-low" id="caso-clinico">
+<div class="max-w-7xl mx-auto flex flex-col space-y-space-xl">
+<!-- Section Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div>
+<span class="font-label-sm text-label-sm uppercase tracking-[0.2em] text-secondary">Trilogía Clínica</span>
+<h2 class="font-headline-lg text-headline-lg text-primary font-normal tracking-tight mt-space-xs">
+            Ingeniería de Pista en Tres Actos
+          </h2>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-md">
+          Diseñado para integrarse silenciosamente en las rutinas de establos de Gran Premio sin alterar la concentración del animal.
+        </p>
+</div>
+<!-- 3 Expansive Cards Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Card 1 -->
+<div class="bg-surface rounded-xl p-space-md shadow-md flex flex-col justify-between group hover:shadow-xl transition-all">
+<div class="relative w-full h-80 rounded-lg overflow-hidden bg-surface-container-high mb-space-lg">
+<img alt="Equestrian arena horse trotting on sand with viewfinder framing" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida/ALJJyrAYcodAffSUVE2uoKRhoNFlAWtv1u7BNcXAguOScXs23RgGBNEZE-3EvI6qjsaDopHD6iHz4TmQNJI7f7jm1rt4Jp7d3-OHpkviVxiH7wVeF0n6jW4aBFj5Zo-u4BGFl0idYNp87O4LTHKoNfa2do19KdMmQWWrSwJQX_8Gr2ElW-Ca4_4FQUImn8D6UXGdPWFj7o2-wo1xJxa76MDQ8voJOZFTb-WBCG-EofZpKZAY"/>
+<div class="absolute top-space-sm left-space-sm px-space-sm py-0.5 rounded bg-primary/70 backdrop-blur-sm text-white font-label-sm text-label-sm uppercase tracking-widest">
+              Fase 01 // Captura
+            </div>
+</div>
+<div class="flex flex-col flex-grow justify-between">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-primary font-normal mb-space-xs">
+                Captura Pura en Pista
+              </h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed mb-space-lg">
+                Grabe con cualquier smartphone a 90° del paso. Sin cables, arneses ni sensores adheridos que puedan alterar el centro de gravedad del animal.
+              </p>
+</div>
+<div class="pt-space-md flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span class="uppercase tracking-widest text-primary font-medium">Auto-Alineación 90°</span>
+<span>ISO 100 // 120 FPS</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface rounded-xl p-space-md shadow-md flex flex-col justify-between group hover:shadow-xl transition-all">
+<div class="relative w-full h-80 rounded-lg overflow-hidden bg-surface-container-high mb-space-lg">
+<img alt="Close-up horse leg and hoof stepping on sand with neon cyan trajectory" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida/ALJJyrDpZ25hdrdXAgB06srFqSniNUrViGdWYmvkcVY9FAD2GgNUAzGA8g8ROl3jsDZ-746HNiJXtnjvl_3t6O0zWdF_JcpedY3mVrqWGE93OO8YUlmBHauS2_hv4LZ8BaaAZ46o8x5aytMFtHkZstv26m5uwzRuddJgq8TxXXvS7dxsFiiePISyyJIWauG0Tqkof9h36Y8I4ycP1xrmFZvGAn7edyNydwqO_DCu6BMt7Aat"/>
+<div class="absolute top-space-sm left-space-sm px-space-sm py-0.5 rounded bg-primary/70 backdrop-blur-sm text-white font-label-sm text-label-sm uppercase tracking-widest">
+              Fase 02 // Dinámica
+            </div>
+</div>
+<div class="flex flex-col flex-grow justify-between">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-primary font-normal mb-space-xs">
+                Cinemática y Dinámica de Tendones
+              </h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed mb-space-lg">
+                Cálculo vectorial instantáneo del ángulo articular del menudillo y disipación de carga de impacto en la pisada sobre arena sílice.
+              </p>
+</div>
+<div class="pt-space-md flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span class="uppercase tracking-widest text-primary font-medium">Vector SDFT / DDFT</span>
+<span class="text-secondary font-medium">32.4 kN Carga Máx.</span>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface rounded-xl p-space-md shadow-md flex flex-col justify-between group hover:shadow-xl transition-all">
+<!-- Visual Data Representation -->
+<div class="relative w-full h-80 rounded-lg bg-surface-container-high p-space-lg flex flex-col justify-between mb-space-lg overflow-hidden">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-primary font-medium">Doble Forma de Onda // Trote</span>
+<span class="px-space-xs py-0.5 rounded bg-surface text-secondary font-label-sm text-label-sm font-medium">FEI VALIDATED</span>
+</div>
+<!-- Inline SVG Waveform for Telemetry Balance -->
+<div class="w-full py-space-sm">
+<svg class="w-full h-28 text-primary overflow-visible" fill="none" stroke="currentColor" viewbox="0 0 300 120">
+<!-- Grid hairlines -->
+<line stroke="#E3E3DC" stroke-dasharray="3 3" x1="0" x2="300" y1="20" y2="20"></line>
+<line stroke="#E3E3DC" x1="0" x2="300" y1="60" y2="60"></line>
+<line stroke="#E3E3DC" stroke-dasharray="3 3" x1="0" x2="300" y1="100" y2="100"></line>
+<!-- Left limb waveform (cyan accent) -->
+<path d="M0,60 Q35,5 75,60 T150,60 T225,60 T300,60" fill="none" stroke="#00daf3" stroke-width="2.5"></path>
+<!-- Right limb waveform (pure primary contrast) -->
+<path d="M0,60 Q35,7 75,60 T150,60 T225,60 T300,60" fill="none" stroke="#1b1c18" stroke-dasharray="4 2" stroke-width="1.5"></path>
+</svg>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant mt-space-xs">
+<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span> Extremidad Izquierda</span>
+<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-primary"></span> Extremidad Derecha</span>
+</div>
+</div>
+<div class="bg-surface rounded p-space-sm flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Índice de Balance Simétrico</span>
+<span class="font-headline-sm text-headline-sm font-normal text-primary">98.7%</span>
+</div>
+</div>
+<div class="flex flex-col flex-grow justify-between">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-primary font-normal mb-space-xs">
+                Certificación FEI &amp; Exportación
+              </h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed mb-space-lg">
+                Generación automática de dossieres periciales sellados criptográficamente para comités veterinarios, seguros y compras internacionales.
+              </p>
+</div>
+<div class="pt-space-md flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<span class="uppercase tracking-widest text-primary font-medium">Hash SHA-256</span>
+<span class="text-primary font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">verified</span> PDF Criptográfico
+              </span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 5: AUTHORITY TESTIMONIAL (PURE EDITORIAL MINIMALIST) -->
+<section class="w-full px-margin py-margin bg-surface-container">
+<div class="max-w-4xl mx-auto text-center space-y-space-lg">
+<span class="font-label-sm text-label-sm uppercase tracking-[0.25em] text-secondary block">
+        Veredicto Clínico Independiente
+      </span>
+<blockquote class="font-headline-lg text-headline-lg text-primary font-normal italic leading-snug">
+        “HorseVision aporta una objetividad matemática que antes requería plataformas de fuerza de cientos de miles de euros. Ahora detectamos micro-desbalances en la pista de entrenamiento antes de que exista daño tisular.”
+      </blockquote>
+<div class="pt-space-sm flex flex-col items-center">
+<span class="font-title-md text-title-md text-primary font-semibold tracking-tight">Dr. Marcus von Stauffenberg</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mt-1">
+          Asesor Veterinario FEI &amp; Especialista en Ortopedia Equina, Zúrich
+        </span>
+</div>
+</div>
+</section>
+<!-- SECTION 6: LICENCIAS Y ACCESO PRIVADO -->
+<section class="w-full px-margin py-margin bg-surface" id="licencias">
+<div class="max-w-7xl mx-auto flex flex-col space-y-space-xl">
+<!-- Section Intro -->
+<div class="text-center max-w-2xl mx-auto space-y-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-[0.2em] text-secondary">Licencias Profesionales</span>
+<h2 class="font-headline-lg text-headline-lg text-primary font-normal tracking-tight">
+          Precisión Adaptada a su Escala
+        </h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          Contratos anuales con auditoría biométrica y despliegue inmediato en su dispositivo de pista.
+        </p>
+</div>
+<!-- Pricing Vitrines Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter items-stretch">
+<!-- Tier 1 -->
+<div class="bg-surface-container-low rounded-xl p-space-xl shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
+<div class="space-y-space-md">
+<span class="font-label-sm text-label-sm uppercase tracking-[0.2em] text-on-surface-variant">Nivel Particular</span>
+<h3 class="font-headline-sm text-headline-sm text-primary font-normal">Cuadra Propietaria</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Para 1 a 3 ejemplares de doma clásica o salto de obstáculos de alta competición.</p>
+<div class="pt-space-sm">
+<span class="font-headline-xl text-headline-xl text-primary font-normal">49€</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider"> / mes</span>
+</div>
+<ul class="space-y-space-sm pt-space-md font-body-sm text-body-sm text-on-surface">
+<li class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[16px]">check</span>
+                Hasta 3 perfiles biomecánicos permanentes
+              </li>
+<li class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[16px]">check</span>
+                Análisis de vídeo ilimitado a 90°
+              </li>
+<li class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[16px]">check</span>
+                Detección simétrica del trote y galope
+              </li>
+<li class="flex items-center gap-space-sm text-on-surface-variant/70">
+<span class="material-symbols-outlined text-[16px]">remove</span>
+                Exportación pericial FEI
+              </li>
+</ul>
+</div>
+<div class="pt-space-xl">
+<a class="w-full inline-flex items-center justify-center py-space-sm rounded-full bg-surface-container-highest text-primary font-label-md text-label-md tracking-wider hover:bg-primary hover:text-on-primary transition-all" href="#solicitar">
+              Adquirir Licencia
+            </a>
+</div>
+</div>
+<!-- Tier 2 (Highlighted Obsidian Minimalist) -->
+<div class="bg-primary text-on-primary rounded-xl p-space-xl shadow-xl flex flex-col justify-between relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary/15 rounded-full blur-2xl pointer-events-none"></div>
+<div class="space-y-space-md relative z-10">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-[0.2em] text-secondary-fixed">Estándar Profesional</span>
+<span class="px-space-xs py-0.5 rounded bg-white/10 text-tertiary-fixed font-label-sm text-label-sm uppercase">Recomendado</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-white font-normal">Studbook &amp; Competición</h3>
+<p class="font-body-sm text-body-sm text-white/70">Hasta 15 caballos en plantilla, telemetría continua y tracking longitudinal evolutivo.</p>
+<div class="pt-space-sm">
+<span class="font-headline-xl text-headline-xl text-white font-normal">189€</span>
+<span class="font-label-sm text-label-sm text-white/50 uppercase tracking-wider"> / mes</span>
+</div>
+<ul class="space-y-space-sm pt-space-md font-body-sm text-body-sm text-white/90">
+<li class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-tertiary-fixed text-[16px]">check</span>
+                Hasta 15 atletas equinos registrados
+              </li>
+<li class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-tertiary-fixed text-[16px]">check</span>
+                Telemetría ortopédica predictiva a 28 días
+              </li>
+<li class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-tertiary-fixed text-[16px]">check</span>
+                Exportación de informes con firma criptográfica
+              </li>
+<li class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-tertiary-fixed text-[16px]">check</span>
+                Soporte veterinario prioritario Zúrich
+              </li>
+</ul>
+</div>
+<div class="pt-space-xl relative z-10">
+<a class="w-full inline-flex items-center justify-center py-space-sm rounded-full bg-secondary text-on-secondary-fixed font-label-md text-label-md tracking-wider hover:bg-secondary-fixed transition-all shadow-md" href="#solicitar">
+              Comenzar Evaluación
+            </a>
+</div>
+</div>
+<!-- Tier 3 -->
+<div class="bg-surface-container-low rounded-xl p-space-xl shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
+<div class="space-y-space-md">
+<span class="font-label-sm text-label-sm uppercase tracking-[0.2em] text-on-surface-variant">Clínica &amp; Gobierno</span>
+<h3 class="font-headline-sm text-headline-sm text-primary font-normal">Federación &amp; Hospital</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Caballos ilimitados, API de integración clínica con PACS veterinario y peritaje legal.</p>
+<div class="pt-space-sm">
+<span class="font-headline-md text-headline-md text-primary font-normal">Bespoke</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block mt-1">Acuerdo Institucional</span>
+</div>
+<ul class="space-y-space-sm pt-space-md font-body-sm text-body-sm text-on-surface">
+<li class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[16px]">check</span>
+                Plantilla equina sin restricciones numéricas
+              </li>
+<li class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[16px]">check</span>
+                Acceso directo API REST y DICOM / PACS
+              </li>
+<li class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[16px]">check</span>
+                Auditoría legal y peritaje de compraventa
+              </li>
+<li class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[16px]">check</span>
+                Instalación local en servidor clínico privado
+              </li>
+</ul>
+</div>
+<div class="pt-space-xl">
+<a class="w-full inline-flex items-center justify-center py-space-sm rounded-full bg-surface-container-highest text-primary font-label-md text-label-md tracking-wider hover:bg-primary hover:text-on-primary transition-all" href="#solicitar">
+              Consultar Dirección Médica
+            </a>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 7: ELEVATED MINIMALIST FOOTER CTA -->
+<section class="w-full px-margin py-margin bg-primary text-on-primary relative overflow-hidden" id="solicitar">
+<!-- Subtle architectural ambient radial glow -->
+<div class="absolute -bottom-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-secondary/20 rounded-full blur-3xl pointer-events-none"></div>
+<div class="max-w-4xl mx-auto text-center space-y-space-lg relative z-10">
+<div class="inline-flex items-center gap-space-xs text-secondary-fixed font-label-sm text-label-sm uppercase tracking-[0.25em]">
+<span>Acceso Inmediato</span>
+<span>//</span>
+<span>Protocolo ZRH-2025</span>
+</div>
+<h2 class="font-headline-xl text-headline-xl font-normal tracking-tight text-white">
+        Proteja el Movimiento Más Perfecto de la Naturaleza.
+      </h2>
+<p class="font-body-lg text-body-lg text-white/70 max-w-xl mx-auto leading-relaxed">
+        Comience con una evaluación biométrica ciega gratuita de su mejor ejemplar. Envíe 15 segundos de trote y reciba el balance articular en su correo en menos de 2 horas.
+      </p>
+<div class="pt-space-md flex flex-col sm:flex-row items-center justify-center gap-space-md">
+<button class="px-space-xl py-space-md rounded-full bg-secondary text-on-secondary-fixed font-label-md text-label-md uppercase tracking-[0.12em] hover:bg-secondary-fixed shadow-lg transition-all">
+          Solicitar Evaluación Ciega Gratuita
+        </button>
+<span class="font-label-sm text-label-sm text-white/40 uppercase tracking-widest">
+          Sin compromiso // Cifrado AES-256
+        </span>
+</div>
+</div>
+</section>
+</div></main><footer class="w-full bg-surface-container-low border-t border-surface-container-highest mt-margin"><div class="w-full px-margin py-margin"><div class="grid grid-cols-1 md:grid-cols-4 gap-gutter mb-margin"><div class="space-y-space-md"><div class="font-label-md text-label-md uppercase tracking-[0.2em] text-primary">HorseVision Lab</div><p class="font-body-sm text-body-sm text-on-surface-variant max-w-xs leading-relaxed">Arquitectura cinemática de precisión suiza y telemetría articular para atletas ecuestres de élite.</p><div class="flex items-center gap-space-xs pt-space-xs"><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span><span class="font-label-sm text-label-sm uppercase tracking-[0.14em] text-secondary">Normativa FEI Bio-Kinetic Tier 1</span></div></div><div class="space-y-space-sm"><div class="font-label-sm text-label-sm uppercase tracking-[0.15em] text-on-surface-variant">Sistemas Telemétricos</div><ul class="space-y-space-xs font-body-sm text-body-sm text-on-surface"><li class="hover:text-secondary cursor-pointer transition-colors">Captura Sub-Milimétrica 3D</li><li class="hover:text-secondary cursor-pointer transition-colors">Vector de Balance Podológico</li><li class="hover:text-secondary cursor-pointer transition-colors">Tensor Flexor Profundo (SDFT)</li><li class="hover:text-secondary cursor-pointer transition-colors">Calibración Horológica Infrarroja</li></ul></div><div class="space-y-space-sm"><div class="font-label-sm text-label-sm uppercase tracking-[0.15em] text-on-surface-variant">Institucional &amp; Comité</div><ul class="space-y-space-xs font-body-sm text-body-sm text-on-surface"><li class="hover:text-secondary cursor-pointer transition-colors">Protocolos Clínicos Zúrich</li><li class="hover:text-secondary cursor-pointer transition-colors">Validación Veterinaria FEI</li><li class="hover:text-secondary cursor-pointer transition-colors">Dossiers de Investigación</li><li class="hover:text-secondary cursor-pointer transition-colors">Gobernanza de Datos Biométricos</li></ul></div><div class="space-y-space-md"><div class="font-label-sm text-label-sm uppercase tracking-[0.15em] text-on-surface-variant">Estado del Servidor Clínico</div><div class="p-space-md rounded bg-surface border border-surface-container-highest space-y-space-xs"><div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-on-surface-variant">LATENCIA TELEMETRÍA</span><span class="font-label-sm text-label-sm text-primary font-medium">1.4 ms</span></div><div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-on-surface-variant">SYNCHRONISATION</span><span class="font-label-sm text-label-sm text-primary font-medium">UTC+01:00 ZRH</span></div><div class="flex items-center justify-between pt-space-xs border-t border-surface-container-highest"><span class="font-label-sm text-label-sm text-on-surface-variant">CANAL</span><span class="font-label-sm text-label-sm text-secondary font-medium uppercase">Cifrado AES-256</span></div></div></div></div><div class="pt-space-lg border-t border-surface-container-highest flex flex-col sm:flex-row items-center justify-between gap-space-md"><div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-[0.1em]">© 2025 HorseVision Technologies AG. Alle Rechte vorbehalten. Zürich, Schweiz.</div><div class="flex items-center gap-space-lg font-label-sm text-label-sm text-on-surface-variant uppercase tracking-[0.1em]"><span class="hover:text-primary transition-colors cursor-pointer">Privacidad Médica</span><span class="hover:text-primary transition-colors cursor-pointer">Términos de Licencia</span><span class="hover:text-primary transition-colors cursor-pointer">Certificación Horológica</span></div></div></div></footer></body></html>
