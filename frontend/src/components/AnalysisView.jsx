@@ -375,18 +375,18 @@ export default function AnalysisView({ analysisData, horse, onViewReport }) {
 
     const srcW = Math.max(resW, 1);
     const srcH = Math.max(resH, 1);
-    const targetAspect = 4 / 3;
+    const isPortrait = srcW < srcH;
+    const targetAspect = isPortrait ? (srcW / srcH) : (4 / 3);
 
-    // Constant athletic 4:3 crop dimensions computed in pixel space and normalized
-    let swPx = Math.max(medBw * srcW * 1.42, medBh * srcH * 1.38 * targetAspect);
-    let shPx = swPx / targetAspect;
-    if (swPx > srcW) {
-      swPx = srcW;
-      shPx = swPx / targetAspect;
-    }
-    if (shPx > srcH) {
-      shPx = srcH;
-      swPx = shPx * targetAspect;
+    // Constant athletic crop dimensions computed in pixel space and normalized
+    let swPx;
+    let shPx;
+    if (isPortrait) {
+      shPx = Math.min(srcH, Math.max(medBh * srcH * 1.25, (medBw * srcW * 1.25) / targetAspect));
+      swPx = Math.min(srcW, shPx * targetAspect);
+    } else {
+      swPx = Math.min(srcW, Math.max(medBw * srcW * 1.35, medBh * srcH * 1.25 * targetAspect));
+      shPx = Math.min(srcH, swPx / targetAspect);
     }
     const nw = swPx / srcW;
     const nh = shPx / srcH;
@@ -829,11 +829,15 @@ export default function AnalysisView({ analysisData, horse, onViewReport }) {
 
   const fallbackAspect = resW / Math.max(resH, 1);
   const effAspect = videoAspect || fallbackAspect;
+  const isPortrait = effAspect < 0.95;
   const containerAspectStyle = autoCrop
-    ? { aspectRatio: '4 / 3' }
+    ? {
+        aspectRatio: isPortrait ? `${Math.max(effAspect, 0.56)}` : '4 / 3',
+        maxHeight: isPortrait ? '54vh' : '42vh',
+      }
     : {
         aspectRatio: `${effAspect}`,
-        maxHeight: effAspect < 0.95 ? '52vh' : '42vh',
+        maxHeight: isPortrait ? '52vh' : '42vh',
       };
 
   const waveCursorX = miniWave

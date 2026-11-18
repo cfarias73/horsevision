@@ -67,14 +67,15 @@ export default function HorseEvolutionChart({
     if (!horseSessions.length) return null;
 
     const values = horseSessions.map((s) => (isScore ? s.scoreVal : s.asymVal));
-    const minVal = isScore ? 50 : 0;
+    const minVal = isScore ? 0 : 0;
     const maxVal = isScore ? 100 : Math.max(20, ...values) + 2;
 
     const points = horseSessions.map((s, i) => {
-      const val = isScore ? s.scoreVal : s.asymVal;
+      const rawVal = typeof (isScore ? s.scoreVal : s.asymVal) === 'number' ? (isScore ? s.scoreVal : s.asymVal) : 0;
+      const val = Math.max(minVal, Math.min(maxVal, rawVal));
       const x = paddingX + (i / Math.max(1, horseSessions.length - 1)) * (width - paddingX * 2);
-      const y = height - paddingBottom - ((val - minVal) / (maxVal - minVal)) * (height - paddingTop - paddingBottom);
-      return { x, y, val, session: s, date: s.date || s.fullDate };
+      const y = height - paddingBottom - ((val - minVal) / Math.max(1, maxVal - minVal)) * (height - paddingTop - paddingBottom);
+      return { x, y, val: rawVal, session: s, date: s.date || s.fullDate };
     });
 
     const pathD = points.reduce((acc, p, i) => `${acc} ${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)},${p.y.toFixed(1)}`, '');
