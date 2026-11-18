@@ -7,6 +7,22 @@ import {
   Stethoscope,
 } from 'lucide-react';
 
+function renderFormattedContent(text) {
+  if (!text) return null;
+  const cleaned = String(text).replace(/^#{1,4}\s+/gm, '');
+  const parts = cleaned.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, idx) => {
+    if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
+      return (
+        <strong key={idx} className="font-bold">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    return <React.Fragment key={idx}>{part}</React.Fragment>;
+  });
+}
+
 /**
  * VetChatModal:
  * RealHorse "Chat with Our Expert" killer feature:
@@ -141,7 +157,7 @@ export default function VetChatModal({ isOpen, onClose, analysisData, horseName 
                       : 'card-3d text-slate-800 dark:text-zinc-200 border-slate-200 dark:border-[#2D2D35] rounded-tl-none whitespace-pre-line'
                   }`}
                 >
-                  {msg.content}
+                  {isUser ? msg.content : renderFormattedContent(msg.content)}
                 </div>
               </div>
             );

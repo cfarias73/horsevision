@@ -269,7 +269,18 @@ function generateOfficialPdf(report, analysisData) {
  * AI Clinical Report & Rehabilitation Plan Card (DeepSeek V3 Powered)
  */
 export default function AIClinicalReport({ analysisData }) {
-  const [report, setReport] = useState(null);
+  const reportCacheKey = `hv_ai_report_${analysisData?.metadata?.horse_name || 'default'}`;
+
+  const [report, setReport] = useState(() => {
+    if (analysisData?._cached_ai_report) return analysisData._cached_ai_report;
+    try {
+      const saved = localStorage.getItem(reportCacheKey);
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // ignore
+    }
+    return null;
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('resumen');
@@ -277,8 +288,8 @@ export default function AIClinicalReport({ analysisData }) {
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   // Custom horse details input
-  const [horseName, setHorseName] = useState('Dakota');
-  const [discipline, setDiscipline] = useState('Salto Clásico');
+  const [horseName, setHorseName] = useState(() => analysisData?.metadata?.horse_name || 'Dakota');
+  const [discipline, setDiscipline] = useState(() => analysisData?.metadata?.discipline || 'Salto Clásico');
   const [notes, setNotes] = useState('');
 
   const handleGenerateReport = async () => {
@@ -305,6 +316,14 @@ export default function AIClinicalReport({ analysisData }) {
 
       const data = await response.json();
       setReport(data);
+      if (analysisData) {
+        analysisData._cached_ai_report = data;
+      }
+      try {
+        localStorage.setItem(reportCacheKey, JSON.stringify(data));
+      } catch {
+        // ignore
+      }
       setIsFormOpen(false);
     } catch (err) {
       setError(err?.message || 'Error al generar informe con DeepSeek V3');
@@ -610,17 +629,10 @@ export default function AIClinicalReport({ analysisData }) {
             </div>
           )}
 
-          {/* Action Buttons: Chat & Download PDF */}
+          {/* Download PDF */}
           <div className="pt-2 flex flex-col gap-2">
             <button
-              onClick={() => setIsChatOpen(true)}
-              className="w-full card-3d-interactive border border-emerald-500/30 hover:border-emerald-500 text-slate-900 dark:text-white font-mono text-[12px] font-bold py-3 px-4 rounded-[18px] shadow-sm flex items-center justify-center gap-2 group transition active:scale-[0.98]"
-            >
-              <MessageSquare className="w-4 h-4 text-[#0D3F2E] dark:text-[#10B981] group-hover:scale-110 transition" />
-              <span>Consultor Biomecánico IA</span>
-            </button>
-
-            <button
+              type="button"
               onClick={handleDownloadPdf}
               className="w-full card-3d-racing-green text-white font-mono text-[12px] font-bold py-3 px-4 rounded-[18px] shadow-lg flex items-center justify-center gap-2 group transition active:scale-[0.98]"
             >
@@ -630,6 +642,16 @@ export default function AIClinicalReport({ analysisData }) {
           </div>
         </div>
       )}
+
+      {/* Always-visible AI Specialist Consultation Button */}
+      <button
+        type="button"
+        onClick={() => setIsChatOpen(true)}
+        className="w-full card-3d-interactive border border-emerald-500/30 hover:border-emerald-500 text-slate-900 dark:text-white font-mono text-[12px] font-bold py-3 px-4 rounded-[18px] shadow-sm flex items-center justify-center gap-2 group transition active:scale-[0.98]"
+      >
+        <MessageSquare className="w-4 h-4 text-[#0D3F2E] dark:text-[#10B981] group-hover:scale-110 transition" />
+        <span>Consultor Biomecánico IA</span>
+      </button>
 
       {/* RealHorse-style Instant Vet Chat Modal */}
       <VetChatModal

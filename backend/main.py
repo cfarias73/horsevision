@@ -41,6 +41,20 @@ ASSETS_DIR = BASE_DIR / "assets"
 UPLOADS_DIR = BASE_DIR / "uploads"
 MODELS_DIR = BASE_DIR / "models"
 
+
+def _load_env_file(path: Path):
+    if path.exists():
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    os.environ.setdefault(k.strip(), v.strip())
+
+
+_load_env_file(BASE_DIR / ".env")
+_load_env_file(BASE_DIR.parent / ".env")
+
 ASSETS_DIR.mkdir(parents=True, exist_ok=True)
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -339,7 +353,7 @@ async def analyze_video(
     raise HTTPException(status_code=400, detail="Debes enviar un archivo de video o un preset demo válido.")
 
 
-DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "").strip()
 DEEPSEEK_URL = "https://api.deepseek.com/chat/completions"
 
 
@@ -430,11 +444,14 @@ async def generate_ai_report(request: AIReportRequest) -> Dict[str, Any]:
     )
 
     try:
+        api_key = os.getenv("DEEPSEEK_API_KEY", DEEPSEEK_API_KEY).strip()
+        if not api_key:
+            raise HTTPException(status_code=503, detail="DEEPSEEK_API_KEY no configurada en el servidor.")
         async with httpx.AsyncClient(timeout=45.0) as client:
             resp = await client.post(
                 DEEPSEEK_URL,
                 headers={
-                    "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
+                    "Authorization": f"Bearer {api_key}",
                     "Content-Type": "application/json",
                 },
                 json={
@@ -486,8 +503,8 @@ class ChatMessage(BaseModel):
 class AIChatRequest(BaseModel):
     horse_name: Optional[str] = "Equino"
     discipline: Optional[str] = "Deporte Ecuestre"
-    symmetry_report: Dict[str, Any]
-    kinematics_summary: Dict[str, Any]
+    symmetry_report: Optional[Dict[str, Any]] = None
+    kinematics_summary: Optional[Dict[str, Any]] = None
     messages: List[ChatMessage]
 
 
@@ -495,28 +512,50 @@ class AIChatRequest(BaseModel):
 async def chat_with_vet_ai(request: AIChatRequest) -> Dict[str, Any]:
     """
     RealHorse 'Vet Chat' killer feature: Instant conversational consultation
-    with an AI Equine Sports Medicine Veterinarian contextualized with live
-    kinematic metrics, replacing the 24-hour human wait time.
+    with an AI Equine Sports Medicine Veterinarian, working either with live
+    kinematic metrics or as a standalone specialist advisor.
     """
-    sym = request.symmetry_report
-    kin = request.kinematics_summary
+    sym = request.symmetry_report or {}
+    kin = request.kinematics_summary or {}
+
+    if sym.get("global_score") is not None:
+        back_rom = kin.get("back_rom_deg") or 8.2
+        stride_len = kin.get("stride_length_m") or 2.38
+        cadence = kin.get("cadence_spm") or 84
+        context_block = (
+            f"EXPEDIENTE CINEMÁTICO REAL DEL CABALLO (medido por visión artificial 2D con cámara, sin sensores físicos):\n"
+            f"- Score Global: {sym.get('global_score', 0)}/100 ({sym.get('grade_label', 'N/A')})\n"
+            f"- Diagnóstico: {sym.get('clinical_decision', 'N/A')}\n"
+            f"- Impacto Anterior: {sym.get('fore_impact_asym_mm', 0)} mm | Impulso Anterior: {sym.get('fore_pushoff_asym_mm', 0)} mm\n"
+            f"- Impacto Posterior: {sym.get('hind_impact_asym_mm', 0)} mm | Impulso Posterior: {sym.get('hind_pushoff_asym_mm', 0)} mm\n"
+            f"- ROM Toracolumbar (Dorso): {back_rom}° (Normal: 7°-11°)\n"
+            f"- Zancada: {stride_len} m | Cadencia: {cadence} pasos/min\n\n"
+        )
+        guidelines_block = (
+            "1. Sé empático, claro, profesional y directo (máximo 2 a 3 párrafos cortos).\n"
+            f"2. Basa tus recomendaciones específicamente en sus métricas (ej: dorso de {back_rom}° o la asimetría medida). Ten presente que HorseVision analiza video 2D con la cámara del teléfono, nunca menciones sensores físicos ni acelerómetros.\n"
+            "3. Da pautas prácticas sobre manejo, ejercicios, herraje y cuándo llamar a su veterinario de cabecera si hay dolor agudo.\n"
+            "4. Responde siempre en español y en texto limpio, sin usar encabezados ### ni abuso de símbolos markdown."
+        )
+    else:
+        context_block = (
+            "MODO DE CONSULTA GENERAL PREVENTIVA (sin video reciente adjunto; HorseVision evalúa trote mediante visión artificial 2D con cámara, sin sensores físicos):\n"
+            "El propietario o entrenador desea asesoría experta sobre entrenamiento, biomecánica, prevención de lesiones, herraje o manejo diario.\n\n"
+        )
+        guidelines_block = (
+            "1. Sé empático, claro, práctico y profesional (máximo 2 a 3 párrafos cortos).\n"
+            "2. Responde consultas sobre entrenamiento, cuidado, calentamiento, herraje, biomecánica preventiva y bienestar equino.\n"
+            "3. Recomienda cuándo es conveniente grabar un trote de 20 segundos en línea recta o círculo a la cuerda con la cámara de HorseVision o consultar a su veterinario presencial ante señales de dolor.\n"
+            "4. Responde siempre en español y en texto limpio, sin usar encabezados ### ni abuso de símbolos markdown."
+        )
 
     system_prompt = (
         f"Eres el Dr. Especialista Veterinario Senior de HorseVision (Diplomate ACVSMR en Biomecánica Equina). "
         f"Estás en una sesión de consulta interactiva (Vet Chat) con el dueño o entrenador del caballo '{request.horse_name}' "
         f"(Disciplina: {request.discipline}).\n"
-        f"EXPEDIENTE CINEMÁTICO REAL DEL CABALLO:\n"
-        f"- Score Global: {sym.get('global_score', 0)}/100 ({sym.get('grade_label', 'N/A')})\n"
-        f"- Diagnóstico: {sym.get('clinical_decision', 'N/A')}\n"
-        f"- Impacto Anterior: {sym.get('fore_impact_asym_mm', 0)} mm | Impulso Anterior: {sym.get('fore_pushoff_asym_mm', 0)} mm\n"
-        f"- Impacto Posterior: {sym.get('hind_impact_asym_mm', 0)} mm | Impulso Posterior: {sym.get('hind_pushoff_asym_mm', 0)} mm\n"
-        f"- ROM Toracolumbar (Dorso): {kin.get('back_rom_deg', 0)}° (Normal: 7°-11°)\n"
-        f"- Zancada: {kin.get('stride_length_m', 0)} m | Cadencia: {kin.get('cadence_spm', 0)} pasos/min\n\n"
+        f"{context_block}"
         f"PAUTAS DE RESPUESTA:\n"
-        f"1. Sé empático, claro, profesional y directo (máximo 2 a 3 párrafos cortos).\n"
-        f"2. Basa tus recomendaciones específicamente en sus métricas (ej: dorso rígido de {kin.get('back_rom_deg', 0)}° o la asimetría posterior).\n"
-        f"3. Da pautas prácticas sobre manejo, ejercicios, herraje y cuándo llamar a su veterinario de cabecera si hay dolor agudo.\n"
-        f"4. Responde siempre en español."
+        f"{guidelines_block}"
     )
 
     deepseek_messages = [{"role": "system", "content": system_prompt}]
@@ -524,11 +563,14 @@ async def chat_with_vet_ai(request: AIChatRequest) -> Dict[str, Any]:
         deepseek_messages.append({"role": msg.role, "content": msg.content})
 
     try:
+        api_key = os.getenv("DEEPSEEK_API_KEY", DEEPSEEK_API_KEY).strip()
+        if not api_key:
+            raise HTTPException(status_code=503, detail="DEEPSEEK_API_KEY no configurada en el servidor.")
         async with httpx.AsyncClient(timeout=35.0) as client:
             resp = await client.post(
                 DEEPSEEK_URL,
                 headers={
-                    "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
+                    "Authorization": f"Bearer {api_key}",
                     "Content-Type": "application/json",
                 },
                 json={
@@ -553,18 +595,6 @@ async def chat_with_vet_ai(request: AIChatRequest) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 # PayPal Paywall & Subscriptions Integration
 # ---------------------------------------------------------------------------
-def _load_env_file(path: Path):
-    if path.exists():
-        with open(path, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith("#") and "=" in line:
-                    k, v = line.split("=", 1)
-                    os.environ.setdefault(k.strip(), v.strip())
-
-_load_env_file(BASE_DIR / ".env")
-_load_env_file(BASE_DIR.parent / ".env")
-
 PAYPAL_CLIENT_ID = os.getenv(
     "PAYPAL_CLIENT_ID",
     "BAANE3LHKnrMKf-jZ-ez5-Xkoi3dhx19UkuhHfyj6c5uWRy1lb3B5FiOt1NBUej1AatHi1xHGVjeQAZ2ag",
@@ -585,11 +615,11 @@ PLAN_CONFIG = {
         "description": "7 días de prueba gratis. Luego cobro de $6.99/mes.",
     },
     "3-horses": {
-        "name": "HorseVision · Plan 3 Caballos",
+        "name": "HorseVision · Plan Hasta 5 Caballos",
         "monthly_price": 15.99,
         "yearly_price": 149.00,
         "trial_days": 0,
-        "description": "Acceso hasta 3 caballos. Cobro inmediato de $15.99/mes.",
+        "description": "Acceso hasta 5 caballos. Cobro inmediato de $15.99/mes.",
     },
     "50-horses": {
         "name": "HorseVision · Plan Hasta 50 Caballos",

@@ -12,13 +12,16 @@ import {
   ChevronRight,
   TrendingUp,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Crown
 } from 'lucide-react';
 import HorseEvolutionChart from './HorseEvolutionChart';
 
 export default function HorsesView({
   horses,
   sessions = [],
+  maxHorses = 1,
+  onOpenPricing,
   onOpenNewHorseModal,
   onOpenEditHorseModal,
   onSelectHorseForEvaluation,
@@ -29,6 +32,9 @@ export default function HorsesView({
   const [expandedEvolutionHorseId, setExpandedEvolutionHorseId] = useState(null);
 
   const disciplines = ['Todos', 'Salto Clásico', 'Doma Clásica', 'Carrera', 'Polo'];
+
+  const isQuotaReached = horses.length >= maxHorses;
+  const quotaPct = Math.min(100, Math.round((horses.length / Math.max(1, maxHorses)) * 100));
 
   const filteredHorses = horses.filter((horse) => {
     const matchesSearch = horse.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -43,25 +49,58 @@ export default function HorsesView({
 
   return (
     <div className="flex flex-col gap-3.5 pt-1 view-enter">
-      {/* Top Header Card */}
-      <div className="rounded-[24px] card-3d p-4 flex items-center justify-between shadow-sm">
-        <div>
-          <h2 className="font-mono text-[16px] font-extrabold text-slate-900 dark:text-white">
-            Cuadra de Ejemplares
-          </h2>
-          <p className="text-[11px] text-slate-500 dark:text-zinc-400">
-            {horses.length} caballos registrados
-          </p>
+      {/* Top Header Card + Quota Bar */}
+      <div className="rounded-[24px] card-3d p-4 flex flex-col gap-3 shadow-sm">
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <h2 className="font-mono text-[16px] font-extrabold text-slate-900 dark:text-white truncate">
+              Cuadra de Ejemplares
+            </h2>
+            <p className="text-[11px] font-mono text-slate-500 dark:text-zinc-400">
+              {horses.length} de {maxHorses} {maxHorses === 1 ? 'caballo registrado' : 'caballos registrados'}
+            </p>
+          </div>
+
+          {isQuotaReached ? (
+            <button
+              type="button"
+              onClick={onOpenPricing}
+              className="min-h-[42px] px-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-mono text-[11px] font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition shrink-0"
+            >
+              <Crown className="w-3.5 h-3.5" />
+              <span>Ampliar Plan</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={onOpenNewHorseModal}
+              className="min-h-[42px] px-3.5 rounded-xl card-3d-racing-green text-white font-mono text-[12px] font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Registrar</span>
+            </button>
+          )}
         </div>
 
-        <button
-          type="button"
-          onClick={onOpenNewHorseModal}
-          className="min-h-[42px] px-3.5 rounded-xl card-3d-racing-green text-white font-mono text-[12px] font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Registrar</span>
-        </button>
+        {/* Quota Progress Track */}
+        <div className="w-full h-1.5 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
+          <div
+            className={`h-full transition-all duration-500 ${
+              isQuotaReached ? 'bg-amber-500' : 'bg-emerald-500'
+            }`}
+            style={{ width: `${quotaPct}%` }}
+          />
+        </div>
+
+        {/* Quota Reached Alert Banner */}
+        {isQuotaReached && (
+          <div className="rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40 p-2.5 flex items-start gap-2 text-[11px] text-amber-900 dark:text-amber-200 leading-snug">
+            <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <span>
+              Alcanzaste el límite de <strong>{maxHorses}</strong> {maxHorses === 1 ? 'ejemplar' : 'ejemplares'} de tu plan. Puedes editar la ficha de tu caballo actual o ampliar tu plan a <strong>5</strong> o <strong>50</strong> caballos.
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Search Input */}

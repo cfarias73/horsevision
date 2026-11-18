@@ -9,6 +9,9 @@ import {
   Crown,
   Sun,
   Moon,
+  Bot,
+  Menu,
+  X,
 } from 'lucide-react';
 import PricingModal from './PricingModal';
 
@@ -17,8 +20,8 @@ import PricingModal from './PricingModal';
  * - Centered 430px device bezel on desktop, full-bleed 100dvh on mobile
  * - Light Mode by default (#F8FAFC luxury porcelain) with British Racing Green (#0D3F2E)
  * - Dark Mode switchable (☀️ / 🌙) with persistent preference
- * - Native iOS status bar, header controls, optional sub-view switcher,
- *   and bottom navigation bar (Home, Análisis, Historial, Perfil).
+ * - Native iOS status bar, header controls with Hamburger Menu, optional sub-view switcher,
+ *   and 4-tab bottom navigation bar (Home, Análisis, Cuadra, Agente IA).
  */
 const NativeShell = React.memo(function NativeShell({
   activeNav,
@@ -33,9 +36,11 @@ const NativeShell = React.memo(function NativeShell({
   isPricingOpen,
   onOpenPricing,
   onClosePricing,
+  onPlanActivated,
   hideBottomNav = false,
 }) {
   const [internalPricing, setInternalPricing] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pricingOpen = isPricingOpen !== undefined ? isPricingOpen : internalPricing;
   const handleOpenPricing = onOpenPricing || (() => setInternalPricing(true));
   const handleClosePricing = onClosePricing || (() => setInternalPricing(false));
@@ -124,7 +129,7 @@ const NativeShell = React.memo(function NativeShell({
         </div>
 
         {/* Native Top App Navigation Bar */}
-        <header className="px-4 pt-1 pb-2.5 flex items-center justify-between gap-2 shrink-0">
+        <header className="relative z-40 px-4 pt-1 pb-2.5 flex items-center justify-between gap-2 shrink-0">
           {showBack ? (
             <button
               type="button"
@@ -164,51 +169,136 @@ const NativeShell = React.memo(function NativeShell({
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">
-            {/* Theme Toggle Button (Light/Dark) */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-              title={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-              className="w-9 h-9 rounded-full card-3d-interactive flex items-center justify-center text-slate-700 dark:text-zinc-300 active:scale-90 transition-all shadow-sm"
-            >
-              {isDark ? (
-                <Sun className="w-4 h-4 text-amber-400" />
-              ) : (
-                <Moon className="w-4 h-4 text-[#0D3F2E]" />
-              )}
-            </button>
-
-            {!hideBottomNav && (
-              <>
-                {/* Subscription & Free Trial Button */}
-                <button
-                  type="button"
-                  onClick={handleOpenPricing}
-                  title="Planes de suscripción"
-                  className={`h-9 px-2.5 rounded-full card-3d-interactive border ${
-                    isDark
-                      ? 'border-amber-500/40 text-amber-300'
-                      : 'border-amber-600/40 bg-amber-50 text-amber-900'
-                  } font-mono text-[10px] font-extrabold flex items-center gap-1 shadow-sm active:scale-90 transition-all`}
-                >
-                  <Crown className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                  <span className="hidden xs:inline">Planes</span>
-                </button>
-
-                {/* Reset Session Button */}
-                <button
-                  type="button"
-                  onClick={onReset}
-                  aria-label="Reiniciar sesión"
-                  title="Reiniciar aplicación"
-                  className="w-9 h-9 rounded-full card-3d-interactive flex items-center justify-center text-slate-600 dark:text-zinc-300 active:scale-90 transition-all shadow-md shrink-0"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                </button>
-              </>
+            {hideBottomNav ? (
+              /* Theme Toggle on Auth Screen */
+              <button
+                type="button"
+                onClick={toggleTheme}
+                aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+                title={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+                className="w-9 h-9 rounded-full card-3d-interactive flex items-center justify-center text-slate-700 dark:text-zinc-300 active:scale-90 transition-all shadow-sm"
+              >
+                {isDark ? (
+                  <Sun className="w-4 h-4 text-amber-400" />
+                ) : (
+                  <Moon className="w-4 h-4 text-[#0D3F2E]" />
+                )}
+              </button>
+            ) : (
+              /* Single Hamburger Menu Button */
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen((v) => !v)}
+                aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+                aria-expanded={isMenuOpen}
+                className="w-10 h-10 rounded-full card-3d-interactive flex items-center justify-center text-slate-700 dark:text-zinc-200 active:scale-90 transition-all shadow-sm"
+              >
+                {isMenuOpen ? (
+                  <X className="w-5 h-5" />
+                ) : (
+                  <Menu className="w-5 h-5" />
+                )}
+              </button>
             )}
           </div>
+
+          {/* Floating Hamburger Drawer Menu */}
+          {isMenuOpen && !hideBottomNav && (
+            <>
+              <div
+                className="fixed inset-0 z-30 bg-black/25 backdrop-blur-[1px]"
+                onClick={() => setIsMenuOpen(false)}
+                aria-hidden="true"
+              />
+              <div
+                role="menu"
+                className="absolute top-full right-4 mt-1.5 z-50 w-64 rounded-[22px] card-3d p-2 shadow-2xl border border-slate-200 dark:border-[#2D2D35] view-enter flex flex-col divide-y divide-slate-100 dark:divide-white/10 font-mono text-[12px]"
+              >
+                <div className="flex flex-col gap-0.5 pb-1">
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      onSelectNav('historial');
+                      setIsMenuOpen(false);
+                    }}
+                    className={`w-full px-3 py-2.5 rounded-xl flex items-center gap-2.5 text-left transition ${
+                      activeNav === 'historial'
+                        ? 'bg-[#0D3F2E]/10 dark:bg-emerald-500/15 text-[#0D3F2E] dark:text-emerald-300 font-bold'
+                        : 'text-slate-700 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    <History className="w-4 h-4 shrink-0" />
+                    <span>Historial de Evaluaciones</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      onSelectNav('perfil');
+                      setIsMenuOpen(false);
+                    }}
+                    className={`w-full px-3 py-2.5 rounded-xl flex items-center gap-2.5 text-left transition ${
+                      activeNav === 'perfil'
+                        ? 'bg-[#0D3F2E]/10 dark:bg-emerald-500/15 text-[#0D3F2E] dark:text-emerald-300 font-bold'
+                        : 'text-slate-700 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    <User className="w-4 h-4 shrink-0" />
+                    <span>Mi Perfil y Cuenta</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      handleOpenPricing();
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full px-3 py-2.5 rounded-xl flex items-center gap-2.5 text-left text-amber-700 dark:text-amber-300 font-bold hover:bg-amber-50 dark:hover:bg-amber-950/30 transition"
+                  >
+                    <Crown className="w-4 h-4 text-amber-500 shrink-0" />
+                    <span>Planes y Suscripción</span>
+                  </button>
+                </div>
+
+                <div className="flex flex-col gap-0.5 pt-1">
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      toggleTheme();
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full px-3 py-2.5 rounded-xl flex items-center justify-between text-left text-slate-700 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-white/5 transition"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      {isDark ? (
+                        <Sun className="w-4 h-4 text-amber-400 shrink-0" />
+                      ) : (
+                        <Moon className="w-4 h-4 text-[#0D3F2E] shrink-0" />
+                      )}
+                      <span>{isDark ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'}</span>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      onReset?.();
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full px-3 py-2.5 rounded-xl flex items-center gap-2.5 text-left text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-white/5 transition"
+                  >
+                    <RotateCcw className="w-4 h-4 shrink-0" />
+                    <span>Nueva Evaluación / Reiniciar</span>
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </header>
 
         {/* Optional Analysis Sub-switcher (Only displayed in Análisis when video is active) */}
@@ -247,17 +337,17 @@ const NativeShell = React.memo(function NativeShell({
           {children}
         </main>
 
-        {/* Native Fixed Bottom Navigation Menu (Home, Análisis, Cuadra, Historial, Perfil) */}
+        {/* Native Fixed 4-Tab Bottom Navigation Menu (Home, Análisis, Cuadra, Agente IA) */}
         {!hideBottomNav && (
           <nav
             aria-label="Menú principal inferior"
-            className={`shrink-0 px-2 pt-2 pb-[max(10px,env(safe-area-inset-bottom))] ${
+            className={`shrink-0 px-3 pt-2 pb-[max(10px,env(safe-area-inset-bottom))] ${
               isDark
                 ? 'bg-[#0E0E12]/95 border-[#26262A] text-zinc-400'
                 : 'bg-white/95 border-slate-200 text-slate-500'
             } backdrop-blur-lg border-t flex flex-col z-30 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]`}
           >
-            <div className="grid grid-cols-5 gap-0.5">
+            <div className="grid grid-cols-4 gap-1">
               {[
                 { id: 'home', label: 'Home', icon: Home },
                 { id: 'analisis', label: 'Análisis', icon: Activity },
@@ -278,8 +368,7 @@ const NativeShell = React.memo(function NativeShell({
                     </svg>
                   ),
                 },
-                { id: 'historial', label: 'Historial', icon: History },
-                { id: 'perfil', label: 'Perfil', icon: User },
+                { id: 'ia', label: 'Agente IA', icon: Bot },
               ].map((item) => {
                 const Icon = item.icon;
                 const active = activeNav === item.id;
@@ -288,7 +377,7 @@ const NativeShell = React.memo(function NativeShell({
                     key={item.id}
                     type="button"
                     onClick={() => onSelectNav(item.id)}
-                    className={`flex flex-col items-center justify-center py-1 px-0.5 rounded-2xl transition-all duration-200 active:scale-95 ${
+                    className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all duration-200 active:scale-95 ${
                       active
                         ? 'text-[#0D3F2E] dark:text-[#10B981] font-bold'
                         : 'text-slate-500 dark:text-zinc-500 hover:text-slate-900 dark:hover:text-zinc-200'
@@ -304,7 +393,7 @@ const NativeShell = React.memo(function NativeShell({
                         <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#0D3F2E] dark:bg-[#10B981]" />
                       )}
                     </div>
-                    <span className="text-[10px] font-mono mt-1 tracking-tight truncate">
+                    <span className="text-[10.5px] font-mono mt-1 tracking-tight truncate max-w-full">
                       {item.label}
                     </span>
                   </button>
@@ -323,10 +412,11 @@ const NativeShell = React.memo(function NativeShell({
           </nav>
         )}
 
-        {/* SaaS Pricing Modal with 3 Plans (1 horse, 3 horses, 50 horses) */}
+        {/* SaaS Pricing Modal with 3 Plans (1 horse, 5 horses, 50 horses) */}
         <PricingModal
           isOpen={pricingOpen}
           onClose={handleClosePricing}
+          onPlanActivated={onPlanActivated}
         />
       </div>
     </div>

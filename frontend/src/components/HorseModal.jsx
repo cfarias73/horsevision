@@ -5,7 +5,8 @@ import {
   Upload,
   Check,
   Sparkles,
-  Info
+  Info,
+  Trash2
 } from 'lucide-react';
 
 const DISCIPLINES = [
@@ -30,7 +31,7 @@ const BREEDS = [
   'Otro',
 ];
 
-export default function HorseModal({ isOpen, onClose, onSave, horseToEdit = null }) {
+export default function HorseModal({ isOpen, onClose, onSave, onDelete, horseToEdit = null }) {
   const fileInputRef = useRef(null);
 
   const [name, setName] = useState('');
@@ -286,6 +287,20 @@ export default function HorseModal({ isOpen, onClose, onSave, horseToEdit = null
             <Check className="w-4 h-4" />
             <span>{horseToEdit ? 'Guardar Cambios' : 'Registrar Ejemplar'}</span>
           </button>
+
+          {horseToEdit && onDelete && (
+            <button
+              type="button"
+              onClick={() => {
+                onDelete(horseToEdit.id);
+                onClose();
+              }}
+              className="w-full min-h-[42px] rounded-[14px] bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 text-red-600 dark:text-red-400 font-mono text-[12px] font-bold flex items-center justify-center gap-2 hover:bg-red-100 dark:hover:bg-red-950/50 active:scale-95 transition"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Eliminar ejemplar de la cuadra</span>
+            </button>
+          )}
         </form>
       </div>
     </div>

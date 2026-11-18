@@ -1,5 +1,5 @@
 // HorseVision PWA Service Worker
-const CACHE_NAME = 'horsevision-pwa-v1';
+const CACHE_NAME = 'horsevision-pwa-v3';
 const ASSETS_TO_CACHE = [
   '/app',
   '/manifest.json',

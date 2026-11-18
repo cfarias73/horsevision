@@ -13,6 +13,7 @@ import OnboardingFlow from './components/OnboardingFlow';
 import PWAInstallModal from './components/PWAInstallModal';
 import AuthModal from './components/AuthModal';
 import AuthScreen from './components/AuthScreen';
+import VetAdvisorView from './components/VetAdvisorView';
 import { supabase } from './lib/supabaseClient';
 import { Video, Activity } from 'lucide-react';
 
@@ -61,50 +62,14 @@ const PIPELINE_STEPS = [
   '4/4 · Motor ElectrifAi (Head Nod, Pelvic Hike/Drop, Índice SI %)...',
 ];
 
-const DEFAULT_HORSES = [
-  {
-    id: 'horse_1',
-    name: 'Dakota',
-    breed: 'Silla Francés',
-    discipline: 'Salto Clásico',
-    sex: 'Castrado',
-    age: 7,
-    height: 1.68,
-    haras: 'Haras San Francisco',
-    notes: 'Excelente respuesta en diagonales. Se recomienda control podal en mano derecha.',
-    photoUrl: 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?auto=format&fit=crop&w=500&q=80',
-    lastScore: 88,
-    lastEvaluated: '17 Nov 2024',
-  },
-  {
-    id: 'horse_2',
-    name: 'Tornado',
-    breed: 'Warmblood Holandés (KWPN)',
-    discipline: 'Doma Clásica',
-    sex: 'Macho',
-    age: 8,
-    height: 1.72,
-    haras: 'Haras San Francisco',
-    notes: 'Rigidez leve en posteriores. En trabajo de cavallettis y flexión lumbosacra.',
-    photoUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=500&q=80',
-    lastScore: 74,
-    lastEvaluated: '02 Nov 2024',
-  },
-  {
-    id: 'horse_3',
-    name: 'Eclipse',
-    breed: 'Pura Sangre (PSI)',
-    discipline: 'Carrera',
-    sex: 'Hembra',
-    age: 5,
-    height: 1.64,
-    haras: 'Haras San Francisco',
-    notes: 'Patrón de pisada altamente simétrico y amplio rango de protracción.',
-    photoUrl: 'https://images.unsplash.com/photo-1598974357801-cbca100e6571?auto=format&fit=crop&w=500&q=80',
-    lastScore: 92,
-    lastEvaluated: '18 Oct 2024',
-  },
-];
+const PLAN_LIMITS = {
+  '1-horse': 1,
+  '3-horses': 5,
+  '5-horses': 5,
+  '50-horses': 50,
+};
+
+const DEFAULT_HORSES = [];
 
 const SESSIONS_DATA = {
   'SES-9481': {
@@ -325,8 +290,18 @@ const INITIAL_SESSIONS = [
   },
 ];
 
-export default function App({ onBackToLanding }) {
-  const [showSplash, setShowSplash] = useState(true);
+export default function App({ onBackToLanding, initialAuthMode = 'signup', skipSplash = false }) {
+  const [showSplash, setShowSplash] = useState(() => {
+    if (skipSplash) return false;
+    try {
+      const hasSession = Object.keys(localStorage).some(
+        (k) => k.startsWith('sb-') && k.endsWith('-auth-token')
+      );
+      return hasSession;
+    } catch {
+      return false;
+    }
+  });
   const [activeNav, setActiveNav] = useState('home'); // 'home' | 'analisis' | 'cuadra' | 'historial' | 'perfil'
   const [subTab, setSubTab] = useState('report'); // 'report' (Resultados) | 'visor' (Visor de Video)
   const [selectedFile, setSelectedFile] = useState(null);
@@ -379,14 +354,10 @@ export default function App({ onBackToLanding }) {
     setIsAuthOpen(true);
   };
 
-  // Auto-check plan intent from Landing or PWA promo
+  // Auto-check PWA mobile prompt
   useEffect(() => {
     try {
-      const intentPlan = localStorage.getItem('hv_selected_plan_intent');
-      if (intentPlan) {
-        setIsPricingOpen(true);
-        localStorage.removeItem('hv_selected_plan_intent');
-      }
+      localStorage.removeItem('hv_selected_plan_intent');
 
       // Check PWA mobile prompt
       const isStandalone =
@@ -414,14 +385,7 @@ export default function App({ onBackToLanding }) {
       localStorage.setItem('hv_pwa_dismissed', 'true');
     } catch (e) {}
   };
-  const [showOnboarding, setShowOnboarding] = useState(() => {
-    try {
-      const completed = localStorage.getItem('hv_onboarding_completed');
-      return completed !== 'true';
-    } catch {
-      return false;
-    }
-  });
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Sessions History State (persisted in localStorage)
   const [sessions, setSessions] = useState(() => {
@@ -443,18 +407,40 @@ export default function App({ onBackToLanding }) {
     }
   };
 
-  // Horses Stable State (persisted in localStorage)
+  // Active SaaS Plan & Quota Business Rules (1, 5, 50 horses)
+  const [activePlanId, setActivePlanId] = useState(() => {
+    try {
+      return localStorage.getItem('hv_active_plan') || '1-horse';
+    } catch {
+      return '1-horse';
+    }
+  });
+  const maxHorses = PLAN_LIMITS[activePlanId] || 1;
+
+  // Horses Stable State (persisted in localStorage, filtering old demo fixtures & deduplicating by name)
   const [horses, setHorses] = useState(() => {
     try {
       const saved = localStorage.getItem('hv_horses');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const seenNames = new Set();
+          return parsed.filter((h) => {
+            if (!h || ['horse_1', 'horse_2', 'horse_3'].includes(h.id)) return false;
+            const normName = String(h.name || '').trim().toLowerCase();
+            if (!normName || seenNames.has(normName)) return false;
+            seenNames.add(normName);
+            return true;
+          });
+        }
+      }
     } catch {
       // fallback
     }
     return DEFAULT_HORSES;
   });
 
-  const [selectedHorse, setSelectedHorse] = useState(horses[0] || DEFAULT_HORSES[0]);
+  const [selectedHorse, setSelectedHorse] = useState(horses[0] || null);
   const [isHorseModalOpen, setIsHorseModalOpen] = useState(false);
   const [horseToEdit, setHorseToEdit] = useState(null);
 
@@ -469,15 +455,49 @@ export default function App({ onBackToLanding }) {
 
   const handleSaveHorse = (horseData) => {
     let updated;
-    const exists = horses.some((h) => h.id === horseData.id);
-    if (exists) {
+    const normalizedNewName = String(horseData.name || '').trim().toLowerCase();
+    const existsById = horses.some((h) => h.id === horseData.id);
+    const existingByName = normalizedNewName
+      ? horses.find((h) => String(h.name || '').trim().toLowerCase() === normalizedNewName)
+      : null;
+    const exists = existsById || Boolean(existingByName);
+
+    if (!exists && horses.length >= maxHorses) {
+      setIsHorseModalOpen(false);
+      setIsPricingOpen(true);
+      return;
+    }
+
+    let resolvedHorse = horseData;
+    if (existsById) {
       updated = horses.map((h) => (h.id === horseData.id ? horseData : h));
+    } else if (existingByName) {
+      resolvedHorse = { ...horseData, id: existingByName.id };
+      updated = horses.map((h) => (h.id === existingByName.id ? resolvedHorse : h));
     } else {
       updated = [horseData, ...horses];
     }
+
     saveHorsesToStorage(updated);
-    if (selectedHorse?.id === horseData.id) {
-      setSelectedHorse(horseData);
+    if (selectedHorse?.id === resolvedHorse.id || !selectedHorse) {
+      setSelectedHorse(resolvedHorse);
+    }
+  };
+
+  const handleDeleteHorse = (horseId) => {
+    const updated = horses.filter((h) => h.id !== horseId);
+    saveHorsesToStorage(updated);
+    if (selectedHorse?.id === horseId) {
+      setSelectedHorse(updated[0] || null);
+    }
+  };
+
+  const handleOpenNewHorseOrUpgrade = () => {
+    if (horses.length >= maxHorses) {
+      setIsPricingOpen(true);
+    } else {
+      setHorseToEdit(null);
+      setIsHorseModalOpen(true);
     }
   };
 
@@ -541,6 +561,12 @@ export default function App({ onBackToLanding }) {
       const asymMm = (data?.symmetry_report?.hind_impact_asym_mm ?? 3.5).toFixed(1) + ' mm';
       const newSessionId = `SES-${Date.now().toString().slice(-4)}`;
 
+      data.metadata = {
+        ...(data.metadata || {}),
+        horse_name: selectedHorse?.name || 'Equino',
+        discipline: selectedHorse?.discipline || 'Deporte Ecuestre',
+      };
+
       const newSession = {
         id: newSessionId,
         horse: selectedHorse?.name || 'Dakota',
@@ -553,6 +579,8 @@ export default function App({ onBackToLanding }) {
         stride: `${data?.kinematics_summary?.stride_length_normalized || 1.42}×`,
         asymmetryMm: asymMm,
         affectedLimb: data?.symmetry_report?.affected_limb || 'Ninguno',
+        symmetry_report: data.symmetry_report,
+        kinematics_summary: data.kinematics_summary,
       };
 
       saveSessionsToStorage([newSession, ...sessions]);
@@ -695,10 +723,12 @@ export default function App({ onBackToLanding }) {
       isPricingOpen={isPricingOpen}
       onOpenPricing={() => setIsPricingOpen(true)}
       onClosePricing={() => setIsPricingOpen(false)}
+      onPlanActivated={(planId) => setActivePlanId(planId)}
       hideBottomNav={!currentUser}
     >
       {!currentUser ? (
         <AuthScreen
+          initialMode={initialAuthMode}
           onAuthSuccess={(user) => {
             setCurrentUser(user);
           }}
@@ -713,8 +743,12 @@ export default function App({ onBackToLanding }) {
               selectedFile={selectedFile}
               onSelectFile={setSelectedFile}
               onAnalyzeFile={handleAnalyzeSelectedFile}
+              horses={horses}
               selectedHorse={selectedHorse}
-              onGoToCuadra={() => setActiveNav('cuadra')}
+              onSelectHorse={setSelectedHorse}
+              maxHorses={maxHorses}
+              onOpenNewHorseModal={handleOpenNewHorseOrUpgrade}
+              onOpenPricing={() => setIsPricingOpen(true)}
               onOpenCamera={() => setIsCameraOpen(true)}
               isAnalyzing={isAnalyzing}
               analysisStepLabel={PIPELINE_STEPS[stepIdx]}
@@ -768,11 +802,10 @@ export default function App({ onBackToLanding }) {
             <HorsesView
               horses={horses}
               sessions={sessions}
+              maxHorses={maxHorses}
+              onOpenPricing={() => setIsPricingOpen(true)}
               onSelectSession={handleSelectHistorySession}
-              onOpenNewHorseModal={() => {
-                setHorseToEdit(null);
-                setIsHorseModalOpen(true);
-              }}
+              onOpenNewHorseModal={handleOpenNewHorseOrUpgrade}
               onOpenEditHorseModal={(horse) => {
                 setHorseToEdit(horse);
                 setIsHorseModalOpen(true);
@@ -781,7 +814,18 @@ export default function App({ onBackToLanding }) {
             />
           )}
 
-          {/* 4. HISTORIAL TAB */}
+          {/* 4. AGENTE IA ESPECIALISTA TAB */}
+          {activeNav === 'ia' && (
+            <VetAdvisorView
+              horses={horses}
+              selectedHorse={selectedHorse}
+              onSelectHorse={setSelectedHorse}
+              analysisData={analysisData}
+              sessions={sessions}
+            />
+          )}
+
+          {/* 5. HISTORIAL TAB */}
           {activeNav === 'historial' && (
             <HistoryView
               sessions={sessions}
@@ -789,16 +833,16 @@ export default function App({ onBackToLanding }) {
             />
           )}
 
-          {/* 5. PERFIL TAB */}
+          {/* 6. PERFIL TAB */}
           {activeNav === 'perfil' && (
             <ProfileView
               user={currentUser}
+              activePlanId={activePlanId}
               onOpenAuth={handleOpenAuth}
               onSignOut={handleSignOut}
               horses={horses}
               onGoToCuadra={() => setActiveNav('cuadra')}
               onOpenPricing={() => setIsPricingOpen(true)}
-              onOpenOnboarding={() => setShowOnboarding(true)}
               onOpenInstallModal={() => setIsInstallModalOpen(true)}
               onBackToLanding={onBackToLanding}
             />
@@ -812,6 +856,7 @@ export default function App({ onBackToLanding }) {
         isOpen={isHorseModalOpen}
         onClose={() => setIsHorseModalOpen(false)}
         onSave={handleSaveHorse}
+        onDelete={handleDeleteHorse}
         horseToEdit={horseToEdit}
       />
 

@@ -46,6 +46,7 @@ export default function CameraRecorderModal({
   const [gaitMode, setGaitMode] = useState('straight'); // 'straight' | 'left_circle' | 'right_circle'
   const [torchOn, setTorchOn] = useState(false);
   const [tiltAngle, setTiltAngle] = useState(0);
+  const [showGuide, setShowGuide] = useState(true);
 
   // Check physical device orientation on mobile
   const checkPhysicalOrientation = useCallback(() => {
@@ -180,12 +181,12 @@ export default function CameraRecorderModal({
       }
     }
 
-    // Timer tick (Target: 8 - 12 seconds)
+    // Timer tick (Target: 20 seconds for complete gait sequence)
     timerIntervalRef.current = setInterval(() => {
       setRecordingSeconds((prev) => {
-        if (prev >= 15) {
+        if (prev >= 20) {
           handleStopRecording();
-          return 15;
+          return 20;
         }
         return prev + 1;
       });
@@ -270,9 +271,28 @@ export default function CameraRecorderModal({
               <h3 className="font-mono text-[20px] font-black tracking-tight text-white mb-2 leading-tight">
                 Gira tu Teléfono a Posición Horizontal
               </h3>
-              <p className="text-[13px] text-slate-300 leading-relaxed font-sans">
-                La biomecánica equina exige grabar en <strong>formato apaisado 16:9</strong> a 90° para registrar las <strong>3 zancadas completas</strong> del trote sin recortar al animal.
+              <p className="text-[12px] text-slate-300 leading-relaxed font-sans mb-3">
+                Sigue estas 4 reglas simples para un análisis preciso:
               </p>
+
+              <div className="w-full text-left bg-white/5 border border-white/15 rounded-2xl p-3.5 flex flex-col gap-2.5 text-[13px] sm:text-[14px] leading-snug font-sans text-slate-200">
+                <div className="flex items-start gap-2.5">
+                  <span>⏱️</span>
+                  <span><strong>Graba 20 segundos:</strong> Trote continuo para asegurar una secuencia limpia.</span>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <span>📏</span>
+                  <span><strong>A 8–10 metros (90°):</strong> De perfil lateral, viendo de orejas a cascos.</span>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <span>🐴</span>
+                  <span><strong>Sin jinete (Solo cuerda):</strong> Sin montura ni protectores, en piso firme.</span>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <span>📱</span>
+                  <span><strong>Círculo o Línea Recta:</strong> Teléfono en horizontal y estable.</span>
+                </div>
+              </div>
             </div>
 
             <div className="flex items-center gap-2 text-[11px] font-mono text-emerald-300 bg-black/40 px-3.5 py-1.5 rounded-full border border-emerald-500/30">
@@ -348,7 +368,7 @@ export default function CameraRecorderModal({
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-md border font-mono text-[12px] font-bold shadow-md transition-all ${
                   isRecording
                     ? 'bg-red-950/80 border-red-500/80 text-white'
-                    : recordingSeconds >= 8
+                    : recordingSeconds >= 15
                     ? 'bg-emerald-950/80 border-emerald-500/80 text-emerald-300'
                     : 'bg-black/60 border-white/20 text-white'
                 }`}
@@ -359,16 +379,28 @@ export default function CameraRecorderModal({
                   }`}
                 />
                 <span>
-                  {isRecording ? `REC 00:${String(recordingSeconds).padStart(2, '0')}` : '16:9 • 8s–12s'}
+                  {isRecording
+                    ? `REC 00:${String(recordingSeconds).padStart(2, '0')} / 00:20`
+                    : '16:9 • 20 Segundos'}
                 </span>
-                {recordingSeconds >= 8 && (
+                {recordingSeconds >= 15 && (
                   <span className="text-[10px] text-emerald-300 font-bold">✓ Óptimo</span>
                 )}
               </div>
             </div>
 
-            {/* Horizon Level Guide & Orientation Switcher for testing */}
+            {/* Horizon Level Guide, Guide Toggle & Orientation Switcher */}
             <div className="flex items-center gap-2">
+              {!isRecording && !showGuide && (
+                <button
+                  type="button"
+                  onClick={() => setShowGuide(true)}
+                  className="px-2.5 py-1 rounded-full bg-black/65 border border-emerald-400/50 text-emerald-300 font-mono text-[10px] font-bold backdrop-blur-md hover:bg-black/80 transition"
+                >
+                  📋 Ver Guía
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={() => setIsLandscape(false)}
@@ -408,11 +440,44 @@ export default function CameraRecorderModal({
               style={{ transform: `rotate(${tiltAngle}deg)` }}
             />
 
-            {/* Horse Positioning Instruction Overlay */}
-            {!isRecording && (
-              <div className="absolute bottom-4 px-4 py-1.5 rounded-full bg-black/65 backdrop-blur-md border border-white/20 text-white font-mono text-[11px] font-semibold flex items-center gap-2 shadow-lg">
-                <Sparkles className="w-3.5 h-3.5 text-[#00F0FF]" />
-                <span>Encuadra el trote lateral completo a 90°</span>
+            {/* Large, High-Contrast Recording Instructions HUD (keeps right controls free) */}
+            {!isRecording && showGuide && (
+              <div className="absolute bottom-3 left-3 sm:left-5 max-w-[calc(100%-130px)] sm:max-w-xl pointer-events-auto bg-black/80 backdrop-blur-md border-2 border-emerald-400/50 rounded-2xl p-3.5 sm:p-4 text-white shadow-2xl z-10">
+                <div className="flex items-center justify-between gap-3 mb-2.5">
+                  <div className="flex items-center gap-2 font-mono text-[13px] sm:text-[15px] font-extrabold text-[#EBFF00] uppercase tracking-wide">
+                    <span>📋 INSTRUCCIONES DE GRABACIÓN</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowGuide(false)}
+                    className="px-2.5 py-1 rounded-lg bg-white/15 hover:bg-white/25 text-white font-mono text-[11px] font-bold transition shrink-0"
+                  >
+                    Ocultar ✕
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[12px] sm:text-[14px] leading-snug font-medium">
+                  <div className="bg-white/10 rounded-xl px-3 py-2 border border-white/15">
+                    <strong className="text-[#EBFF00]">⏱️ Graba 20 segundos:</strong> Trote continuo para asegurar una secuencia limpia.
+                  </div>
+                  <div className="bg-white/10 rounded-xl px-3 py-2 border border-white/15">
+                    <strong className="text-[#00F0FF]">📏 A 8–10 metros (90°):</strong> De perfil lateral; cuerpo y cascos completos.
+                  </div>
+                  <div className="bg-white/10 rounded-xl px-3 py-2 border border-white/15">
+                    <strong className="text-emerald-300">🐴 Sin jinete (Solo cuerda):</strong> Sin montura ni protectores, en piso firme.
+                  </div>
+                  <div className="bg-white/10 rounded-xl px-3 py-2 border border-white/15">
+                    <strong className="text-emerald-300">📱 Círculo o Línea Recta:</strong> Mantén el teléfono horizontal y estable.
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Live Recording Reminder Bar */}
+            {isRecording && (
+              <div className="absolute bottom-3 left-3 sm:left-1/2 sm:-translate-x-1/2 max-w-[calc(100%-130px)] sm:max-w-2xl px-4 py-2 rounded-2xl sm:rounded-full bg-red-950/90 backdrop-blur-md border border-red-400/60 text-white font-mono text-[12px] sm:text-[14px] font-bold flex items-center gap-2.5 shadow-xl">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-400 animate-ping shrink-0" />
+                <span>Grabando trote (20 seg) · Mantén el cuerpo y cascos completos en pantalla</span>
               </div>
             )}
           </div>

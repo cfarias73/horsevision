@@ -9,19 +9,37 @@ import {
   Lock,
   ArrowRight,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  CreditCard
 } from 'lucide-react';
 
 const PAYPAL_CLIENT_ID = 'BAANE3LHKnrMKf-jZ-ez5-Xkoi3dhx19UkuhHfyj6c5uWRy1lb3B5FiOt1NBUej1AatHi1xHGVjeQAZ2ag';
 
-export default function PricingModal({ isOpen, onClose }) {
+export default function PricingModal({ isOpen, onClose, onPlanActivated }) {
   const [billingCycle, setBillingCycle] = useState('monthly'); // 'monthly' | 'yearly'
-  const [selectedPlan, setSelectedPlan] = useState('1-horse'); // default to 1-horse to highlight the 7-day trial
+  const [selectedPlan, setSelectedPlan] = useState('1-horse'); // default to 1-horse
   const [sdkReady, setSdkReady] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [successInfo, setSuccessInfo] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const paypalContainerRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setSuccessInfo(null);
+    setErrorMessage('');
+    try {
+      const isTrial = localStorage.getItem('hv_trial_active') === 'true';
+      const activePlan = localStorage.getItem('hv_active_plan');
+      if (isTrial || activePlan === '1-horse') {
+        setSelectedPlan('3-horses');
+      } else if (activePlan && ['1-horse', '3-horses', '50-horses'].includes(activePlan)) {
+        setSelectedPlan(activePlan);
+      }
+    } catch {
+      // ignore
+    }
+  }, [isOpen]);
 
   const plans = [
     {
@@ -48,19 +66,19 @@ export default function PricingModal({ isOpen, onClose }) {
     },
     {
       id: '3-horses',
-      name: '3 Caballos',
+      name: 'Hasta 5 Caballos',
       target: 'Jinetes, criadores y entrenadores',
       priceMonthly: '15,99',
       priceYearlyPerMonth: '12,79',
       yearlyBilled: '149',
-      horseLimit: 'Hasta 3 Caballos',
+      horseLimit: 'Hasta 5 Caballos',
       badge: 'Más Popular',
       badgeClass: 'card-3d-racing-green text-white shadow-sm',
       hasTrial: false,
       trialText: 'Cobro inmediato · Sin período de prueba',
       features: [
         '⚡ Cobro directo sin período de prueba',
-        'Hasta 3 caballos registrados en cuadra',
+        'Hasta 5 caballos registrados en cuadra',
         'Informe clínico veterinario con IA (DeepSeek V3)',
         'Acceso para 2 usuarios (dueño + jinete)',
         'Descarga de Informes Oficiales en PDF',
@@ -179,6 +197,9 @@ export default function PricingModal({ isOpen, onClose }) {
               // Save local active state
               localStorage.setItem('hv_active_plan', selectedPlan);
               localStorage.setItem('hv_subscription_active', 'true');
+              if (selectedPlan !== '1-horse') {
+                localStorage.removeItem('hv_trial_active');
+              }
               localStorage.setItem(
                 'hv_subscription_details',
                 JSON.stringify({
@@ -188,6 +209,8 @@ export default function PricingModal({ isOpen, onClose }) {
                   date: new Date().toISOString(),
                 })
               );
+
+              onPlanActivated?.(selectedPlan);
 
               setSuccessInfo({
                 planName: currentPlanObj.name,
@@ -214,7 +237,31 @@ export default function PricingModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  // Fallback direct activation for demo / testing
+  // Start free trial directly ($0 charged today) and enter the app immediately
+  const handleStartTrial = () => {
+    setIsProcessing(true);
+    try {
+      localStorage.setItem('hv_active_plan', '1-horse');
+      localStorage.setItem('hv_trial_active', 'true');
+      localStorage.setItem('hv_subscription_active', 'true');
+      localStorage.setItem(
+        'hv_subscription_details',
+        JSON.stringify({
+          planId: '1-horse',
+          trialActive: true,
+          trialDays: 7,
+          startDate: new Date().toISOString(),
+          expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        })
+      );
+      onPlanActivated?.('1-horse');
+      onClose?.();
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Direct activation for paid plans fallback
   const handleDirectActivation = async () => {
     setIsProcessing(true);
     setErrorMessage('');
@@ -231,6 +278,9 @@ export default function PricingModal({ isOpen, onClose }) {
       
       localStorage.setItem('hv_active_plan', selectedPlan);
       localStorage.setItem('hv_subscription_active', 'true');
+      if (selectedPlan !== '1-horse') {
+        localStorage.removeItem('hv_trial_active');
+      }
       localStorage.setItem(
         'hv_subscription_details',
         JSON.stringify({
@@ -241,6 +291,8 @@ export default function PricingModal({ isOpen, onClose }) {
         })
       );
 
+      onPlanActivated?.(selectedPlan);
+
       setSuccessInfo({
         planName: currentPlanObj.name,
         hasTrial: currentPlanObj.hasTrial,
@@ -249,6 +301,10 @@ export default function PricingModal({ isOpen, onClose }) {
     } catch {
       localStorage.setItem('hv_active_plan', selectedPlan);
       localStorage.setItem('hv_subscription_active', 'true');
+      if (selectedPlan !== '1-horse') {
+        localStorage.removeItem('hv_trial_active');
+      }
+      onPlanActivated?.(selectedPlan);
       setSuccessInfo({
         planName: currentPlanObj.name,
         hasTrial: currentPlanObj.hasTrial,
@@ -311,17 +367,17 @@ export default function PricingModal({ isOpen, onClose }) {
                 {successInfo.hasTrial ? 'PRUEBA GRATUITA DE 7 DÍAS' : 'SUSCRIPCIÓN ACTIVA'}
               </span>
               <h3 className="font-mono text-[20px] font-black text-slate-900 dark:text-white mt-2">
-                ¡Pago Confirmado con PayPal!
+                {successInfo.hasTrial ? '¡Prueba de 7 Días Activada!' : '¡Pago Confirmado con PayPal!'}
               </h3>
               <p className="text-[13px] text-slate-600 dark:text-zinc-300 max-w-[280px] mt-1">
                 {successInfo.hasTrial
-                  ? 'Disfrutas de 7 días 100% gratis. Tu cobro de US$ 6,99 iniciará a partir del día 8. Puedes cancelar en cualquier momento.'
+                  ? 'Disfrutas de 7 días 100% gratis con acceso ilimitado para 1 caballo. Puedes comenzar a analizar tus trotes ahora mismo.'
                   : `Tu plan "${successInfo.planName}" ha sido activado de inmediato con facturación segura PayPal.`}
               </p>
             </div>
 
             <div className="w-full bg-slate-100 dark:bg-[#181820] p-3 rounded-2xl font-mono text-[11px] text-slate-600 dark:text-zinc-400 border border-slate-200 dark:border-[#26262A]">
-              <span>ID Orden PayPal: </span>
+              <span>{successInfo.hasTrial ? 'Código de Activación: ' : 'ID Orden PayPal: '}</span>
               <strong className="text-slate-900 dark:text-white">{successInfo.orderId}</strong>
             </div>
 
@@ -338,21 +394,16 @@ export default function PricingModal({ isOpen, onClose }) {
           <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3.5 no-scrollbar">
             {/* Dynamic Trial / Immediate Billing Banner */}
             {currentPlanObj.hasTrial ? (
-              <div className="rounded-[18px] bg-gradient-to-r from-emerald-50 via-teal-50 to-amber-50 dark:from-emerald-950/30 dark:via-[#1C1C22] dark:to-amber-950/20 border border-[#0D3F2E]/30 dark:border-emerald-500/40 p-3 flex items-center justify-between shadow-sm">
-                <div className="flex items-center gap-2.5">
-                  <Sparkles className="w-5 h-5 text-amber-500 shrink-0 animate-pulse" />
-                  <div>
-                    <span className="font-mono text-[11px] font-extrabold text-slate-900 dark:text-white block">
-                      ¡Prueba Gratuita de 7 Días!
-                    </span>
-                    <span className="text-[10px] text-slate-600 dark:text-zinc-300">
-                      Exclusivo en Plan 1 Caballo. Cobro a partir del día 8.
-                    </span>
-                  </div>
+              <div className="rounded-[18px] bg-gradient-to-r from-emerald-50 via-teal-50 to-amber-50 dark:from-emerald-950/30 dark:via-[#1C1C22] dark:to-amber-950/20 border border-[#0D3F2E]/30 dark:border-emerald-500/40 p-3 flex items-center gap-2.5 shadow-sm">
+                <Sparkles className="w-5 h-5 text-amber-500 shrink-0 animate-pulse" />
+                <div>
+                  <span className="font-mono text-[11px] font-extrabold text-slate-900 dark:text-white block">
+                    ¡Prueba Gratuita de 7 Días!
+                  </span>
+                  <span className="text-[10px] text-slate-600 dark:text-zinc-300">
+                    Exclusivo en Plan 1 Caballo. Cobro a partir del día 8.
+                  </span>
                 </div>
-                <span className="font-mono text-[10px] font-extrabold px-2.5 py-1 rounded-full card-3d-racing-green text-white shadow-sm shrink-0">
-                  7 Días Gratis
-                </span>
               </div>
             ) : (
               <div className="rounded-[18px] bg-slate-100/90 dark:bg-[#181820] border border-slate-200 dark:border-[#26262A] p-3 flex items-center justify-between shadow-sm">
@@ -498,43 +549,54 @@ export default function PricingModal({ isOpen, onClose }) {
           </div>
         )}
 
-        {/* FIXED BOTTOM PAYPAL CHECKOUT BAR */}
+        {/* FIXED BOTTOM ACTION BAR */}
         {!successInfo && (
           <div className="p-4 bg-white dark:bg-[#16161C] border-t border-slate-200 dark:border-[#26262A] flex flex-col gap-2.5 shrink-0">
-            {/* PayPal Container for official PayPal Buttons */}
-            <div className="w-full flex flex-col items-center">
-              <div
-                ref={paypalContainerRef}
-                className="w-full min-h-[48px] flex items-center justify-center"
-              />
-
-              {/* Fallback button if PayPal SDK is still loading */}
-              {(!sdkReady || isProcessing) && (
+            {currentPlanObj.hasTrial ? (
+              /* FREE TRIAL: 100% Free Activation, zero payment barrier */
+              <div className="w-full flex flex-col gap-2">
                 <button
                   type="button"
                   disabled={isProcessing}
-                  onClick={handleDirectActivation}
-                  className="w-full card-3d-racing-green min-h-[50px] rounded-[16px] font-mono text-[13px] font-extrabold text-white flex items-center justify-center gap-2 active:scale-95 transition shadow-lg"
+                  onClick={handleStartTrial}
+                  className="w-full min-h-[50px] rounded-[16px] font-mono text-[14px] font-extrabold text-white bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 flex items-center justify-center gap-2 active:scale-95 transition shadow-lg shadow-emerald-700/20"
                 >
-                  <Sparkles className="w-4 h-4 text-amber-300" />
-                  <span>
-                    {currentPlanObj.hasTrial
-                      ? 'Activar Prueba de 7 Días con PayPal'
-                      : `Pagar US$ ${billingCycle === 'monthly' ? currentPlanObj.priceMonthly : currentPlanObj.priceYearlyPerMonth} con PayPal`}
-                  </span>
+                  <Sparkles className="w-5 h-5 text-amber-300 animate-pulse" />
+                  <span>Activar Mis 7 Días Gratis ($0 Hoy)</span>
                 </button>
-              )}
-            </div>
+                <div className="flex items-center justify-center gap-1.5 text-[10px] text-emerald-700 dark:text-emerald-400 font-mono text-center">
+                  <Check className="w-3.5 h-3.5 shrink-0 stroke-[3]" />
+                  <span>Acceso total inmediato · Sin cobro hoy · Cancela cuando quieras</span>
+                </div>
+              </div>
+            ) : (
+              /* PAID PLANS: PayPal Smart Buttons */
+              <div className="w-full flex flex-col items-center">
+                <div
+                  ref={paypalContainerRef}
+                  className="w-full min-h-[48px] flex items-center justify-center"
+                />
 
-            {/* Trial & Guarantee Terms */}
-            <div className="flex items-center justify-center gap-1.5 text-[9px] text-slate-500 dark:text-zinc-400 font-mono text-center">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#10B981] shrink-0" />
-              <span>
-                {currentPlanObj.hasTrial
-                  ? '7 días gratis sin cobro hoy · Cancela antes del día 7 en PayPal'
-                  : 'Facturación directa segura por PayPal · Cancela cuando quieras'}
-              </span>
-            </div>
+                {(!sdkReady || isProcessing) && (
+                  <button
+                    type="button"
+                    disabled={isProcessing}
+                    onClick={handleDirectActivation}
+                    className="w-full card-3d-racing-green min-h-[50px] rounded-[16px] font-mono text-[13px] font-extrabold text-white flex items-center justify-center gap-2 active:scale-95 transition shadow-lg"
+                  >
+                    <CreditCard className="w-4 h-4 text-amber-300" />
+                    <span>
+                      Pagar US$ {billingCycle === 'monthly' ? currentPlanObj.priceMonthly : currentPlanObj.priceYearlyPerMonth} con PayPal
+                    </span>
+                  </button>
+                )}
+                
+                <div className="flex items-center justify-center gap-1.5 text-[9px] text-slate-500 dark:text-zinc-400 font-mono text-center mt-2">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#10B981] shrink-0" />
+                  <span>Facturación directa segura por PayPal · Cifrado SSL 256-bit</span>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

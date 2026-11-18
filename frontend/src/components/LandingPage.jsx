@@ -44,44 +44,56 @@ export default function LandingPage({ onLaunchApp }) {
     {
       id: '3-horses',
       name: 'Profesional',
-      limit: 'Hasta 10 caballos',
+      limit: 'Hasta 5 caballos',
       price: '15.99',
       trial: null,
       popular: true,
       features: [
         'Todas las funciones incluidas',
-        'Gestión de hasta 10 caballos',
+        'Gestión de hasta 5 caballos',
         'Histórico y comparativas evolutivas',
         'Exportación de informes para veterinario'
       ]
     },
     {
       id: '50-horses',
-      name: 'Ilimitado',
-      limit: 'Caballos ilimitados',
+      name: 'Haras / Pro',
+      limit: 'Hasta 50 caballos',
       price: '99.00',
       trial: null,
       popular: false,
       features: [
         'Todas las funciones sin restricciones',
-        'Caballos y evaluaciones sin límite',
+        'Gestión de hasta 50 caballos',
         'Soporte prioritario 24/7',
         'Informes personalizados con logo de Haras'
       ]
     }
   ];
 
-  // Navigate to App
-  const handleGoToApp = () => {
+  // Navigate to App directly in specified Auth mode ('signup' | 'login')
+  const handleGoToApp = (mode = 'signup') => {
+    const safeMode = typeof mode === 'string' ? mode : 'signup';
     if (onLaunchApp) {
-      onLaunchApp();
+      onLaunchApp(safeMode);
     } else {
       window.location.href = '/app';
     }
   };
 
-  // Open checkout for a plan
+  // Select plan action:
+  // - If it has a free trial (Básico 7 días gratis), send directly to signup/start trial without payment!
+  // - If it's a paid tier (Profesional / Ilimitado), open the PayPal checkout modal.
   const handleSelectPlan = (plan) => {
+    if (plan.trial) {
+      try {
+        localStorage.removeItem('hv_selected_plan_intent');
+        localStorage.setItem('hv_trial_active', 'true');
+        localStorage.setItem('hv_active_plan', '1-horse');
+      } catch (e) {}
+      handleGoToApp('signup');
+      return;
+    }
     setSelectedPlanForCheckout(plan);
     setCheckoutError('');
     setCheckoutSuccess(null);
@@ -166,9 +178,11 @@ export default function LandingPage({ onLaunchApp }) {
                 setCheckoutSuccess(result);
                 try {
                   localStorage.setItem('horsevision_subscription', JSON.stringify(result));
+                  localStorage.setItem('hv_active_plan', selectedPlanForCheckout.id);
+                  localStorage.setItem('hv_subscription_active', 'true');
                 } catch (e) {}
                 setTimeout(() => {
-                  handleGoToApp();
+                  handleGoToApp('signup');
                 }, 2000);
               } else {
                 setCheckoutError('El pago no pudo completarse.');
@@ -202,7 +216,7 @@ export default function LandingPage({ onLaunchApp }) {
     },
     {
       q: '¿Puedo gestionar más de un caballo?',
-      a: 'Sí. Puedes añadir y gestionar múltiples caballos con sus respectivos históricos biomecánicos, fichas clínicas y evoluciones comparativas según el plan que elijas.'
+      a: 'Sí. Nuestros planes te permiten gestionar 1 caballo (Básico), hasta 5 caballos (Profesional) o hasta 50 caballos simultáneos (Haras / Pro), cada uno con su historial biomecánico y evolutivo independiente.'
     },
     {
       q: '¿Qué puedo consultar en el chat con IA especialista?',
@@ -219,7 +233,7 @@ export default function LandingPage({ onLaunchApp }) {
         {/* Brand */}
         <button
           type="button"
-          onClick={handleGoToApp}
+          onClick={() => handleGoToApp('signup')}
           className="flex items-center gap-3 text-left group"
         >
           <img
@@ -245,17 +259,18 @@ export default function LandingPage({ onLaunchApp }) {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={handleGoToApp}
+            onClick={() => handleGoToApp('login')}
             className="hidden sm:inline-flex px-4 py-2 text-[13px] font-semibold text-white/90 border border-white/20 hover:border-white/50 rounded-xl transition-all"
           >
             Iniciar sesión
           </button>
-          <a
-            href="#planes"
+          <button
+            type="button"
+            onClick={() => handleGoToApp('signup')}
             className="px-4 sm:px-5 py-2 sm:py-2.5 text-[13px] font-bold text-[#071820] bg-[#EBFF00] hover:bg-[#d8ec00] rounded-xl shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
             Probar gratis
-          </a>
+          </button>
           {/* Mobile menu button */}
           <button
             type="button"
@@ -277,10 +292,17 @@ export default function LandingPage({ onLaunchApp }) {
           <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#00D1C2]">FAQ</a>
           <button
             type="button"
-            onClick={() => { setMobileMenuOpen(false); handleGoToApp(); }}
+            onClick={() => { setMobileMenuOpen(false); handleGoToApp('login'); }}
             className="w-full py-3 mt-2 rounded-xl border border-white/20 text-center font-bold"
           >
             Iniciar sesión
+          </button>
+          <button
+            type="button"
+            onClick={() => { setMobileMenuOpen(false); handleGoToApp('signup'); }}
+            className="w-full py-3 rounded-xl bg-[#EBFF00] text-[#071820] text-center font-bold"
+          >
+            Probar gratis
           </button>
         </div>
       )}
@@ -330,12 +352,13 @@ export default function LandingPage({ onLaunchApp }) {
                 <Play className="w-4 h-4 fill-current" />
                 Ver demostración (1 min)
               </button>
-              <a
-                href="#planes"
+              <button
+                type="button"
+                onClick={() => handleGoToApp('signup')}
                 className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl font-bold text-[14px] text-white bg-white/10 hover:bg-white/15 border border-white/20 transition-all backdrop-blur-sm"
               >
                 Probar gratis
-              </a>
+              </button>
             </div>
 
             {/* 4 Feature Mini-Points */}
@@ -538,7 +561,7 @@ export default function LandingPage({ onLaunchApp }) {
                 'Detección temprana de posibles anomalías y sobrecargas',
                 'Asistente con IA especializada disponible 24/7',
                 'Gestión completa de cuadra y fichas evolutivas',
-                'Planes flexibles desde 1 caballo hasta haras ilimitados'
+                'Planes flexibles para 1, 5 y hasta 50 caballos'
               ].map((item, idx) => (
                 <li key={idx} className="flex items-start gap-3 text-[14px] text-[#E1EBED]">
                   <div className="w-5 h-5 rounded-full bg-[#EBFF00]/15 flex items-center justify-center shrink-0 mt-0.5">
@@ -698,14 +721,29 @@ export default function LandingPage({ onLaunchApp }) {
                       className={`w-full py-3.5 rounded-xl font-bold text-[14px] transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 ${
                         plan.popular
                           ? 'bg-[#EBFF00] text-[#071820] hover:bg-[#d8ec00] shadow-md'
+                          : plan.trial
+                          ? 'bg-[#00D1C2] text-[#071820] hover:bg-[#00baa7] shadow-md'
                           : 'bg-[#0A2932] text-white hover:bg-[#071d24]'
                       }`}
                     >
-                      <CreditCard className="w-4 h-4" />
-                      <span>Comenzar con {plan.name}</span>
+                      {plan.trial ? (
+                        <>
+                          <span>Probar 7 Días Gratis</span>
+                          <span className="text-[16px]">→</span>
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="w-4 h-4" />
+                          <span>Comenzar con {plan.name}</span>
+                        </>
+                      )}
                     </button>
-                    <p className="text-center text-[10px] text-slate-400 mt-2 font-mono">
-                      Pago seguro con PayPal / Tarjeta de Débito y Crédito
+                    <p className={`text-center text-[11px] mt-2 font-medium ${
+                      plan.trial ? 'text-emerald-700' : 'text-slate-400 font-mono text-[10px]'
+                    }`}>
+                      {plan.trial
+                        ? 'Acceso instantáneo · Sin cobro hoy'
+                        : 'Pago seguro con PayPal / Tarjeta de Débito y Crédito'}
                     </p>
                   </div>
                 </article>
@@ -907,7 +945,7 @@ export default function LandingPage({ onLaunchApp }) {
               <span className="text-white/60">Extracción de articulaciones y cálculo de simetría en tiempo real.</span>
               <button
                 type="button"
-                onClick={() => { setShowDemoModal(false); handleGoToApp(); }}
+                onClick={() => { setShowDemoModal(false); handleGoToApp('signup'); }}
                 className="px-4 py-2 rounded-xl bg-[#EBFF00] text-[#071820] font-bold hover:bg-[#d8ec00]"
               >
                 Probar en mi caballo

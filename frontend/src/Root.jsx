@@ -3,6 +3,9 @@ import App from './App';
 import LandingPage from './components/LandingPage';
 
 export default function Root() {
+  const [authMode, setAuthMode] = useState('signup');
+  const [skipSplash, setSkipSplash] = useState(false);
+
   const [route, setRoute] = useState(() => {
     try {
       const path = window.location.pathname;
@@ -64,8 +67,12 @@ export default function Root() {
     }
   }, [route]);
 
-  const navigateTo = (path) => {
+  const navigateTo = (path, mode = 'signup') => {
     try {
+      if (path === '/app') {
+        setAuthMode(mode);
+        setSkipSplash(true);
+      }
       window.history.pushState({}, '', path);
       setRoute(path);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -75,8 +82,14 @@ export default function Root() {
   };
 
   if (route === '/app') {
-    return <App onBackToLanding={() => navigateTo('/')} />;
+    return (
+      <App
+        onBackToLanding={() => navigateTo('/')}
+        initialAuthMode={authMode}
+        skipSplash={skipSplash}
+      />
+    );
   }
 
-  return <LandingPage onLaunchApp={() => navigateTo('/app')} />;
+  return <LandingPage onLaunchApp={(mode = 'signup') => navigateTo('/app', mode)} />;
 }

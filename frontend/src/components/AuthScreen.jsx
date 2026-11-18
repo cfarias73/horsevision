@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Mail,
   Lock,
@@ -15,8 +15,8 @@ import {
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
-export default function AuthScreen({ onAuthSuccess, onBackToLanding }) {
-  const [mode, setMode] = useState('login'); // 'login' | 'signup' | 'recovery'
+export default function AuthScreen({ initialMode = 'signup', onAuthSuccess, onBackToLanding }) {
+  const [mode, setMode] = useState(initialMode); // 'login' | 'signup' | 'recovery'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -24,6 +24,12 @@ export default function AuthScreen({ onAuthSuccess, onBackToLanding }) {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+
+  useEffect(() => {
+    setMode(initialMode);
+    setErrorMsg('');
+    setSuccessMsg('');
+  }, [initialMode]);
 
   const switchMode = (newMode) => {
     setErrorMsg('');
@@ -88,11 +94,24 @@ export default function AuthScreen({ onAuthSuccess, onBackToLanding }) {
 
         if (error) throw error;
 
-        if (data.session) {
-          // Logged in directly
+        try {
+          localStorage.setItem('hv_trial_active', 'true');
+          localStorage.setItem('hv_active_plan', '1-horse');
+          localStorage.setItem(
+            'hv_subscription_details',
+            JSON.stringify({
+              planId: '1-horse',
+              trialActive: true,
+              trialDays: 7,
+              startDate: new Date().toISOString(),
+              expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+            })
+          );
+        } catch (e) {}
+
+        if (data?.user) {
           onAuthSuccess?.(data.user);
         } else {
-          // Check if auto-confirm is enabled or email sent
           setSuccessMsg(
             '¡Cuenta creada exitosamente! Revisa tu correo electrónico para confirmar tu dirección e ingresar.'
           );
@@ -157,15 +176,26 @@ export default function AuthScreen({ onAuthSuccess, onBackToLanding }) {
 
           <div>
             <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-50 dark:bg-[#0D3F2E] border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-mono text-[9px] uppercase font-bold tracking-wider mb-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>Acceso Requerido · Laboratorio Clínico</span>
+              {mode === 'signup' ? (
+                <>
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>PRUEBA GRATUITA DE 7 DÍAS · $0 HOY</span>
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>{mode === 'login' ? 'ACCESO A TU CUADRA' : 'RECUPERACIÓN DE ACCESO'}</span>
+                </>
+              )}
             </div>
             <h1 className="font-mono text-[22px] font-extrabold tracking-tight text-slate-900 dark:text-white">
-              HorseVision
+              {mode === 'signup' && 'Crea tu cuenta gratis'}
+              {mode === 'login' && 'Iniciar Sesión'}
+              {mode === 'recovery' && 'Recuperar Cuenta'}
             </h1>
             <p className="text-[12px] text-slate-500 dark:text-zinc-400 leading-snug max-w-xs mx-auto">
-              {mode === 'login' && 'Inicia sesión para acceder a tu cuadra y evaluaciones.'}
-              {mode === 'signup' && 'Crea tu cuenta con Gmail para activar tu prueba de 7 días.'}
+              {mode === 'login' && 'Ingresa tu correo y contraseña para acceder a tus caballos y evaluaciones.'}
+              {mode === 'signup' && 'Regístrate en segundos para analizar el trote de tu caballo. Sin tarjeta de crédito.'}
               {mode === 'recovery' && 'Introduce tu correo para restablecer tu clave.'}
             </p>
           </div>
@@ -173,28 +203,28 @@ export default function AuthScreen({ onAuthSuccess, onBackToLanding }) {
 
         {/* Mode Switcher Tabs */}
         {mode !== 'recovery' && (
-          <div className="grid grid-cols-2 p-1 rounded-2xl card-3d-recessed font-mono text-[11px] font-bold">
+          <div className="grid grid-cols-2 p-1 rounded-2xl card-3d-recessed font-mono text-[10.5px] font-bold">
+            <button
+              type="button"
+              onClick={() => switchMode('signup')}
+              className={`py-2 px-1 rounded-xl transition-all ${
+                mode === 'signup'
+                  ? 'card-3d-racing-green text-white shadow-sm'
+                  : 'text-slate-600 dark:text-zinc-400'
+              }`}
+            >
+              Crear Cuenta (7 Días Gratis)
+            </button>
             <button
               type="button"
               onClick={() => switchMode('login')}
-              className={`py-2 rounded-xl transition-all ${
+              className={`py-2 px-1 rounded-xl transition-all ${
                 mode === 'login'
                   ? 'card-3d-racing-green text-white shadow-sm'
                   : 'text-slate-600 dark:text-zinc-400'
               }`}
             >
               Iniciar Sesión
-            </button>
-            <button
-              type="button"
-              onClick={() => switchMode('signup')}
-              className={`py-2 rounded-xl transition-all ${
-                mode === 'signup'
-                  ? 'card-3d-racing-green text-white shadow-sm'
-                  : 'text-slate-600 dark:text-zinc-400'
-              }`}
-            >
-              Crear Cuenta
             </button>
           </div>
         )}
@@ -305,7 +335,7 @@ export default function AuthScreen({ onAuthSuccess, onBackToLanding }) {
                 <>
                   <span>
                     {mode === 'login' && 'Entrar a HorseVision'}
-                    {mode === 'signup' && 'Crear mi Cuenta y Comenzar'}
+                    {mode === 'signup' && 'Comenzar mis 7 Días Gratis'}
                     {mode === 'recovery' && 'Enviar Enlace de Recuperación'}
                   </span>
                   <ArrowRight className="w-4 h-4 text-emerald-300" />
