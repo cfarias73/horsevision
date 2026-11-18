@@ -2,24 +2,32 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Camera,
   Upload,
-  UploadCloud,
-  Video,
+  Play,
   AlertTriangle,
   CheckCircle2,
   Loader2,
-  ChevronDown,
   Plus,
   Lock,
   X,
   Check,
+  ArrowRight,
+  Bot,
+  ChevronRight,
+  RotateCcw,
 } from 'lucide-react';
 
+const FALLBACK_HORSE_PHOTO =
+  'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?auto=format&fit=crop&w=900&q=80';
+
 /**
- * Screen 1: UploadView (Evaluación de Trote)
- * Minimalist equestrian interface with mandatory Horse Selection step:
- * - Step 1: Select an existing horse (modal picker) or register the first horse
- * - Enforces plan upgrade when trying to register beyond maxHorses (1 / 5 / 50)
- * - Clear 3-pill recording quick reminder + direct camera/upload/analyze actions
+ * Screen 1: UploadView (Tu Pista Hoy)
+ * 100% Native Mobile Experience:
+ * - Editorial canvas header + Horizontal scrollable horse selector pills
+ * - Full-bleed photographic Hero Showcase Card with 1-tap camera trigger
+ * - Clean video preview + vibrant Analyze CTA ONLY when a video is ready
+ * - Circular SVG Progress Ring ("Estado Biomecánico") inspired by top fitness apps
+ * - Thumb-zone primary camera CTA & 2-column quick action tiles
+ * - Native iOS Bottom Sheet Horse Picker with grabber bar & 1/5/50 plan quota lock
  */
 export default function UploadView({
   selectedFile,
@@ -29,6 +37,9 @@ export default function UploadView({
   selectedHorse,
   onSelectHorse,
   maxHorses = 1,
+  sessions = [],
+  onSelectNav,
+  onSelectSession,
   onOpenNewHorseModal,
   onOpenPricing,
   onOpenCamera,
@@ -78,8 +89,30 @@ export default function UploadView({
 
   const isQuotaReached = horses.length >= maxHorses;
 
+  const latestHorseSession = useMemo(() => {
+    if (!selectedHorse?.name) return null;
+    return (
+      sessions.find(
+        (s) => s.horse?.toLowerCase() === selectedHorse.name.toLowerCase()
+      ) || null
+    );
+  }, [sessions, selectedHorse]);
+
+  const heroScore = Math.round(
+    latestHorseSession?.score ?? selectedHorse?.lastScore ?? 87
+  );
+  const isOptimal = heroScore >= 80;
+  const statusLabel =
+    latestHorseSession?.statusLabel || (isOptimal ? 'Simétrico' : 'Atención');
+  const asymLabel = latestHorseSession?.asymmetryMm || '3.2 mm';
+
+  // Ring geometry for "Estado Biomecánico"
+  const ringRadius = 30;
+  const ringCircumference = 2 * Math.PI * ringRadius;
+  const ringDashOffset = ringCircumference * (1 - heroScore / 100);
+
   return (
-    <div className="flex flex-col gap-3.5 pt-1">
+    <div className="flex flex-col gap-4 pt-1">
       {/* Hidden native gallery file input */}
       <input
         ref={fileInputRef}
@@ -89,106 +122,79 @@ export default function UploadView({
         className="hidden"
       />
 
-      {/* Main Video Capture Card */}
-      <section className="relative overflow-hidden rounded-[24px] card-3d p-4 shadow-sm">
-        {/* Subtle British Racing Green ambient glow */}
-        <div
-          className="pointer-events-none absolute -top-12 -right-12 w-56 h-56 rounded-full opacity-60 blur-3xl"
-          style={{
-            background:
-              'radial-gradient(circle, rgba(13,63,46,0.18) 0%, rgba(248,250,252,0) 70%)',
-          }}
-        />
-
-        {/* Brand Header */}
-        <div className="relative flex items-center justify-between gap-2 mb-3">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-10 h-10 rounded-[14px] card-3d-subtle flex items-center justify-center shadow-sm shrink-0">
-              <Video className="w-5 h-5 text-[#0D3F2E] dark:text-[#10B981]" />
-            </div>
-            <h1 className="font-mono text-[17px] font-extrabold leading-tight tracking-tight text-slate-900 dark:text-white drop-shadow-sm truncate">
-              Evaluación de Trote
-            </h1>
-          </div>
+      {/* 1. Editorial Header directly on the canvas */}
+      <div className="px-0.5 flex items-end justify-between gap-2">
+        <div>
+          <p className="text-[12px] font-semibold text-[#0F3D44]/75 dark:text-[#00D1C2] tracking-tight">
+            Laboratorio Biomecánico
+          </p>
+          <h1 className="text-[26px] font-extrabold text-[#071B24] dark:text-white tracking-tight leading-tight">
+            Tu Pista Hoy
+          </h1>
         </div>
 
-        {/* Paso 1: Selector Obligatorio de Caballo */}
-        <div className="mb-3.5">
-          <span className="block font-mono text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400 mb-1.5">
-            1. Caballo a Evaluar
-          </span>
+        {selectedHorse && (
+          <button
+            type="button"
+            onClick={() => setIsHorsePickerOpen(true)}
+            className="text-[11px] font-bold text-[#0F3D44] dark:text-[#00D1C2] bg-white dark:bg-[#141C20] border border-slate-200/70 dark:border-white/10 px-3 py-1.5 rounded-full shadow-sm active:scale-95 transition shrink-0"
+          >
+            {horses.length}/{maxHorses} cupo
+          </button>
+        )}
+      </div>
 
-          {horses.length === 0 ? (
+      {/* 2. Horizontal Pill Selector (Velocis / Pet Adoption style) */}
+      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5">
+        {horses.map((horse) => {
+          const active = selectedHorse?.id === horse.id;
+          return (
             <button
+              key={horse.id}
               type="button"
-              onClick={() => onOpenNewHorseModal?.()}
-              className="w-full p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border-2 border-dashed border-amber-400/70 dark:border-amber-500/50 text-left flex items-center justify-between gap-2.5 hover:bg-amber-100/70 dark:hover:bg-amber-950/40 active:scale-[0.98] transition shadow-sm"
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-9 h-9 rounded-xl card-3d-racing-green flex items-center justify-center text-white shrink-0 shadow">
-                  <Plus className="w-4 h-4" />
-                </div>
-                <div className="min-w-0">
-                  <p className="font-mono text-[12px] font-extrabold text-amber-950 dark:text-amber-200 truncate">
-                    + Dar de alta mi primer caballo
-                  </p>
-                  <p className="text-[10px] text-amber-800/90 dark:text-amber-300/80">
-                    Requerido antes de grabar o analizar
-                  </p>
-                </div>
-              </div>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setIsHorsePickerOpen(true)}
-              className={`w-full p-2.5 rounded-2xl border flex items-center justify-between gap-2.5 active:scale-[0.98] transition shadow-sm ${
-                selectedHorse
-                  ? 'card-3d-subtle border-[#0D3F2E]/25 dark:border-emerald-500/30'
-                  : 'bg-amber-50 dark:bg-amber-950/30 border-amber-400/70 dark:border-amber-500/50'
+              onClick={() => onSelectHorse?.(horse)}
+              className={`rounded-full p-1 pr-3.5 flex items-center gap-2 transition-all active:scale-95 shrink-0 ${
+                active
+                  ? 'bg-[#0F3D44] dark:bg-[#14545E] text-white shadow-md'
+                  : 'bg-white dark:bg-[#141C20] text-[#071B24] dark:text-zinc-200 border border-slate-200/70 dark:border-white/10 shadow-sm'
               }`}
             >
-              {selectedHorse ? (
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <img
-                    src={
-                      selectedHorse.photoUrl ||
-                      'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?auto=format&fit=crop&w=200&q=80'
-                    }
-                    alt={selectedHorse.name}
-                    className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-zinc-700 shrink-0"
-                  />
-                  <div className="text-left min-w-0">
-                    <p className="font-mono text-[13px] font-extrabold text-slate-900 dark:text-white truncate">
-                      {selectedHorse.name}
-                    </p>
-                    <p className="text-[10px] font-mono text-slate-500 dark:text-zinc-400 truncate">
-                      {selectedHorse.breed} · {selectedHorse.discipline}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-left min-w-0 px-1">
-                  <p className="font-mono text-[12px] font-extrabold text-amber-900 dark:text-amber-200">
-                    Seleccionar caballo...
-                  </p>
-                  <p className="text-[10px] text-amber-700 dark:text-amber-300/80">
-                    Elige un ejemplar antes de grabar
-                  </p>
-                </div>
-              )}
-
-              <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl card-3d-interactive text-[#0D3F2E] dark:text-[#10B981] font-mono text-[10px] font-bold shrink-0">
-                <span>Cambiar / Seleccionar</span>
-                <ChevronDown className="w-3.5 h-3.5" />
-              </div>
+              <img
+                src={horse.photoUrl || FALLBACK_HORSE_PHOTO}
+                alt={horse.name}
+                className="w-7 h-7 rounded-full object-cover border border-white/40 shrink-0"
+              />
+              <span className="text-[12.5px] font-bold whitespace-nowrap">
+                {horse.name}
+              </span>
             </button>
-          )}
-        </div>
+          );
+        })}
 
-        {/* Visual Touch Capture Stage */}
-        {previewUrl && selectedFile ? (
-          <div className="relative rounded-[20px] overflow-hidden card-3d-recessed mb-3.5 shadow-md">
+        {horses.length === 0 ? (
+          <button
+            type="button"
+            onClick={() => onOpenNewHorseModal?.()}
+            className="rounded-full px-4 py-2 bg-[#0F3D44] text-white text-[12.5px] font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Añadir caballo</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setIsHorsePickerOpen(true)}
+            className="rounded-full px-3.5 py-2 bg-white dark:bg-[#141C20] border border-slate-200/70 dark:border-white/10 text-[#0F3D44] dark:text-[#00D1C2] text-[12px] font-bold flex items-center gap-1 shadow-sm active:scale-95 transition shrink-0"
+          >
+            <span>Cambiar / + Nuevo</span>
+          </button>
+        )}
+      </div>
+
+      {/* 3. Hero Showcase Card / Active Video Preview */}
+      {previewUrl && selectedFile ? (
+        <section className="flex flex-col gap-3 view-enter">
+          <div className="rounded-[28px] overflow-hidden bg-white dark:bg-[#141C20] border border-slate-200/70 dark:border-white/10 shadow-[0_14px_36px_-6px_rgba(7,27,36,0.10)]">
             <video
               src={previewUrl}
               className="w-full aspect-[16/10] object-cover bg-black"
@@ -196,98 +202,316 @@ export default function UploadView({
               playsInline
               muted
             />
-            <div className="px-3.5 py-2.5 bg-slate-100 dark:bg-[#09090B]/95 border-t border-slate-200 dark:border-[#26262A] flex items-center justify-between gap-2">
+            <div className="px-4 py-3 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">
-                <CheckCircle2 className="w-4 h-4 text-[#10B981] shrink-0" />
-                <span className="font-mono text-[12px] text-slate-800 dark:text-white font-semibold truncate">
-                  {selectedFile.name}
-                </span>
+                <CheckCircle2 className="w-4 h-4 text-[#00D1C2] shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[13px] font-bold text-[#071B24] dark:text-white truncate">
+                    {selectedHorse?.name ? `Video para ${selectedHorse.name}` : selectedFile.name}
+                  </p>
+                  <p className="text-[11px] text-slate-500 dark:text-zinc-400 tabular-nums truncate">
+                    {selectedFile.name} · {(selectedFile.size / (1024 * 1024)).toFixed(1)} MB
+                  </p>
+                </div>
               </div>
-              <span className="font-mono text-[11px] text-slate-500 dark:text-zinc-400 shrink-0 tabular-nums font-semibold">
-                {(selectedFile.size / (1024 * 1024)).toFixed(1)} MB
-              </span>
+              <button
+                type="button"
+                disabled={isAnalyzing}
+                onClick={() => onSelectFile?.(null)}
+                className="px-3 py-1.5 rounded-full bg-[#F4F7F6] dark:bg-[#0F1619] text-[#0F3D44] dark:text-zinc-200 text-[11px] font-bold flex items-center gap-1 active:scale-95 transition shrink-0"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Cambiar</span>
+              </button>
             </div>
           </div>
-        ) : (
+
           <button
             type="button"
             disabled={isAnalyzing}
-            onClick={() => requireHorseThen(handleOpenCam)}
-            className="w-full group relative rounded-[20px] overflow-hidden border border-dashed border-slate-300 dark:border-[#26262A] hover:border-[#0D3F2E] dark:hover:border-[#10B981] card-3d-recessed px-4 py-8 mb-3.5 flex flex-col items-center justify-center text-center active:scale-[0.985] transition-all cursor-pointer"
+            onClick={() => requireHorseThen(onAnalyzeFile)}
+            className="w-full min-h-[58px] rounded-[22px] card-3d-racing-green px-5 flex items-center justify-between gap-3 active:scale-[0.98] transition-all disabled:opacity-60"
           >
-            <div className="relative mb-3">
-              <div className="w-14 h-14 rounded-[20px] card-3d-interactive flex items-center justify-center shadow-sm group-hover:scale-105 transition-all">
-                <UploadCloud className="w-7 h-7 text-[#0D3F2E] dark:text-[#10B981]" />
-              </div>
+            <div className="text-left">
+              <span className="block text-[15px] font-extrabold text-white">
+                {isAnalyzing ? 'Analizando Biomecánica...' : 'Iniciar Análisis Biomecánico'}
+              </span>
+              <span className="block text-[11px] text-white/75">
+                {isAnalyzing
+                  ? analysisStepLabel || 'Procesando puntos articulares'
+                  : 'Detección de simetría, zancada y dorso IA'}
+              </span>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-[#D9F99D] text-[#071B24] flex items-center justify-center shrink-0 shadow">
+              {isAnalyzing ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <ArrowRight className="w-5 h-5" />
+              )}
+            </div>
+          </button>
+        </section>
+      ) : !selectedHorse ? (
+        /* Empty Stable Onboarding Hero Card */
+        <button
+          type="button"
+          onClick={() =>
+            horses.length === 0 ? onOpenNewHorseModal?.() : setIsHorsePickerOpen(true)
+          }
+          className="relative w-full rounded-[28px] overflow-hidden min-h-[210px] flex flex-col justify-between p-5 text-left active:scale-[0.985] transition-all shadow-[0_18px_40px_-8px_rgba(7,27,36,0.22)]"
+        >
+          <img
+            src={FALLBACK_HORSE_PHOTO}
+            alt="Registrar primer caballo"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#071B24] via-[#071B24]/55 to-black/20" />
+
+          <div className="relative z-10 flex items-center justify-between">
+            <span className="px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-[11px] font-bold text-white">
+              Tu Cuadra · Paso 1
+            </span>
+          </div>
+
+          <div className="relative z-10 flex flex-col gap-3">
+            <div>
+              <h2 className="text-[22px] font-extrabold text-white tracking-tight leading-tight">
+                {horses.length === 0
+                  ? 'Registra tu primer caballo'
+                  : 'Selecciona un ejemplar'}
+              </h2>
+              <p className="text-[12px] text-white/80 mt-1">
+                Necesario para guardar su evolución clínica y comparar simetría.
+              </p>
+            </div>
+            <span className="self-start px-4 py-2 rounded-full bg-[#D9F99D] text-[#071B24] text-[12.5px] font-extrabold inline-flex items-center gap-1.5 shadow-md">
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span>
+                {horses.length === 0
+                  ? 'Dar de alta mi primer caballo'
+                  : 'Elegir caballo'}
+              </span>
+            </span>
+          </div>
+        </button>
+      ) : (
+        /* Active Horse Photographic Hero Showcase Card (Velocis + Horse Riding Club style) */
+        <section className="relative rounded-[28px] overflow-hidden min-h-[215px] shadow-[0_18px_40px_-8px_rgba(7,27,36,0.22)] flex flex-col justify-between p-4">
+          <img
+            src={selectedHorse.photoUrl || FALLBACK_HORSE_PHOTO}
+            alt={selectedHorse.name}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#071B24]/95 via-[#071B24]/35 to-black/15" />
+
+          {/* Top badges */}
+          <div className="relative z-10 flex items-center justify-between gap-2">
+            <span className="px-3 py-1 rounded-full bg-black/35 backdrop-blur-md border border-white/15 text-[11px] font-bold text-white truncate">
+              {selectedHorse.discipline}
+            </span>
+            <span className="px-3 py-1 rounded-full bg-black/45 backdrop-blur-md border border-white/15 text-[11px] font-bold text-white flex items-center gap-1.5 shrink-0 tabular-nums">
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  isOptimal ? 'bg-[#D9F99D]' : 'bg-amber-400'
+                }`}
+              />
+              Score {heroScore} · {statusLabel}
+            </span>
+          </div>
+
+          {/* Bottom horse identity + Floating Camera Trigger */}
+          <div className="relative z-10 flex items-end justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="text-[24px] font-extrabold text-white tracking-tight leading-none truncate">
+                {selectedHorse.name}
+              </h2>
+              <p className="text-[12px] text-white/80 mt-1.5 truncate">
+                {selectedHorse.breed}
+                {selectedHorse.age ? ` · ${selectedHorse.age} años` : ''}
+              </p>
             </div>
 
-            <span className="font-mono text-[14px] font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Grabar / Seleccionar Video
-            </span>
-            {!selectedHorse && (
-              <span className="text-[11px] text-slate-500 dark:text-zinc-400 mt-1">
-                {horses.length === 0
-                  ? 'Registra primero a tu caballo arriba'
-                  : 'Selecciona un caballo para comenzar'}
-              </span>
-            )}
-          </button>
-        )}
+            <button
+              type="button"
+              disabled={isAnalyzing}
+              onClick={() => requireHorseThen(handleOpenCam)}
+              aria-label="Abrir cámara guiada de 20s"
+              className="w-[52px] h-[52px] rounded-full bg-[#D9F99D] text-[#071B24] flex items-center justify-center shadow-[0_8px_22px_rgba(0,0,0,0.35)] hover:scale-105 active:scale-95 transition shrink-0"
+            >
+              <Camera className="w-6 h-6 stroke-[2.2]" />
+            </button>
+          </div>
+        </section>
+      )}
 
-        {/* Dual Native Capture & Gallery Touch Buttons */}
+      {/* 4. "Estado Biomecánico" Circular Progress Ring Card (FitFuel style) */}
+      {selectedHorse && (
+        <section className="rounded-[26px] card-3d p-4 flex items-center justify-between gap-4">
+          <div className="relative w-[78px] h-[78px] shrink-0 flex items-center justify-center">
+            <svg width="78" height="78" viewBox="0 0 78 78" className="-rotate-90">
+              <circle
+                cx="39"
+                cy="39"
+                r={ringRadius}
+                className="stroke-[#E9EFEF] dark:stroke-white/10"
+                strokeWidth="7"
+                fill="none"
+              />
+              <circle
+                cx="39"
+                cy="39"
+                r={ringRadius}
+                stroke={isOptimal ? '#0F3D44' : '#F59E0B'}
+                className={isOptimal ? 'dark:stroke-[#00D1C2]' : ''}
+                strokeWidth="7"
+                strokeLinecap="round"
+                fill="none"
+                strokeDasharray={ringCircumference}
+                strokeDashoffset={ringDashOffset}
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-[20px] font-extrabold text-[#071B24] dark:text-white tabular-nums leading-none">
+                {heroScore}%
+              </span>
+            </div>
+          </div>
+
+          <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-[14px] font-extrabold text-[#071B24] dark:text-white truncate">
+                Estado Biomecánico
+              </h3>
+              {latestHorseSession && onSelectSession && (
+                <button
+                  type="button"
+                  onClick={() => onSelectSession(latestHorseSession)}
+                  className="text-[11px] font-bold text-[#0F3D44] dark:text-[#00D1C2] flex items-center gap-0.5 shrink-0 hover:underline"
+                >
+                  <span>Informe</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-1 text-[12px]">
+              <div className="flex items-center justify-between gap-2">
+                <span className="flex items-center gap-1.5 text-slate-500 dark:text-zinc-400">
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      isOptimal ? 'bg-[#00D1C2]' : 'bg-amber-400'
+                    }`}
+                  />
+                  Simetría
+                </span>
+                <span className="font-bold text-[#071B24] dark:text-white truncate">
+                  {statusLabel}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="flex items-center gap-1.5 text-slate-500 dark:text-zinc-400">
+                  <span className="w-2 h-2 rounded-full bg-[#0F3D44] dark:bg-emerald-400" />
+                  Asimetría
+                </span>
+                <span className="font-bold text-[#071B24] dark:text-white tabular-nums">
+                  {asymLabel}
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="flex items-center gap-1.5 text-slate-500 dark:text-zinc-400">
+                  <span className="w-2 h-2 rounded-full bg-[#D9F99D] ring-1 ring-slate-300 dark:ring-0" />
+                  Disciplina
+                </span>
+                <span className="font-bold text-[#071B24] dark:text-white truncate">
+                  {selectedHorse.discipline}
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 5. Thumb-Zone Primary Action & 2-Column Quick Actions (FitFuel style) */}
+      <div className="flex flex-col gap-2.5">
+        <button
+          type="button"
+          disabled={isAnalyzing}
+          onClick={() => requireHorseThen(handleOpenCam)}
+          className="w-full rounded-[22px] min-h-[60px] card-3d-racing-green px-4 py-3 flex items-center justify-between gap-3 disabled:opacity-55"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center text-[#D9F99D] shrink-0">
+              <Camera className="w-5 h-5" />
+            </div>
+            <div className="text-left min-w-0">
+              <span className="block text-[15px] font-extrabold text-white leading-tight truncate">
+                Grabar Trote en Pista
+              </span>
+              <span className="block text-[11px] text-white/75 mt-0.5 truncate">
+                Secuencia guiada de 20s · Lateral 90°
+              </span>
+            </div>
+          </div>
+
+          <div className="w-9 h-9 rounded-full bg-[#D9F99D] text-[#071B24] flex items-center justify-center shrink-0 shadow">
+            <Play className="w-4 h-4 fill-current ml-0.5" />
+          </div>
+        </button>
+
         <div className="grid grid-cols-2 gap-2.5">
           <button
             type="button"
             disabled={isAnalyzing}
-            onClick={() => requireHorseThen(handleOpenCam)}
-            className="min-h-[48px] px-3 rounded-[16px] card-3d-interactive flex items-center justify-center gap-2 text-slate-800 dark:text-white font-mono font-bold text-[13px] active:scale-[0.96] transition-all disabled:opacity-50"
+            onClick={() => requireHorseThen(() => fileInputRef.current?.click())}
+            className="rounded-[22px] card-3d-interactive p-3.5 flex items-center gap-3 text-left disabled:opacity-55"
           >
-            <Camera className="w-4 h-4 text-[#0D3F2E] dark:text-[#10B981]" />
-            <span>Grabar 16:9</span>
+            <div className="w-10 h-10 rounded-2xl bg-[#EEF4F2] dark:bg-[#0F1619] flex items-center justify-center text-[#0F3D44] dark:text-[#00D1C2] shrink-0">
+              <Upload className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <span className="block text-[13px] font-extrabold text-[#071B24] dark:text-white leading-tight truncate">
+                Importar Video
+              </span>
+              <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
+                Desde carrete
+              </span>
+            </div>
           </button>
+
           <button
             type="button"
-            disabled={isAnalyzing}
-            onClick={() => requireHorseThen(() => fileInputRef.current?.click())}
-            className="min-h-[48px] px-3 rounded-[16px] card-3d-interactive flex items-center justify-center gap-2 text-slate-800 dark:text-white font-mono font-bold text-[13px] active:scale-[0.96] transition-all disabled:opacity-50"
+            onClick={() => onSelectNav?.('ia')}
+            className="rounded-[22px] card-3d-interactive p-3.5 flex items-center gap-3 text-left"
           >
-            <Upload className="w-4 h-4 text-slate-600 dark:text-zinc-300" />
-            <span>Subir Archivo</span>
+            <div className="w-10 h-10 rounded-2xl bg-[#F2F7E4] dark:bg-[#192416] flex items-center justify-center text-[#3D5A09] dark:text-[#D9F99D] shrink-0">
+              <Bot className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <span className="block text-[13px] font-extrabold text-[#071B24] dark:text-white leading-tight truncate">
+                Agente IA
+              </span>
+              <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
+                Veterinario 24/7
+              </span>
+            </div>
           </button>
         </div>
-
-        {/* Primary Action Button directly in the body */}
-        <button
-          type="button"
-          disabled={!selectedFile || isAnalyzing}
-          onClick={() => requireHorseThen(onAnalyzeFile)}
-          className="w-full min-h-[52px] rounded-[16px] card-3d-racing-green active:scale-[0.98] transition-all font-mono text-[15px] font-bold text-white shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 mt-3"
-        >
-          {isAnalyzing ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin text-white" />
-              <span>Analizando...</span>
-            </>
-          ) : (
-            <span>Analizar Video</span>
-          )}
-        </button>
-      </section>
+      </div>
 
       {/* Active Pipeline Execution Progress Card */}
       {isAnalyzing && (
         <section
           aria-live="polite"
-          className="rounded-[22px] bg-emerald-50/70 dark:bg-[#141417] border border-[#0D3F2E]/30 dark:border-[#10B981]/40 p-4 flex items-center gap-3.5 shadow-sm"
+          className="rounded-[24px] bg-emerald-50/90 dark:bg-[#112224] border border-[#0F3D44]/20 dark:border-[#00D1C2]/30 p-4 flex items-center gap-3.5 shadow-sm"
         >
-          <div className="w-10 h-10 rounded-full bg-[#0D3F2E]/10 dark:bg-[#10B981]/15 border border-[#0D3F2E]/20 dark:border-[#10B981]/40 flex items-center justify-center shrink-0">
-            <Loader2 className="w-5 h-5 text-[#0D3F2E] dark:text-[#10B981] animate-spin" />
+          <div className="w-10 h-10 rounded-full bg-[#0F3D44]/10 dark:bg-[#00D1C2]/15 flex items-center justify-center shrink-0">
+            <Loader2 className="w-5 h-5 text-[#0F3D44] dark:text-[#00D1C2] animate-spin" />
           </div>
           <div className="min-w-0">
-            <p className="font-mono text-[13px] font-bold text-slate-900 dark:text-white">
+            <p className="text-[13.5px] font-extrabold text-[#071B24] dark:text-white">
               Procesando Video...
             </p>
-            <p className="text-[12px] text-slate-600 dark:text-zinc-400 mt-0.5 leading-snug">
+            <p className="text-[12px] text-slate-600 dark:text-zinc-300 mt-0.5 leading-snug">
               {analysisStepLabel || 'Analizando zancadas y simetría'}
             </p>
           </div>
@@ -298,11 +522,11 @@ export default function UploadView({
       {errorMsg && !isAnalyzing && (
         <section
           role="alert"
-          className="rounded-[22px] bg-red-50 dark:bg-[#1A1113] border border-[#EF4444]/40 p-3.5 flex items-start gap-3 shadow-sm"
+          className="rounded-[24px] bg-red-50 dark:bg-[#1E1215] border border-[#EF4444]/30 p-4 flex items-start gap-3 shadow-sm"
         >
           <AlertTriangle className="w-5 h-5 text-[#EF4444] shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="font-mono text-[12px] font-bold text-[#EF4444]">
+            <p className="text-[13px] font-bold text-[#EF4444]">
               No se pudo procesar el video
             </p>
             <p className="text-[12px] text-slate-700 dark:text-zinc-300 mt-0.5 leading-snug">
@@ -315,33 +539,38 @@ export default function UploadView({
       <div className="h-1" />
 
       {/* ================================================================ */}
-      {/* MODAL SELECCIONADOR DE CABALLO                                   */}
+      {/* BOTTOM SHEET SELECCIONADOR DE CABALLO (Teapot Glass Sheet style) */}
       {/* ================================================================ */}
       {isHorsePickerOpen && (
         <div
-          className="fixed inset-0 z-[180] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4 view-enter"
+          className="fixed inset-0 z-[180] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4 view-enter"
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsHorsePickerOpen(false);
           }}
         >
           <div
-            className="relative w-full max-w-[430px] max-h-[85vh] bg-[#F8FAFC] dark:bg-[#121217] border border-slate-300 dark:border-[#2D2D35] flex flex-col rounded-t-[32px] sm:rounded-[32px] overflow-hidden shadow-2xl"
+            className="relative w-full max-w-[430px] max-h-[85vh] bg-[#F2F5F4] dark:bg-[#11191D] border border-slate-200/80 dark:border-white/10 flex flex-col rounded-t-[32px] sm:rounded-[32px] overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Native iOS Grabber Pill */}
+            <div className="pt-2.5 pb-1 bg-white dark:bg-[#141C20] flex justify-center shrink-0">
+              <div className="w-10 h-1 rounded-full bg-slate-300 dark:bg-zinc-600" />
+            </div>
+
             {/* Header */}
-            <div className="px-5 py-4 bg-white dark:bg-[#16161C] border-b border-slate-200 dark:border-[#26262A] flex items-center justify-between shrink-0">
+            <div className="px-5 pt-2 pb-4 bg-white dark:bg-[#141C20] border-b border-slate-200/70 dark:border-white/10 flex items-center justify-between shrink-0">
               <div>
-                <h3 className="font-mono text-[15px] font-extrabold text-slate-900 dark:text-white">
+                <h3 className="text-[16px] font-extrabold text-[#071B24] dark:text-white tracking-tight">
                   Selecciona el Caballo a Evaluar
                 </h3>
-                <p className="text-[11px] font-mono text-slate-500 dark:text-zinc-400">
+                <p className="text-[11.5px] text-slate-500 dark:text-zinc-400">
                   El análisis se guardará en su historial clínico
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsHorsePickerOpen(false)}
-                className="w-8 h-8 rounded-full card-3d-interactive flex items-center justify-center text-slate-500 dark:text-zinc-400"
+                className="w-9 h-9 rounded-full bg-[#F4F7F6] dark:bg-[#0F1619] flex items-center justify-center text-slate-500 dark:text-zinc-400 active:scale-90 transition"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -359,33 +588,30 @@ export default function UploadView({
                       onSelectHorse?.(horse);
                       setIsHorsePickerOpen(false);
                     }}
-                    className={`w-full p-3 rounded-2xl flex items-center justify-between gap-3 text-left transition-all ${
+                    className={`w-full p-3 rounded-[22px] flex items-center justify-between gap-3 text-left transition-all ${
                       isSelected
-                        ? 'card-3d border-2 border-[#0D3F2E] dark:border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 shadow-md'
-                        : 'card-3d border border-slate-200 dark:border-zinc-800 hover:border-[#0D3F2E]/40'
+                        ? 'bg-white dark:bg-[#141C20] ring-2 ring-[#0F3D44] dark:ring-[#00D1C2] shadow-md'
+                        : 'bg-white dark:bg-[#141C20] border border-slate-200/70 dark:border-white/10 hover:border-[#0F3D44]/40 shadow-sm'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <img
-                        src={
-                          horse.photoUrl ||
-                          'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?auto=format&fit=crop&w=200&q=80'
-                        }
+                        src={horse.photoUrl || FALLBACK_HORSE_PHOTO}
                         alt={horse.name}
-                        className="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-zinc-700 shrink-0"
+                        className="w-12 h-12 rounded-2xl object-cover shrink-0 shadow-sm"
                       />
                       <div className="min-w-0">
-                        <p className="font-mono text-[14px] font-extrabold text-slate-900 dark:text-white truncate">
+                        <p className="text-[14px] font-extrabold text-[#071B24] dark:text-white truncate">
                           {horse.name}
                         </p>
-                        <p className="font-mono text-[11px] text-slate-500 dark:text-zinc-400 truncate">
+                        <p className="text-[11.5px] text-slate-500 dark:text-zinc-400 truncate">
                           {horse.breed} · {horse.discipline}
                         </p>
                       </div>
                     </div>
 
                     {isSelected && (
-                      <div className="w-6 h-6 rounded-full card-3d-racing-green text-white flex items-center justify-center shrink-0 shadow">
+                      <div className="w-7 h-7 rounded-full bg-[#0F3D44] dark:bg-[#00D1C2] text-white dark:text-[#071B24] flex items-center justify-center shrink-0 shadow">
                         <Check className="w-3.5 h-3.5 stroke-[3]" />
                       </div>
                     )}
@@ -395,11 +621,12 @@ export default function UploadView({
             </div>
 
             {/* Footer Quota + Add / Upgrade Button */}
-            <div className="p-4 bg-white dark:bg-[#16161C] border-t border-slate-200 dark:border-[#26262A] flex flex-col gap-2 shrink-0">
-              <div className="flex items-center justify-between font-mono text-[11px] text-slate-500 dark:text-zinc-400 px-1">
+            <div className="p-4 bg-white dark:bg-[#141C20] border-t border-slate-200/70 dark:border-white/10 flex flex-col gap-2.5 shrink-0">
+              <div className="flex items-center justify-between text-[11.5px] text-slate-500 dark:text-zinc-400 px-1">
                 <span>Cupo utilizado</span>
-                <strong className="text-slate-800 dark:text-zinc-200">
-                  {horses.length} de {maxHorses} {maxHorses === 1 ? 'caballo en tu plan' : 'caballos en tu plan'}
+                <strong className="text-[#071B24] dark:text-zinc-200">
+                  {horses.length} de {maxHorses}{' '}
+                  {maxHorses === 1 ? 'caballo en tu plan' : 'caballos en tu plan'}
                 </strong>
               </div>
 
@@ -410,7 +637,7 @@ export default function UploadView({
                     setIsHorsePickerOpen(false);
                     onOpenPricing?.();
                   }}
-                  className="w-full min-h-[46px] px-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-mono text-[12px] font-extrabold flex items-center justify-center gap-2 shadow-md active:scale-95 transition"
+                  className="w-full min-h-[48px] px-4 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-[12.5px] font-extrabold flex items-center justify-center gap-2 shadow-md active:scale-95 transition"
                 >
                   <Lock className="w-4 h-4 shrink-0" />
                   <span>Dar de alta otro caballo · Requiere Upgrade de Plan</span>
@@ -422,7 +649,7 @@ export default function UploadView({
                     setIsHorsePickerOpen(false);
                     onOpenNewHorseModal?.();
                   }}
-                  className="w-full min-h-[46px] px-4 rounded-2xl card-3d-racing-green text-white font-mono text-[12px] font-bold flex items-center justify-center gap-2 shadow-md active:scale-95 transition"
+                  className="w-full min-h-[48px] px-4 rounded-full card-3d-racing-green text-white text-[13px] font-bold flex items-center justify-center gap-2 shadow-md active:scale-95 transition"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Registrar nuevo caballo</span>

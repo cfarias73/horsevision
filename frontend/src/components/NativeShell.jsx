@@ -81,14 +81,14 @@ const NativeShell = React.memo(function NativeShell({
   return (
     <div
       className={`min-h-[100dvh] w-full ${
-        isDark ? 'bg-[#050507]' : 'bg-[#E5E9F0]'
+        isDark ? 'bg-[#060A0C]' : 'bg-[#E6ECEA]'
       } flex items-center justify-center sm:p-4 overflow-x-hidden transition-colors duration-300`}
     >
       <div
         className={`relative w-full max-w-[430px] h-[100dvh] sm:h-[min(896px,94dvh)] ${
           isDark
-            ? 'dark bg-[#09090B] border-[#26262A] shadow-[0_32px_100px_rgba(0,0,0,0.9)]'
-            : 'bg-[#F8FAFC] border-slate-300 shadow-[0_32px_80px_rgba(15,23,42,0.14)]'
+            ? 'dark bg-[#0B1114] border-white/10 shadow-[0_32px_100px_rgba(0,0,0,0.9)]'
+            : 'bg-[#F2F5F4] border-slate-200/80 shadow-[0_32px_80px_rgba(7,27,36,0.12)]'
         } bg-racing-radial flex flex-col overflow-hidden sm:rounded-[42px] sm:border transition-all duration-300`}
       >
         {splash}
@@ -129,37 +129,37 @@ const NativeShell = React.memo(function NativeShell({
         </div>
 
         {/* Native Top App Navigation Bar */}
-        <header className="relative z-40 px-4 pt-1 pb-2.5 flex items-center justify-between gap-2 shrink-0">
+        <header className="relative z-40 px-4 pt-1 pb-2 flex items-center justify-between gap-2 shrink-0">
           {showBack ? (
             <button
               type="button"
               onClick={handleBack}
               aria-label="Volver"
-              className="w-10 h-10 rounded-full card-3d-interactive flex items-center justify-center text-slate-800 dark:text-white/90 active:scale-90 transition-all shadow-md shrink-0"
+              className="w-10 h-10 rounded-full bg-white dark:bg-[#151E22] border border-slate-200/70 dark:border-white/10 flex items-center justify-center text-[#071B24] dark:text-white/90 active:scale-90 transition-all shadow-sm shrink-0"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
           ) : (
             <div
-              className="w-10 h-10 rounded-2xl p-1.5 shadow-md shrink-0 bg-white dark:bg-[#16161B] border border-slate-200 dark:border-white/10 flex items-center justify-center"
+              className="w-10 h-10 rounded-full p-1.5 shadow-sm shrink-0 bg-white dark:bg-[#151E22] border border-slate-200/70 dark:border-white/10 flex items-center justify-center"
               aria-hidden="true"
             >
               <img 
                 src="/logos/hv-mark-2026.png?v=20261118" 
                 alt="HorseVision Icon" 
-                className="w-full h-full object-contain filter drop-shadow-sm" 
+                className="w-full h-full object-contain" 
               />
             </div>
           )}
 
           <div className="flex items-center gap-1.5 min-w-0">
-            <span className="font-mono text-[16px] font-extrabold tracking-tight text-slate-900 dark:text-white truncate drop-shadow-sm">
+            <span className="text-[16px] font-extrabold tracking-tight text-[#071B24] dark:text-white truncate">
               HorseVision
             </span>
             <span
               className={`w-2 h-2 rounded-full shrink-0 ${
                 healthState?.status === 'ready'
-                  ? 'bg-[#10B981]'
+                  ? 'bg-[#00D1C2]'
                   : healthState?.status === 'checking'
                   ? 'bg-[#F59E0B] animate-pulse'
                   : 'bg-[#EF4444]'
@@ -175,7 +175,7 @@ const NativeShell = React.memo(function NativeShell({
               onClick={() => setIsMenuOpen((v) => !v)}
               aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
               aria-expanded={isMenuOpen}
-              className="w-10 h-10 rounded-full card-3d-interactive flex items-center justify-center text-slate-700 dark:text-zinc-200 active:scale-90 transition-all shadow-sm"
+              className="w-10 h-10 rounded-full bg-white dark:bg-[#151E22] border border-slate-200/70 dark:border-white/10 flex items-center justify-center text-[#071B24] dark:text-zinc-200 active:scale-90 transition-all shadow-sm"
             >
               {isMenuOpen ? (
                 <X className="w-5 h-5" />
@@ -296,10 +296,10 @@ const NativeShell = React.memo(function NativeShell({
             aria-label="Sub-navegación de análisis"
             className="px-4 pb-2.5 shrink-0"
           >
-            <div className="grid grid-cols-2 gap-1.5 p-1.5 rounded-[18px] card-3d-recessed shadow-inner">
+            <div className="grid grid-cols-2 gap-1 p-1 rounded-full bg-white/80 dark:bg-[#141C20]/85 backdrop-blur-md border border-slate-200/70 dark:border-white/10 shadow-sm">
               {[
-                { id: 'report', label: 'Resultados' },
-                { id: 'visor', label: 'Visor de Video' },
+                { id: 'report', label: 'Diagnóstico IA' },
+                { id: 'visor', label: 'Telemetría & Video' },
               ].map((tab) => {
                 const active = subTab === tab.id;
                 return (
@@ -307,10 +307,10 @@ const NativeShell = React.memo(function NativeShell({
                     key={tab.id}
                     type="button"
                     onClick={() => onSelectSubTab?.(tab.id)}
-                    className={`min-h-[40px] rounded-[13px] font-mono text-[12px] font-bold transition-all duration-200 ${
+                    className={`min-h-[38px] rounded-full text-[12px] font-bold transition-all duration-200 ${
                       active
-                        ? 'card-3d-racing-green text-white scale-[1.02]'
-                        : 'text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.96]'
+                        ? 'bg-[#0F3D44] dark:bg-[#14545E] text-white shadow-sm'
+                        : 'text-slate-600 dark:text-zinc-400 hover:text-[#071B24] dark:hover:text-white active:scale-[0.97]'
                     }`}
                   >
                     {tab.label}
@@ -322,21 +322,23 @@ const NativeShell = React.memo(function NativeShell({
         )}
 
         {/* Scrollable Screen Body */}
-        <main className="flex-1 overflow-y-auto no-scrollbar px-4 pb-4">
+        <main className="flex-1 overflow-y-auto no-scrollbar px-4 pb-5">
           {children}
         </main>
 
-        {/* Native Fixed 4-Tab Bottom Navigation Menu (Home, Análisis, Cuadra, Agente IA) */}
+        {/* Native Floating Pill Bottom Navigation Dock (Home, Análisis, Cuadra, Agente IA) */}
         {!hideBottomNav && (
           <nav
             aria-label="Menú principal inferior"
-            className={`shrink-0 px-3 pt-2 pb-[max(10px,env(safe-area-inset-bottom))] ${
-              isDark
-                ? 'bg-[#0E0E12]/95 border-[#26262A] text-zinc-400'
-                : 'bg-white/95 border-slate-200 text-slate-500'
-            } backdrop-blur-lg border-t flex flex-col z-30 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]`}
+            className="shrink-0 px-3.5 pt-1 pb-[max(12px,env(safe-area-inset-bottom))] z-30 pointer-events-none"
           >
-            <div className="grid grid-cols-4 gap-1">
+            <div
+              className={`pointer-events-auto p-1.5 rounded-full backdrop-blur-xl border shadow-[0_14px_34px_rgba(7,27,36,0.12)] grid grid-cols-4 gap-1 ${
+                isDark
+                  ? 'bg-[#141D21]/92 border-white/10 text-zinc-400'
+                  : 'bg-white/92 border-slate-200/70 text-slate-500'
+              }`}
+            >
               {[
                 { id: 'home', label: 'Home', icon: Home },
                 { id: 'analisis', label: 'Análisis', icon: Activity },
@@ -348,7 +350,7 @@ const NativeShell = React.memo(function NativeShell({
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
-                      strokeWidth="1.8"
+                      strokeWidth="1.9"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       className={className}
@@ -366,37 +368,23 @@ const NativeShell = React.memo(function NativeShell({
                     key={item.id}
                     type="button"
                     onClick={() => onSelectNav(item.id)}
-                    className={`flex flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition-all duration-200 active:scale-95 ${
+                    className={`flex flex-col items-center justify-center py-2 px-1 rounded-full transition-all duration-200 active:scale-95 ${
                       active
-                        ? 'text-[#0D3F2E] dark:text-[#10B981] font-bold'
-                        : 'text-slate-500 dark:text-zinc-500 hover:text-slate-900 dark:hover:text-zinc-200'
+                        ? 'bg-[#0F3D44] dark:bg-[#14545E] text-white font-bold shadow-md'
+                        : 'text-slate-500 dark:text-zinc-400 hover:text-[#0F3D44] dark:hover:text-white'
                     }`}
                   >
-                    <div className="relative">
-                      <Icon
-                        className={`w-5 h-5 transition-transform duration-200 ${
-                          active ? 'scale-110 stroke-[2.4]' : 'stroke-[1.8]'
-                        }`}
-                      />
-                      {active && (
-                        <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#0D3F2E] dark:bg-[#10B981]" />
-                      )}
-                    </div>
-                    <span className="text-[10.5px] font-mono mt-1 tracking-tight truncate max-w-full">
+                    <Icon
+                      className={`w-[18px] h-[18px] transition-transform duration-200 ${
+                        active ? 'scale-105 stroke-[2.2]' : 'stroke-[1.8]'
+                      }`}
+                    />
+                    <span className="text-[10px] mt-0.5 tracking-tight truncate max-w-full leading-tight">
                       {item.label}
                     </span>
                   </button>
                 );
               })}
-            </div>
-
-            {/* Native iOS Home Bar Indicator */}
-            <div className="mt-2 flex justify-center" aria-hidden="true">
-              <div
-                className={`w-32 h-1 rounded-full ${
-                  isDark ? 'bg-white/20' : 'bg-slate-300'
-                }`}
-              />
             </div>
           </nav>
         )}

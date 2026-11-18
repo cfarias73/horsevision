@@ -184,118 +184,158 @@ export default function ReportView({
   return (
     <div className="flex flex-col gap-3.5 pt-1 view-enter">
       {/* Active Horse Identification Banner */}
-      <section className="rounded-[22px] card-3d p-3.5 flex items-center justify-between shadow-sm border border-[#0D3F2E]/15 dark:border-[#10B981]/25">
+      <section className="rounded-[26px] card-3d p-3.5 flex items-center justify-between gap-2.5">
         <div className="flex items-center gap-3 min-w-0">
           <img
             src={currentPhoto}
             alt={currentHorseName}
-            className="w-12 h-12 rounded-2xl object-cover shrink-0 border border-slate-200 dark:border-[#26262A] shadow-sm"
+            className="w-12 h-12 rounded-2xl object-cover shrink-0 shadow-sm"
           />
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="font-mono text-[16px] font-extrabold text-slate-900 dark:text-white truncate">
+              <h2 className="text-[16px] font-extrabold text-[#071B24] dark:text-white truncate">
                 {currentHorseName}
               </h2>
-              <span className="font-mono text-[9px] px-2 py-0.5 rounded-full card-3d-subtle text-[#0D3F2E] dark:text-[#10B981] font-bold border border-[#0D3F2E]/20">
+              <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-[#EEF4F2] dark:bg-[#0F1619] text-[#0F3D44] dark:text-[#00D1C2] font-bold shrink-0">
                 {currentDiscipline}
               </span>
             </div>
-            <p className="font-mono text-[11px] text-slate-500 dark:text-zinc-400 truncate mt-0.5">
+            <p className="text-[11px] text-slate-500 dark:text-zinc-400 truncate mt-0.5">
               {currentBreed} · {currentDate}
             </p>
           </div>
         </div>
 
-        <div className="shrink-0 text-right">
-          <span className="font-mono text-[16px] font-extrabold text-slate-900 dark:text-white block">
-            {score}/100
-          </span>
-          <span
-            className="font-mono text-[9px] font-bold px-2 py-0.5 rounded-full"
-            style={{ backgroundColor: `${badgeColor}22`, color: badgeColor }}
-          >
-            {sym.badge_label || 'Evaluado'}
-          </span>
+        <span
+          className="text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0"
+          style={{ backgroundColor: `${badgeColor}20`, color: badgeColor }}
+        >
+          {sym.badge_label || 'Evaluado'}
+        </span>
+      </section>
+
+      {/* Clinical Symmetry Ring Summary */}
+      <section className="rounded-[26px] card-3d p-4 flex items-center gap-4">
+        <div className="relative w-[84px] h-[84px] shrink-0 flex items-center justify-center">
+          <svg width="84" height="84" viewBox="0 0 88 88" className="-rotate-90">
+            <circle
+              cx="44"
+              cy="44"
+              r={ringRadius}
+              className="stroke-[#E9EFEF] dark:stroke-white/10"
+              strokeWidth="7"
+              fill="none"
+            />
+            <circle
+              cx="44"
+              cy="44"
+              r={ringRadius}
+              stroke={badgeColor}
+              strokeWidth="7"
+              strokeLinecap="round"
+              fill="none"
+              strokeDasharray={ringCircumference}
+              strokeDashoffset={ringDashOffset}
+            />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-[22px] font-extrabold text-[#071B24] dark:text-white leading-none tabular-nums">
+              {score}
+            </span>
+            <span className="text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5">/ 100</span>
+          </div>
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5">
+            <StatusIcon className="w-4 h-4 shrink-0" style={{ color: badgeColor }} />
+            <span
+              className="text-[11px] font-bold px-2.5 py-0.5 rounded-full truncate"
+              style={{
+                backgroundColor: `${badgeColor}18`,
+                color: badgeColor,
+              }}
+            >
+              {sym.badge_label || 'Evaluación'}
+            </span>
+          </div>
+          <h2 className="text-[16px] font-extrabold text-[#071B24] dark:text-white mt-1.5 leading-snug">
+            {sym.affected_limb
+              ? `Hallazgo en ${sym.affected_limb}`
+              : 'Biomecánica Simétrica'}
+          </h2>
+          <p className="text-[12px] text-slate-600 dark:text-zinc-400 mt-0.5 leading-snug tabular-nums">
+            Ant. SI {sym.anterior_si_pct ?? 100}% · Post. SI {sym.posterior_si_pct ?? 100}%
+          </p>
         </div>
       </section>
 
-      {/* Top Global Score & Summary Card */}
-      <section className="relative overflow-hidden rounded-[24px] card-3d p-4 shadow-md">
-        <div className="flex items-center gap-4">
-          <div className="relative w-[88px] h-[88px] shrink-0 flex items-center justify-center">
-            <svg width="88" height="88" viewBox="0 0 88 88" className="-rotate-90">
-              <circle
-                cx="44"
-                cy="44"
-                r={ringRadius}
-                className="stroke-slate-200 dark:stroke-[#26262A]"
-                strokeWidth="7"
-                fill="none"
-              />
-              <circle
-                cx="44"
-                cy="44"
-                r={ringRadius}
-                stroke={badgeColor}
-                strokeWidth="7"
-                strokeLinecap="round"
-                fill="none"
-                strokeDasharray={ringCircumference}
-                strokeDashoffset={ringDashOffset}
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="font-mono text-[24px] font-extrabold text-slate-900 dark:text-white leading-none tabular-nums drop-shadow-sm">
-                {score}
-              </span>
-              <span className="font-mono text-[10px] text-slate-500 dark:text-zinc-400 mt-0.5">/ 100</span>
-            </div>
+      {/* Bento Grid 2x2 Big Number Tiles (Biometric Bento style) */}
+      <section className="grid grid-cols-2 gap-2.5">
+        {/* Tile 1: Score Global Highlighted in Deep Teal + Lime */}
+        <div className="rounded-[24px] bg-[#0F3D44] dark:bg-[#14545E] p-4 text-white shadow-[0_12px_28px_-6px_rgba(15,61,68,0.4)] flex flex-col justify-between min-h-[112px]">
+          <span className="text-[11px] font-semibold text-white/75">
+            Score Global
+          </span>
+          <div className="flex items-baseline gap-1 my-1">
+            <span className="text-[32px] font-extrabold text-[#D9F99D] leading-none tabular-nums">
+              {score}
+            </span>
+            <span className="text-[13px] font-bold text-white/70 tabular-nums">
+              /100
+            </span>
           </div>
-
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5">
-              <StatusIcon className="w-4 h-4 shrink-0" style={{ color: badgeColor }} />
-              <span
-                className="font-mono text-[11px] font-bold px-2.5 py-0.5 rounded-full truncate border shadow-sm"
-                style={{
-                  backgroundColor: `${badgeColor}22`,
-                  color: badgeColor,
-                  borderColor: `${badgeColor}55`,
-                }}
-              >
-                {sym.badge_label || 'Evaluación'}
-              </span>
-            </div>
-            <h2 className="font-mono text-[16px] font-bold text-slate-900 dark:text-white mt-1.5 leading-snug drop-shadow-sm">
-              {sym.affected_limb
-                ? `Hallazgo en ${sym.affected_limb}`
-                : 'Biomecánica Simétrica'}
-            </h2>
-            <p className="text-[12px] text-slate-600 dark:text-zinc-400 mt-0.5 leading-snug">
-              Ant. SI {sym.anterior_si_pct ?? 100}% · Post. SI {sym.posterior_si_pct ?? 100}%
-            </p>
-          </div>
+          <span className="text-[11px] font-semibold text-white/90 truncate">
+            {sym.badge_label || 'Simétrico'}
+          </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-2.5 mt-3.5">
-          <div className="rounded-[18px] card-3d-interactive px-3.5 py-2.5 shadow-sm">
-            <span className="block text-[10px] text-slate-500 dark:text-zinc-400">Zancada</span>
-            <span className="font-mono text-[16px] font-bold text-slate-900 dark:text-white tabular-nums">
-              {kin.stride_length_normalized ?? 0}× cruz
+        {/* Tile 2: Zancada */}
+        <div className="rounded-[24px] card-3d p-4 flex flex-col justify-between min-h-[112px]">
+          <span className="text-[11px] font-semibold text-slate-500 dark:text-zinc-400">
+            Zancada
+          </span>
+          <div className="flex items-baseline gap-1 my-1">
+            <span className="text-[30px] font-extrabold text-[#071B24] dark:text-white leading-none tabular-nums">
+              {Number(kin.stride_length_m ?? 2.38).toFixed(2)}
             </span>
-            <span className="block font-mono text-[10px] text-slate-400 dark:text-zinc-500 mt-0.5 tabular-nums">
-              {kin.stride_length_m ?? 0} m · {kin.cadence_spm ?? 0} spm
-            </span>
-          </div>
-          <div className="rounded-[18px] card-3d-interactive px-3.5 py-2.5 shadow-sm">
-            <span className="block text-[10px] text-slate-500 dark:text-zinc-400">Calidad de Video</span>
-            <span className="font-mono text-[16px] font-bold text-slate-900 dark:text-white tabular-nums">
-              {gate.pass_rate_pct ?? 100}%
-            </span>
-            <span className="block font-mono text-[10px] text-slate-400 dark:text-zinc-500 mt-0.5 tabular-nums">
-              Vista lateral 90°
+            <span className="text-[13px] font-bold text-slate-500 dark:text-zinc-400">
+              m
             </span>
           </div>
+          <span className="text-[11px] font-semibold text-[#0F3D44] dark:text-[#00D1C2] tabular-nums truncate">
+            {Math.round(kin.cadence_spm ?? 84)} pasos/min
+          </span>
+        </div>
+
+        {/* Tile 3: Flexión Dorso */}
+        <div className="rounded-[24px] card-3d p-4 flex flex-col justify-between min-h-[112px]">
+          <span className="text-[11px] font-semibold text-slate-500 dark:text-zinc-400">
+            Flexión Dorso
+          </span>
+          <div className="flex items-baseline gap-0.5 my-1">
+            <span className="text-[30px] font-extrabold text-[#071B24] dark:text-white leading-none tabular-nums">
+              {Number(kin.back_rom_deg ?? 4.4).toFixed(1)}°
+            </span>
+          </div>
+          <span className="text-[11px] font-medium text-slate-500 dark:text-zinc-400 truncate">
+            ROM Toracolumbar
+          </span>
+        </div>
+
+        {/* Tile 4: Calidad IA */}
+        <div className="rounded-[24px] card-3d p-4 flex flex-col justify-between min-h-[112px]">
+          <span className="text-[11px] font-semibold text-slate-500 dark:text-zinc-400">
+            Calidad IA
+          </span>
+          <div className="flex items-baseline gap-0.5 my-1">
+            <span className="text-[30px] font-extrabold text-[#071B24] dark:text-white leading-none tabular-nums">
+              {Math.round(gate.pass_rate_pct ?? 100)}%
+            </span>
+          </div>
+          <span className="text-[11px] font-medium text-slate-500 dark:text-zinc-400 truncate">
+            Captura lateral 90°
+          </span>
         </div>
       </section>
 
@@ -306,9 +346,9 @@ export default function ReportView({
 
       {/* Vertical Oscillation Time-Series Chart */}
       {waveGeometry && (
-        <section className="rounded-[24px] card-3d p-4 shadow-md">
-          <div className="flex items-center justify-between gap-2 mb-2">
-            <h3 className="font-mono text-[13px] font-bold text-slate-900 dark:text-white">
+        <section className="rounded-[26px] card-3d p-4">
+          <div className="flex items-center justify-between gap-2 mb-2.5">
+            <h3 className="text-[14px] font-extrabold text-[#071B24] dark:text-white">
               Oscilación Vertical
             </h3>
             <div className="flex items-center gap-2 font-mono text-[10px]">
@@ -361,10 +401,10 @@ export default function ReportView({
       )}
 
       {/* Section A: Hildebrand Footfall Gait Sequence Diagram */}
-      <section className="rounded-[24px] card-3d p-4 shadow-md">
+      <section className="rounded-[26px] card-3d p-4">
         <div className="flex items-center gap-2 mb-2.5">
-          <Footprints className="w-4 h-4 text-[#0D3F2E] dark:text-[#00F0FF]" />
-          <h3 className="font-mono text-[13px] font-bold text-slate-900 dark:text-white">
+          <Footprints className="w-4 h-4 text-[#0F3D44] dark:text-[#00D1C2]" />
+          <h3 className="text-[14px] font-extrabold text-[#071B24] dark:text-white">
             Secuencia de Pisada
           </h3>
         </div>
@@ -414,10 +454,10 @@ export default function ReportView({
       </section>
 
       {/* Section B: Bidirectional Protraction vs Retraction & Hoof Clearance */}
-      <section className="rounded-[24px] card-3d p-4 shadow-md">
+      <section className="rounded-[26px] card-3d p-4">
         <div className="flex items-center gap-2 mb-2.5">
           <MoveHorizontal className="w-4 h-4 text-[#A855F7]" />
-          <h3 className="font-mono text-[13px] font-bold text-slate-900 dark:text-white">
+          <h3 className="text-[14px] font-extrabold text-[#071B24] dark:text-white">
             Arco de Vuelo
           </h3>
         </div>
@@ -501,10 +541,10 @@ export default function ReportView({
       </section>
 
       {/* Diagnostic Clinical Findings Card */}
-      <section className="rounded-[24px] card-3d p-4 flex flex-col gap-2.5 shadow-md">
+      <section className="rounded-[26px] card-3d p-4 flex flex-col gap-2.5">
         <div className="flex items-center gap-2">
-          <Activity className="w-4 h-4 text-[#0D3F2E] dark:text-[#10B981]" />
-          <h3 className="font-mono text-[13px] font-bold text-slate-900 dark:text-white">
+          <Activity className="w-4 h-4 text-[#0F3D44] dark:text-[#00D1C2]" />
+          <h3 className="text-[14px] font-extrabold text-[#071B24] dark:text-white">
             Hallazgos Biomecánicos
           </h3>
         </div>

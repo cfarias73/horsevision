@@ -747,6 +747,9 @@ export default function App({ onBackToLanding, initialAuthMode = 'signup', skipS
               selectedHorse={selectedHorse}
               onSelectHorse={setSelectedHorse}
               maxHorses={maxHorses}
+              sessions={sessions}
+              onSelectNav={setActiveNav}
+              onSelectSession={handleSelectHistorySession}
               onOpenNewHorseModal={handleOpenNewHorseOrUpgrade}
               onOpenPricing={() => setIsPricingOpen(true)}
               onOpenCamera={() => setIsCameraOpen(true)}
