@@ -528,38 +528,50 @@ export default function LandingPage({ onLaunchApp }) {
       </section>
 
       {/* =========================================================================
-          4. PRODUCT SECTION (Dashboard & Multiplatform Showcase)
+          4. PRODUCT SECTION (Mobile App Showcase)
           ========================================================================= */}
       <section className="py-20 sm:py-28 px-4 sm:px-8 lg:px-16 bg-gradient-to-br from-[#071B24] via-[#0B3038] to-[#0F3D44] text-white">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Laptop / Screen Preview */}
-          <div className="lg:col-span-7">
-            <div className="relative rounded-[28px] overflow-hidden shadow-2xl border border-white/15 group">
-              <img
-                src="/landing-assets/images/dashboard-preview.jpg"
-                alt="Panel de análisis HorseVision"
-                className="w-full h-auto object-cover transform group-hover:scale-[1.01] transition-transform duration-500"
-              />
-              <div className="absolute bottom-4 left-4 right-4 px-4 py-3 bg-[#071B24]/75 backdrop-blur-xl rounded-full text-[12px] text-white/90 flex items-center justify-between border border-white/15 gap-2">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+          {/* Mobile Mockup Preview */}
+          <div className="lg:col-span-6 flex flex-col items-center justify-center">
+            <div className="relative group max-w-[320px] sm:max-w-[360px] w-full">
+              {/* Subtle ambient glow behind the phone */}
+              <div className="absolute -inset-4 bg-gradient-to-tr from-[#00D1C2]/25 via-[#10B981]/20 to-[#D9F99D]/15 rounded-[60px] blur-3xl opacity-70 group-hover:opacity-95 transition-opacity duration-700 pointer-events-none" />
+
+              {/* Phone Mockup with drop shadow */}
+              <div className="relative transform group-hover:scale-[1.02] transition-transform duration-500 drop-shadow-[0_30px_60px_rgba(0,0,0,0.65)]">
+                <picture>
+                  <source srcSet="/landing-assets/images/mobile-mockup-analysis.webp" type="image/webp" />
+                  <img
+                    src="/landing-assets/images/mobile-mockup-analysis.png"
+                    alt="Telemetría y análisis biomecánico en tiempo real en HorseVision Móvil"
+                    className="w-full h-auto object-contain block select-none"
+                    loading="lazy"
+                  />
+                </picture>
+              </div>
+
+              {/* Floating pill badge */}
+              <div className="mt-5 px-4 py-2.5 bg-[#071B24]/85 backdrop-blur-xl rounded-full text-[12px] text-white/90 flex items-center justify-between border border-white/15 gap-2 shadow-xl">
                 <div className="flex items-center gap-2 truncate">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#D9F99D] shrink-0" />
-                  <span className="font-mono truncate">Disponible en Móvil (PWA) y Computadora</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] animate-pulse shrink-0" />
+                  <span className="font-mono text-[11px] truncate">App Móvil (PWA) · iOS y Android</span>
                 </div>
-                <span className="text-[#00D1C2] font-semibold shrink-0">Sin sensores requeridos</span>
+                <span className="text-[#00D1C2] text-[11px] font-bold shrink-0">Sin sensores requeridos</span>
               </div>
             </div>
           </div>
 
           {/* Value Props & Checklist */}
-          <div className="lg:col-span-5 flex flex-col justify-center">
+          <div className="lg:col-span-6 flex flex-col justify-center">
             <p className="text-[11px] font-extrabold tracking-[2.6px] text-[#00D1C2] uppercase mb-3">
-              TODO EN UNA SOLA PLATAFORMA
+              TODO EN TU SMARTPHONE
             </p>
             <h2 className="text-[32px] sm:text-[44px] font-extrabold tracking-[-1.5px] leading-tight mb-6">
               Tus caballos, sus análisis y tu asistente de IA.
             </h2>
             <p className="text-[15px] text-[#D4E0E2] leading-relaxed mb-6">
-              Diseñado tanto para jinetes particulares como para veterinarios y directores de haras. Funciona directamente en tu teléfono desde las cuadras o en tu pantalla de escritorio.
+              Diseñado tanto para jinetes particulares como para veterinarios y directores de haras. Funciona directamente en tu teléfono móvil desde la pista o las cuadras, sin necesidad de sensores ni equipos costosos.
             </p>
 
             <ul className="space-y-3.5 mb-8">
