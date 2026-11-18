@@ -146,11 +146,11 @@ export default function AuthScreen({ onAuthSuccess, onBackToLanding }) {
 
         {/* Brand Hero Header */}
         <div className="flex flex-col items-center text-center gap-2.5 pt-2 pb-2">
-          <div className="relative w-16 h-16 rounded-2xl overflow-hidden shadow-xl border border-emerald-500/20 bg-[#0D3F2E]">
+          <div className="relative w-16 h-16 rounded-2xl p-2 shadow-xl border border-teal-500/30 bg-slate-900/90 dark:bg-zinc-900/90 flex items-center justify-center backdrop-blur-md">
             <img 
               src="/logos/horsevision-icon.png" 
               alt="HorseVision" 
-              className="w-full h-full object-cover" 
+              className="w-full h-full object-contain filter drop-shadow" 
             />
             <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#141417] animate-pulse" />
           </div>
