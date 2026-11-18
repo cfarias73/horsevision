@@ -51,11 +51,11 @@ class RHDAQualityGate:
 
     def __init__(
         self,
-        min_aspect_ratio: float = 1.02,
-        max_aspect_ratio: float = 3.20,
-        max_occlusion_score: float = 0.35,
-        min_confidence: float = 0.35,
-        min_area_ratio: float = 0.02,
+        min_aspect_ratio: float = 0.65,
+        max_aspect_ratio: float = 3.60,
+        max_occlusion_score: float = 0.45,
+        min_confidence: float = 0.25,
+        min_area_ratio: float = 0.005,
         models_dir: Optional[Path] = None,
     ):
         self.min_aspect_ratio = min_aspect_ratio
@@ -66,15 +66,15 @@ class RHDAQualityGate:
         self.models_dir = Path(models_dir) if models_dir else Path(__file__).resolve().parent.parent / "models"
 
         self.yolo_model = None
-        self.yolo_onnx = None
+        self.yolo_onnx_session = None
         self.engine_name = "OpenCV Foreground Horse Detector + Temporal Tracker (YOLOv8 Fallback)"
         self._init_detector()
 
     def _init_detector(self) -> None:
         """
         Attempts to initialize Ultralytics YOLOv8 (class 'horse') if local weights
-        exist, or OpenCV DNN YOLOv8 ONNX; otherwise uses deterministic real-pixel
-        OpenCV horse segmentation + tracking.
+        exist, or ONNX Runtime / OpenCV DNN YOLOv8 ONNX; strictly targets equine
+        subject (COCO class 17) and discards handlers, humans, and arena background.
         """
         local_pt = self.models_dir / "yolov8n.pt"
         cwd_pt = Path("yolov8n.pt")
@@ -89,7 +89,22 @@ class RHDAQualityGate:
                 logger.info("Loaded %s", self.engine_name)
                 return
             except Exception as exc:
-                logger.warning("Ultralytics YOLOv8 unavailable (%s); checking ONNX/OpenCV.", exc)
+                logger.warning("Ultralytics YOLOv8 unavailable (%s); checking ONNX Runtime.", exc)
+
+        for candidate in ("yolov8n.onnx", "yolov8s.onnx"):
+            onnx_path = self.models_dir / candidate
+            if onnx_path.exists():
+                try:
+                    import onnxruntime as ort  # type: ignore
+
+                    opts = ort.SessionOptions()
+                    opts.intra_op_num_threads = 4
+                    self.yolo_onnx_session = ort.InferenceSession(str(onnx_path), sess_options=opts)
+                    self.engine_name = f"ONNX Runtime YOLOv8 ({candidate}, class=horse)"
+                    logger.info("Loaded %s", self.engine_name)
+                    return
+                except Exception as exc:
+                    logger.warning("YOLOv8 ONNX Runtime load failed (%s); checking OpenCV DNN.", exc)
 
         onnx_path = self.models_dir / "yolov8n.onnx"
         if onnx_path.exists():
@@ -108,21 +123,62 @@ class RHDAQualityGate:
         return True
 
     def _detect_with_yolo(self, frame_bgr: np.ndarray) -> Optional[Tuple[Tuple[int, int, int, int], float, float]]:
-        """Runs YOLOv8 inference for COCO class 17 (horse)."""
-        if self.yolo_model is None:
-            return None
-        results = self.yolo_model.predict(frame_bgr, classes=[COCO_HORSE_CLASS_ID], verbose=False)
-        if not results or len(results[0].boxes) == 0:
-            return None
+        """
+        Runs YOLOv8 inference strictly filtered for COCO class 17 ('horse').
+        Completely ignores humans/handlers (class 0), arena fences, and distractions.
+        """
+        if self.yolo_model is not None:
+            try:
+                results = self.yolo_model.predict(frame_bgr, classes=[COCO_HORSE_CLASS_ID], verbose=False)
+                if results and len(results[0].boxes) > 0:
+                    boxes = results[0].boxes
+                    best_idx = int(np.argmax(boxes.conf.cpu().numpy()))
+                    conf = float(boxes.conf[best_idx].cpu().numpy())
+                    xyxy = boxes.xyxy[best_idx].cpu().numpy().astype(int)
+                    x1, y1, x2, y2 = int(xyxy[0]), int(xyxy[1]), int(xyxy[2]), int(xyxy[3])
+                    roi = frame_bgr[max(0, y1):max(1, y2), max(0, x1):max(1, x2)]
+                    occlusion_est = self._estimate_roi_occlusion(roi)
+                    return (x1, y1, x2, y2), conf, occlusion_est
+            except Exception as exc:
+                logger.debug("Ultralytics predict error: %s", exc)
 
-        boxes = results[0].boxes
-        best_idx = int(np.argmax(boxes.conf.cpu().numpy()))
-        conf = float(boxes.conf[best_idx].cpu().numpy())
-        xyxy = boxes.xyxy[best_idx].cpu().numpy().astype(int)
-        x1, y1, x2, y2 = int(xyxy[0]), int(xyxy[1]), int(xyxy[2]), int(xyxy[3])
-        # Compute foreground solidity inside box for occlusion metric
-        roi = frame_bgr[max(0, y1):max(1, y2), max(0, x1):max(1, x2)]
-        occlusion_est = self._estimate_roi_occlusion(roi)
+        if self.yolo_onnx_session is not None:
+            try:
+                h, w = frame_bgr.shape[:2]
+                scale = min(640.0 / w, 640.0 / h)
+                nw, nh = int(round(w * scale)), int(round(h * scale))
+                resized = cv2.resize(frame_bgr, (nw, nh), interpolation=cv2.INTER_LINEAR)
+                pad_x = (640 - nw) // 2
+                pad_y = (640 - nh) // 2
+                canvas = np.full((640, 640, 3), 114, dtype=np.uint8)
+                canvas[pad_y:pad_y + nh, pad_x:pad_x + nw] = resized
+
+                blob = (cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB).astype(np.float32) / 255.0).transpose(2, 0, 1)[None, ...]
+                inp_name = self.yolo_onnx_session.get_inputs()[0].name
+                outs = self.yolo_onnx_session.run(None, {inp_name: blob})[0][0]  # (84, 8400)
+
+                horse_confs = outs[4 + COCO_HORSE_CLASS_ID, :]
+                valid_indices = np.where(horse_confs >= 0.22)[0]
+                if len(valid_indices) > 0:
+                    best_i = valid_indices[np.argmax(horse_confs[valid_indices])]
+                    conf = float(horse_confs[best_i])
+                    cx, cy, bw, bh = outs[:4, best_i]
+
+                    x1 = int(round((cx - bw / 2.0 - pad_x) / scale))
+                    y1 = int(round((cy - bh / 2.0 - pad_y) / scale))
+                    x2 = int(round((cx + bw / 2.0 - pad_x) / scale))
+                    y2 = int(round((cy + bh / 2.0 - pad_y) / scale))
+
+                    x1, y1 = max(0, x1), max(0, y1)
+                    x2, y2 = min(w, max(x1 + 4, x2)), min(h, max(y1 + 4, y2))
+
+                    roi = frame_bgr[y1:y2, x1:x2]
+                    occlusion_est = self._estimate_roi_occlusion(roi)
+                    return (x1, y1, x2, y2), conf, occlusion_est
+            except Exception as exc:
+                logger.debug("YOLOv8 ONNX inference error: %s", exc)
+
+        return None
         return (x1, y1, x2, y2), conf, occlusion_est
 
     @staticmethod
