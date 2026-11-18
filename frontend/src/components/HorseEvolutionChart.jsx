@@ -27,10 +27,14 @@ export default function HorseEvolutionChart({
 
   const isDemoHorse = ['dakota', 'tornado', 'eclipse'].includes(horseName.toLowerCase());
 
-  // Filter and sort sessions chronologically for this horse
+  // Filter and sort sessions chronologically for this horse (oldest -> newest, left -> right)
   const horseSessions = useMemo(() => {
+    // Sessions in storage are ordered newest-first ([newSession, ...sessions]).
+    // We reverse so time progresses left-to-right: Left = baseline (past) -> Right = current (present)
     const list = sessions
       .filter((s) => s.horse?.toLowerCase() === horseName.toLowerCase())
+      .slice()
+      .reverse()
       .map((s, idx) => ({
         ...s,
         idx,
