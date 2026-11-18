@@ -569,9 +569,9 @@ export default function App({ onBackToLanding, initialAuthMode = 'signup', skipS
 
       const newSession = {
         id: newSessionId,
-        horse: selectedHorse?.name || 'Dakota',
+        horse: selectedHorse?.name || 'Equino',
         breed: selectedHorse?.breed || 'Silla Francés',
-        discipline: selectedHorse?.discipline || 'Salto Clásico',
+        discipline: selectedHorse?.discipline || 'Deporte Ecuestre',
         date: dateFull,
         score: newScore,
         status: newScore >= 80 ? 'optimal' : 'mild',
@@ -581,6 +581,8 @@ export default function App({ onBackToLanding, initialAuthMode = 'signup', skipS
         affectedLimb: data?.symmetry_report?.affected_limb || 'Ninguno',
         symmetry_report: data.symmetry_report,
         kinematics_summary: data.kinematics_summary,
+        analysis_data: data,
+        isDemo: false,
       };
 
       saveSessionsToStorage([newSession, ...sessions]);
@@ -625,7 +627,26 @@ export default function App({ onBackToLanding, initialAuthMode = 'signup', skipS
     setSubTab('report');
   };
 
+  const handleClearDemoSessions = () => {
+    const realSessions = sessions.filter(
+      (s) => !s.isDemo && !['dakota', 'tornado', 'eclipse'].includes((s.horse || '').toLowerCase())
+    );
+    saveSessionsToStorage(realSessions);
+  };
+
   const handleSelectHistorySession = async (session) => {
+    // If session already holds full analysis payload, load it directly
+    if (session.analysis_data) {
+      setAnalysisData(session.analysis_data);
+      const matchingHorse = horses.find(
+        (h) => h.name.toLowerCase() === session.horse?.toLowerCase()
+      );
+      if (matchingHorse) setSelectedHorse(matchingHorse);
+      setActiveNav('analisis');
+      setSubTab('report');
+      return;
+    }
+
     setIsAnalyzing(true);
     const sessionDetail = SESSIONS_DATA[session.id] || {
       horseName: session.horse,
@@ -838,7 +859,10 @@ export default function App({ onBackToLanding, initialAuthMode = 'signup', skipS
           {activeNav === 'historial' && (
             <HistoryView
               sessions={sessions}
+              horses={horses}
               onSelectSession={handleSelectHistorySession}
+              onClearDemoSessions={handleClearDemoSessions}
+              onSelectNav={setActiveNav}
             />
           )}
 

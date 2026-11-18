@@ -14,6 +14,7 @@ import {
   Bot,
   ChevronRight,
   RotateCcw,
+  Activity,
 } from 'lucide-react';
 
 const FALLBACK_HORSE_PHOTO =
@@ -98,18 +99,19 @@ export default function UploadView({
     );
   }, [sessions, selectedHorse]);
 
-  const heroScore = Math.round(
-    latestHorseSession?.score ?? selectedHorse?.lastScore ?? 87
-  );
-  const isOptimal = heroScore >= 80;
+  const hasEvaluations = Boolean(latestHorseSession || selectedHorse?.lastScore);
+  const heroScore = hasEvaluations
+    ? Math.round(latestHorseSession?.score ?? selectedHorse?.lastScore ?? 80)
+    : null;
+  const isOptimal = heroScore !== null ? heroScore >= 80 : true;
   const statusLabel =
     latestHorseSession?.statusLabel || (isOptimal ? 'Simétrico' : 'Atención');
-  const asymLabel = latestHorseSession?.asymmetryMm || '3.2 mm';
+  const asymLabel = latestHorseSession?.asymmetryMm || null;
 
   // Ring geometry for "Estado Biomecánico"
   const ringRadius = 30;
   const ringCircumference = 2 * Math.PI * ringRadius;
-  const ringDashOffset = ringCircumference * (1 - heroScore / 100);
+  const ringDashOffset = heroScore !== null ? ringCircumference * (1 - heroScore / 100) : ringCircumference;
 
   return (
     <div className="flex flex-col gap-4 pt-1">
@@ -217,7 +219,10 @@ export default function UploadView({
               <button
                 type="button"
                 disabled={isAnalyzing}
-                onClick={() => onSelectFile?.(null)}
+                onClick={() => {
+                  onClearError?.();
+                  onSelectFile?.(null);
+                }}
                 className="px-3 py-1.5 rounded-full bg-[#F4F7F6] dark:bg-[#0F1619] text-[#0F3D44] dark:text-zinc-200 text-[11px] font-bold flex items-center gap-1 active:scale-95 transition shrink-0"
               >
                 <RotateCcw className="w-3 h-3" />
@@ -230,13 +235,13 @@ export default function UploadView({
             type="button"
             disabled={isAnalyzing}
             onClick={() => requireHorseThen(onAnalyzeFile)}
-            className="w-full min-h-[58px] rounded-[22px] card-3d-racing-green px-5 flex items-center justify-between gap-3 active:scale-[0.98] transition-all disabled:opacity-60"
+            className="w-full min-h-[60px] rounded-[24px] card-3d-racing-green px-5 py-3.5 flex items-center justify-between gap-3 active:scale-[0.98] transition-all disabled:opacity-60 shadow-lg"
           >
             <div className="text-left">
               <span className="block text-[15px] font-extrabold text-white">
                 {isAnalyzing ? 'Analizando Biomecánica...' : 'Iniciar Análisis Biomecánico'}
               </span>
-              <span className="block text-[11px] text-white/75">
+              <span className="block text-[11px] text-white/75 mt-0.5">
                 {isAnalyzing
                   ? analysisStepLabel || 'Procesando puntos articulares'
                   : 'Detección de simetría, zancada y dorso IA'}
@@ -246,10 +251,23 @@ export default function UploadView({
               {isAnalyzing ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-5 h-5 stroke-[2.5]" />
               )}
             </div>
           </button>
+
+          {!isAnalyzing && (
+            <button
+              type="button"
+              onClick={() => {
+                onClearError?.();
+                onSelectFile?.(null);
+              }}
+              className="w-full py-2 text-center text-[12px] font-semibold text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-white transition active:scale-95"
+            >
+              Descartar video y volver a Tu Pista
+            </button>
+          )}
         </section>
       ) : !selectedHorse ? (
         /* Empty Stable Onboarding Hero Card */
@@ -310,12 +328,21 @@ export default function UploadView({
               {selectedHorse.discipline}
             </span>
             <span className="px-3 py-1 rounded-full bg-black/45 backdrop-blur-md border border-white/15 text-[11px] font-bold text-white flex items-center gap-1.5 shrink-0 tabular-nums">
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  isOptimal ? 'bg-[#D9F99D]' : 'bg-amber-400'
-                }`}
-              />
-              Score {heroScore} · {statusLabel}
+              {hasEvaluations ? (
+                <>
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      isOptimal ? 'bg-[#D9F99D]' : 'bg-amber-400'
+                    }`}
+                  />
+                  Score {heroScore} · {statusLabel}
+                </>
+              ) : (
+                <>
+                  <span className="w-2 h-2 rounded-full bg-[#00D1C2]" />
+                  Sin evaluar aún
+                </>
+              )}
             </span>
           </div>
 
@@ -344,159 +371,179 @@ export default function UploadView({
         </section>
       )}
 
-      {/* 4. "Estado Biomecánico" Circular Progress Ring Card (FitFuel style) */}
-      {selectedHorse && (
-        <section className="rounded-[26px] card-3d p-4 flex items-center justify-between gap-4">
-          <div className="relative w-[78px] h-[78px] shrink-0 flex items-center justify-center">
-            <svg width="78" height="78" viewBox="0 0 78 78" className="-rotate-90">
-              <circle
-                cx="39"
-                cy="39"
-                r={ringRadius}
-                className="stroke-[#E9EFEF] dark:stroke-white/10"
-                strokeWidth="7"
-                fill="none"
-              />
-              <circle
-                cx="39"
-                cy="39"
-                r={ringRadius}
-                stroke={isOptimal ? '#0F3D44' : '#F59E0B'}
-                className={isOptimal ? 'dark:stroke-[#00D1C2]' : ''}
-                strokeWidth="7"
-                strokeLinecap="round"
-                fill="none"
-                strokeDasharray={ringCircumference}
-                strokeDashoffset={ringDashOffset}
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-[20px] font-extrabold text-[#071B24] dark:text-white tabular-nums leading-none">
-                {heroScore}%
-              </span>
+      {/* 4. "Estado Biomecánico" - ONLY shown when no video is currently staged */}
+      {!selectedFile && selectedHorse && (
+        hasEvaluations ? (
+          <section className="rounded-[26px] card-3d p-4 flex items-center justify-between gap-4">
+            <div className="relative w-[78px] h-[78px] shrink-0 flex items-center justify-center">
+              <svg width="78" height="78" viewBox="0 0 78 78" className="-rotate-90">
+                <circle
+                  cx="39"
+                  cy="39"
+                  r={ringRadius}
+                  className="stroke-[#E9EFEF] dark:stroke-white/10"
+                  strokeWidth="7"
+                  fill="none"
+                />
+                <circle
+                  cx="39"
+                  cy="39"
+                  r={ringRadius}
+                  stroke={isOptimal ? '#0F3D44' : '#F59E0B'}
+                  className={isOptimal ? 'dark:stroke-[#00D1C2]' : ''}
+                  strokeWidth="7"
+                  strokeLinecap="round"
+                  fill="none"
+                  strokeDasharray={ringCircumference}
+                  strokeDashoffset={ringDashOffset}
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-[20px] font-extrabold text-[#071B24] dark:text-white tabular-nums leading-none">
+                  {heroScore}%
+                </span>
+              </div>
             </div>
-          </div>
 
-          <div className="flex-1 min-w-0 flex flex-col gap-1.5">
-            <div className="flex items-center justify-between gap-2">
-              <h3 className="text-[14px] font-extrabold text-[#071B24] dark:text-white truncate">
-                Estado Biomecánico
+            <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-[14px] font-extrabold text-[#071B24] dark:text-white truncate">
+                  Estado Biomecánico
+                </h3>
+                {latestHorseSession && onSelectSession && (
+                  <button
+                    type="button"
+                    onClick={() => onSelectSession(latestHorseSession)}
+                    className="text-[11px] font-bold text-[#0F3D44] dark:text-[#00D1C2] flex items-center gap-0.5 shrink-0 hover:underline"
+                  >
+                    <span>Informe</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1 text-[12px]">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="flex items-center gap-1.5 text-slate-500 dark:text-zinc-400">
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        isOptimal ? 'bg-[#00D1C2]' : 'bg-amber-400'
+                      }`}
+                    />
+                    Simetría
+                  </span>
+                  <span className="font-bold text-[#071B24] dark:text-white truncate">
+                    {statusLabel}
+                  </span>
+                </div>
+                {asymLabel && (
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-1.5 text-slate-500 dark:text-zinc-400">
+                      <span className="w-2 h-2 rounded-full bg-[#0F3D44] dark:bg-emerald-400" />
+                      Asimetría
+                    </span>
+                    <span className="font-bold text-[#071B24] dark:text-white tabular-nums">
+                      {asymLabel}
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between gap-2">
+                  <span className="flex items-center gap-1.5 text-slate-500 dark:text-zinc-400">
+                    <span className="w-2 h-2 rounded-full bg-[#D9F99D] ring-1 ring-slate-300 dark:ring-0" />
+                    Disciplina
+                  </span>
+                  <span className="font-bold text-[#071B24] dark:text-white truncate">
+                    {selectedHorse.discipline}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : (
+          <section className="rounded-[26px] card-3d p-4 flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-[#0F3D44]/10 dark:bg-[#00D1C2]/15 text-[#0F3D44] dark:text-[#00D1C2] flex items-center justify-center shrink-0">
+              <Activity className="w-5 h-5 stroke-[2]" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-[13.5px] font-extrabold text-[#071B24] dark:text-white">
+                Estado Biomecánico · Primer Análisis
               </h3>
-              {latestHorseSession && onSelectSession && (
-                <button
-                  type="button"
-                  onClick={() => onSelectSession(latestHorseSession)}
-                  className="text-[11px] font-bold text-[#0F3D44] dark:text-[#00D1C2] flex items-center gap-0.5 shrink-0 hover:underline"
-                >
-                  <span>Informe</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              )}
+              <p className="text-[11.5px] text-slate-500 dark:text-zinc-400 mt-0.5 leading-snug">
+                {selectedHorse.name} aún no tiene evaluaciones previas. Graba 20s de trote lateral para calcular su simetría.
+              </p>
             </div>
-
-            <div className="flex flex-col gap-1 text-[12px]">
-              <div className="flex items-center justify-between gap-2">
-                <span className="flex items-center gap-1.5 text-slate-500 dark:text-zinc-400">
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      isOptimal ? 'bg-[#00D1C2]' : 'bg-amber-400'
-                    }`}
-                  />
-                  Simetría
-                </span>
-                <span className="font-bold text-[#071B24] dark:text-white truncate">
-                  {statusLabel}
-                </span>
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="flex items-center gap-1.5 text-slate-500 dark:text-zinc-400">
-                  <span className="w-2 h-2 rounded-full bg-[#0F3D44] dark:bg-emerald-400" />
-                  Asimetría
-                </span>
-                <span className="font-bold text-[#071B24] dark:text-white tabular-nums">
-                  {asymLabel}
-                </span>
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="flex items-center gap-1.5 text-slate-500 dark:text-zinc-400">
-                  <span className="w-2 h-2 rounded-full bg-[#D9F99D] ring-1 ring-slate-300 dark:ring-0" />
-                  Disciplina
-                </span>
-                <span className="font-bold text-[#071B24] dark:text-white truncate">
-                  {selectedHorse.discipline}
-                </span>
-              </div>
-            </div>
-          </div>
-        </section>
+          </section>
+        )
       )}
 
-      {/* 5. Thumb-Zone Primary Action & 2-Column Quick Actions (FitFuel style) */}
-      <div className="flex flex-col gap-2.5">
-        <button
-          type="button"
-          disabled={isAnalyzing}
-          onClick={() => requireHorseThen(handleOpenCam)}
-          className="w-full rounded-[22px] min-h-[60px] card-3d-racing-green px-4 py-3 flex items-center justify-between gap-3 disabled:opacity-55"
-        >
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center text-[#D9F99D] shrink-0">
-              <Camera className="w-5 h-5" />
-            </div>
-            <div className="text-left min-w-0">
-              <span className="block text-[15px] font-extrabold text-white leading-tight truncate">
-                Grabar Trote en Pista
-              </span>
-              <span className="block text-[11px] text-white/75 mt-0.5 truncate">
-                Secuencia guiada de 20s · Lateral 90°
-              </span>
-            </div>
-          </div>
-
-          <div className="w-9 h-9 rounded-full bg-[#D9F99D] text-[#071B24] flex items-center justify-center shrink-0 shadow">
-            <Play className="w-4 h-4 fill-current ml-0.5" />
-          </div>
-        </button>
-
-        <div className="grid grid-cols-2 gap-2.5">
+      {/* 5. Thumb-Zone Primary Action & 2-Column Quick Actions - ONLY shown when no video is staged */}
+      {!selectedFile && (
+        <div className="flex flex-col gap-2.5">
           <button
             type="button"
             disabled={isAnalyzing}
-            onClick={() => requireHorseThen(() => fileInputRef.current?.click())}
-            className="rounded-[22px] card-3d-interactive p-3.5 flex items-center gap-3 text-left disabled:opacity-55"
+            onClick={() => requireHorseThen(handleOpenCam)}
+            className="w-full rounded-[22px] min-h-[60px] card-3d-racing-green px-4 py-3 flex items-center justify-between gap-3 disabled:opacity-55"
           >
-            <div className="w-10 h-10 rounded-2xl bg-[#EEF4F2] dark:bg-[#0F1619] flex items-center justify-center text-[#0F3D44] dark:text-[#00D1C2] shrink-0">
-              <Upload className="w-4 h-4" />
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center text-[#D9F99D] shrink-0">
+                <Camera className="w-5 h-5" />
+              </div>
+              <div className="text-left min-w-0">
+                <span className="block text-[15px] font-extrabold text-white leading-tight truncate">
+                  Grabar Trote en Pista
+                </span>
+                <span className="block text-[11px] text-white/75 mt-0.5 truncate">
+                  Secuencia guiada de 20s · Lateral 90°
+                </span>
+              </div>
             </div>
-            <div className="min-w-0">
-              <span className="block text-[13px] font-extrabold text-[#071B24] dark:text-white leading-tight truncate">
-                Importar Video
-              </span>
-              <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                Desde carrete
-              </span>
+
+            <div className="w-9 h-9 rounded-full bg-[#D9F99D] text-[#071B24] flex items-center justify-center shrink-0 shadow">
+              <Play className="w-4 h-4 fill-current ml-0.5" />
             </div>
           </button>
 
-          <button
-            type="button"
-            onClick={() => onSelectNav?.('ia')}
-            className="rounded-[22px] card-3d-interactive p-3.5 flex items-center gap-3 text-left"
-          >
-            <div className="w-10 h-10 rounded-2xl bg-[#F2F7E4] dark:bg-[#192416] flex items-center justify-center text-[#3D5A09] dark:text-[#D9F99D] shrink-0">
-              <Bot className="w-4 h-4" />
-            </div>
-            <div className="min-w-0">
-              <span className="block text-[13px] font-extrabold text-[#071B24] dark:text-white leading-tight truncate">
-                Agente IA
-              </span>
-              <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
-                Veterinario 24/7
-              </span>
-            </div>
-          </button>
+          <div className="grid grid-cols-2 gap-2.5">
+            <button
+              type="button"
+              disabled={isAnalyzing}
+              onClick={() => requireHorseThen(() => fileInputRef.current?.click())}
+              className="rounded-[22px] card-3d-interactive p-3.5 flex items-center gap-3 text-left disabled:opacity-55"
+            >
+              <div className="w-10 h-10 rounded-2xl bg-[#EEF4F2] dark:bg-[#0F1619] flex items-center justify-center text-[#0F3D44] dark:text-[#00D1C2] shrink-0">
+                <Upload className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <span className="block text-[13px] font-extrabold text-[#071B24] dark:text-white leading-tight truncate">
+                  Importar Video
+                </span>
+                <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
+                  Desde carrete
+                </span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onSelectNav?.('ia')}
+              className="rounded-[22px] card-3d-interactive p-3.5 flex items-center gap-3 text-left"
+            >
+              <div className="w-10 h-10 rounded-2xl bg-[#F2F7E4] dark:bg-[#192416] flex items-center justify-center text-[#3D5A09] dark:text-[#D9F99D] shrink-0">
+                <Bot className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <span className="block text-[13px] font-extrabold text-[#071B24] dark:text-white leading-tight truncate">
+                  Agente IA
+                </span>
+                <span className="block text-[10.5px] text-slate-500 dark:text-zinc-400 mt-0.5 truncate">
+                  Veterinario 24/7
+                </span>
+              </div>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Active Pipeline Execution Progress Card */}
       {isAnalyzing && (
