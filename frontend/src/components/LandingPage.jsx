@@ -49,7 +49,7 @@ export default function LandingPage({ onLaunchApp }) {
             <img
               src="/logos/horsevision-icon.png"
               alt="HorseVision Icon"
-              className="w-10 h-10 object-contain drop-shadow-sm group-hover:scale-105 transition-transform"
+              className="w-10 h-10 rounded-xl object-cover drop-shadow-sm group-hover:scale-105 transition-transform border border-emerald-500/20"
             />
             <div className="flex flex-col">
               <span className="font-sans text-[20px] font-extrabold tracking-tight text-[#0D3F2E]">
@@ -671,7 +671,7 @@ export default function LandingPage({ onLaunchApp }) {
             <img
               src="/logos/horsevision-icon.png"
               alt="HorseVision"
-              className="w-6 h-6 object-contain"
+              className="w-6 h-6 rounded-md object-cover border border-emerald-500/20"
             />
             <span className="font-bold text-slate-800">HorseVision · Biomecánica Equina</span>
           </div>

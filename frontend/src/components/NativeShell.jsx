@@ -136,10 +136,14 @@ const NativeShell = React.memo(function NativeShell({
             </button>
           ) : (
             <div
-              className="w-10 h-10 rounded-full card-3d flex items-center justify-center text-[#0D3F2E] dark:text-[#10B981] shadow-md shrink-0"
+              className="w-10 h-10 rounded-2xl overflow-hidden shadow-md shrink-0 border border-emerald-500/20 bg-[#0D3F2E]"
               aria-hidden="true"
             >
-              <Activity className="w-5 h-5" />
+              <img 
+                src="/logos/horsevision-icon.png" 
+                alt="HorseVision Icon" 
+                className="w-full h-full object-cover" 
+              />
             </div>
           )}
 
