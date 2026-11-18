@@ -223,6 +223,19 @@
   }
 }
 
+.drawer-slide-in {
+  animation: drawerSlideInRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes drawerSlideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
 /* ==========================================================================
    Google Translate Bar Suppression (Seamless Translation)
    ========================================================================== */

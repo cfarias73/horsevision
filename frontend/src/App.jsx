@@ -725,6 +725,12 @@ export default function App({ onBackToLanding, initialAuthMode = 'signup', skipS
       onClosePricing={() => setIsPricingOpen(false)}
       onPlanActivated={(planId) => setActivePlanId(planId)}
       hideBottomNav={!currentUser}
+      currentUser={currentUser}
+      horsesCount={horses.length}
+      maxHorses={maxHorses}
+      activePlanId={activePlanId}
+      onSignOut={handleSignOut}
+      onBackToLanding={onBackToLanding}
     >
       {!currentUser ? (
         <AuthScreen
