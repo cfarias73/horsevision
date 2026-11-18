@@ -225,67 +225,71 @@ export default function LandingPage({ onLaunchApp }) {
   ];
 
   return (
-    <div className="min-h-screen bg-[#EEF2F6] text-[#071B24] font-sans selection:bg-[#EBFF00] selection:text-[#071B24]">
+    <div className="min-h-screen bg-[#F2F5F4] text-[#071B24] font-sans selection:bg-[#D9F99D] selection:text-[#071B24]">
       {/* =========================================================================
-          1. HEADER / NAVBAR
+          1. HEADER / FLOATING GLASS PILL NAVBAR
           ========================================================================= */}
-      <header className="fixed top-0 left-0 right-0 z-50 h-[78px] bg-[#071820]/95 backdrop-blur-md border-b border-white/10 px-4 sm:px-8 lg:px-16 flex items-center justify-between text-white transition-all">
-        {/* Brand */}
-        <button
-          type="button"
-          onClick={() => handleGoToApp('signup')}
-          className="flex items-center gap-3 text-left group"
-        >
-          <img
-            src="/landing-assets/logo/horsevision-mark.png"
-            alt="HorseVision Logo"
-            className="w-10 h-10 object-contain drop-shadow group-hover:scale-105 transition-transform"
-          />
-          <div className="flex items-baseline">
-            <span className="font-extrabold text-[22px] tracking-tight">HorseVision</span>
-            <sup className="text-[10px] text-[#00D1C2] font-mono ml-0.5">®</sup>
-          </div>
-        </button>
-
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8 text-[14px] font-medium text-[#D9E3E5]">
-          <a href="#funciones" className="hover:text-[#00D1C2] transition-colors">Funciones</a>
-          <a href="#como-funciona" className="hover:text-[#00D1C2] transition-colors">Cómo funciona</a>
-          <a href="#planes" className="hover:text-[#00D1C2] transition-colors">Planes</a>
-          <a href="#faq" className="hover:text-[#00D1C2] transition-colors">FAQ</a>
-        </nav>
-
-        {/* Header Actions */}
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => handleGoToApp('login')}
-            className="hidden sm:inline-flex px-4 py-2 text-[13px] font-semibold text-white/90 border border-white/20 hover:border-white/50 rounded-xl transition-all"
-          >
-            Iniciar sesión
-          </button>
+      <header className="fixed top-3 left-0 right-0 z-50 px-4 sm:px-8">
+        <div className="max-w-7xl mx-auto h-[66px] rounded-full bg-[#071B24]/90 backdrop-blur-xl border border-white/15 px-4 sm:px-6 flex items-center justify-between text-white shadow-[0_16px_40px_rgba(7,27,36,0.28)] transition-all">
+          {/* Brand */}
           <button
             type="button"
             onClick={() => handleGoToApp('signup')}
-            className="px-4 sm:px-5 py-2 sm:py-2.5 text-[13px] font-bold text-[#071820] bg-[#EBFF00] hover:bg-[#d8ec00] rounded-xl shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="flex items-center gap-2.5 text-left group"
           >
-            Probar gratis
+            <div className="w-9 h-9 rounded-full bg-white p-1.5 flex items-center justify-center shrink-0 shadow-sm">
+              <img
+                src="/landing-assets/logo/horsevision-mark.png"
+                alt="HorseVision Logo"
+                className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+              />
+            </div>
+            <div className="flex items-baseline">
+              <span className="font-extrabold text-[20px] sm:text-[22px] tracking-tight">HorseVision</span>
+              <sup className="text-[10px] text-[#00D1C2] font-mono ml-0.5">®</sup>
+            </div>
           </button>
-          {/* Mobile menu button */}
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-white/90 hover:text-white"
-            aria-label="Abrir menú"
-          >
-            <Menu className="w-6 h-6" />
-          </button>
+
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-8 text-[14px] font-medium text-[#D9E3E5]">
+            <a href="#funciones" className="hover:text-[#00D1C2] transition-colors">Funciones</a>
+            <a href="#como-funciona" className="hover:text-[#00D1C2] transition-colors">Cómo funciona</a>
+            <a href="#planes" className="hover:text-[#00D1C2] transition-colors">Planes</a>
+            <a href="#faq" className="hover:text-[#00D1C2] transition-colors">FAQ</a>
+          </nav>
+
+          {/* Header Actions */}
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => handleGoToApp('login')}
+              className="hidden sm:inline-flex px-4 py-2 text-[13px] font-semibold text-white/90 border border-white/20 hover:border-white/50 rounded-full transition-all"
+            >
+              Iniciar sesión
+            </button>
+            <button
+              type="button"
+              onClick={() => handleGoToApp('signup')}
+              className="px-4 sm:px-5 py-2 text-[13px] font-extrabold text-[#071B24] bg-[#D9F99D] hover:bg-[#ccf482] rounded-full shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+            >
+              Probar gratis
+            </button>
+            {/* Mobile menu button */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/90 hover:text-white transition"
+              aria-label="Abrir menú"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Mobile Nav Drawer */}
+      {/* Mobile Nav Floating Drawer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-x-0 top-[78px] z-40 bg-[#071B24] border-b border-white/10 p-6 flex flex-col gap-4 text-white text-[15px] font-semibold md:hidden shadow-2xl">
+        <div className="fixed inset-x-4 top-[88px] z-40 rounded-[28px] bg-[#071B24]/95 backdrop-blur-xl border border-white/15 p-6 flex flex-col gap-3 text-white text-[15px] font-semibold md:hidden shadow-[0_24px_60px_rgba(7,27,36,0.45)]">
           <a href="#funciones" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#00D1C2]">Funciones</a>
           <a href="#como-funciona" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#00D1C2]">Cómo funciona</a>
           <a href="#planes" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#00D1C2]">Planes</a>
@@ -293,14 +297,14 @@ export default function LandingPage({ onLaunchApp }) {
           <button
             type="button"
             onClick={() => { setMobileMenuOpen(false); handleGoToApp('login'); }}
-            className="w-full py-3 mt-2 rounded-xl border border-white/20 text-center font-bold"
+            className="w-full py-3 mt-2 rounded-full border border-white/20 text-center font-bold"
           >
             Iniciar sesión
           </button>
           <button
             type="button"
             onClick={() => { setMobileMenuOpen(false); handleGoToApp('signup'); }}
-            className="w-full py-3 rounded-xl bg-[#EBFF00] text-[#071820] text-center font-bold"
+            className="w-full py-3 rounded-full bg-[#D9F99D] text-[#071B24] text-center font-extrabold"
           >
             Probar gratis
           </button>
@@ -334,7 +338,7 @@ export default function LandingPage({ onLaunchApp }) {
             {/* Headline */}
             <h1 className="text-[36px] sm:text-[52px] lg:text-[62px] font-extrabold tracking-[-1.5px] sm:tracking-[-2.5px] leading-[1.05] mb-5 sm:mb-6">
               Analiza el trote de tu caballo y detecta{' '}
-              <span className="text-[#EBFF00]">posibles anomalías</span>
+              <span className="text-[#D9F99D]">posibles anomalías</span>
             </h1>
 
             {/* Hero Copy */}
@@ -347,15 +351,17 @@ export default function LandingPage({ onLaunchApp }) {
               <button
                 type="button"
                 onClick={() => setShowDemoModal(true)}
-                className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl font-bold text-[14px] text-[#071820] bg-[#EBFF00] hover:bg-[#d8ec00] transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-[#EBFF00]/20"
+                className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full font-extrabold text-[14px] text-[#071B24] bg-[#D9F99D] hover:bg-[#ccf482] transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-[#D9F99D]/20"
               >
-                <Play className="w-4 h-4 fill-current" />
-                Ver demostración (1 min)
+                <span className="w-6 h-6 rounded-full bg-[#071B24]/10 flex items-center justify-center">
+                  <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
+                </span>
+                <span>Ver demostración (1 min)</span>
               </button>
               <button
                 type="button"
                 onClick={() => handleGoToApp('signup')}
-                className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl font-bold text-[14px] text-white bg-white/10 hover:bg-white/15 border border-white/20 transition-all backdrop-blur-sm"
+                className="inline-flex items-center justify-center px-6 py-3.5 rounded-full font-bold text-[14px] text-white bg-white/10 hover:bg-white/15 border border-white/20 transition-all backdrop-blur-sm"
               >
                 Probar gratis
               </button>
@@ -391,10 +397,10 @@ export default function LandingPage({ onLaunchApp }) {
           </div>
 
           {/* Floating Analysis Badge (Right Side) */}
-          <div className="hidden lg:block absolute right-4 top-10 w-[240px] p-4 rounded-2xl bg-[#061B23]/90 border border-[#00D1C2] shadow-2xl shadow-[#00D1C2]/20 backdrop-blur-md">
+          <div className="hidden lg:block absolute right-4 top-10 w-[240px] p-5 rounded-[26px] bg-[#071B24]/90 border border-[#00D1C2]/40 shadow-2xl shadow-[#00D1C2]/20 backdrop-blur-xl">
             <strong className="block text-[14px] font-bold text-white mb-2">Análisis del trote</strong>
             <div className="flex items-center gap-2 text-[12px] text-[#00D1C2] font-medium">
-              <span className="w-2 h-2 rounded-full bg-[#EBFF00] animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-[#D9F99D] animate-pulse" />
               <span>Movimiento estable</span>
             </div>
             {/* SVG Wave */}
@@ -408,13 +414,13 @@ export default function LandingPage({ onLaunchApp }) {
       </section>
 
       {/* =========================================================================
-          3. FEATURE SECTION (4 Cards Grid)
+          3. FEATURE SECTION (4 Cards Bento Grid)
           ========================================================================= */}
-      <section className="py-20 sm:py-28 px-4 sm:px-8 lg:px-16 bg-[#F5F7F8]" id="funciones">
+      <section className="py-20 sm:py-28 px-4 sm:px-8 lg:px-16 bg-[#F2F5F4]" id="funciones">
         <div className="max-w-7xl mx-auto">
           {/* Section Heading */}
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <p className="text-[11px] font-extrabold tracking-[2.6px] text-[#078F92] uppercase mb-3">
+            <p className="text-[11px] font-extrabold tracking-[2.6px] text-[#0F3D44] uppercase mb-3">
               UNA PLATAFORMA, VARIAS HERRAMIENTAS
             </p>
             <h2 className="text-[32px] sm:text-[44px] font-extrabold tracking-[-1.5px] leading-tight text-[#071B24]">
@@ -425,10 +431,10 @@ export default function LandingPage({ onLaunchApp }) {
           {/* 4 Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Card 1: Analiza el movimiento */}
-            <article className="p-6 bg-white border border-[#E1E8EA] rounded-2xl shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
+            <article className="p-6 bg-white border border-[#0F3D44]/[0.06] rounded-[28px] shadow-[0_12px_32px_-6px_rgba(7,27,36,0.06)] hover:shadow-[0_16px_38px_-6px_rgba(7,27,36,0.10)] transition-shadow flex flex-col justify-between">
               <div>
-                <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center mb-4">
-                  <img src="/landing-assets/icons/play.svg" alt="" className="w-5 h-5 text-[#087D83]" />
+                <div className="w-11 h-11 rounded-2xl bg-[#EEF4F2] flex items-center justify-center mb-4">
+                  <img src="/landing-assets/icons/play.svg" alt="" className="w-5 h-5 text-[#0F3D44]" />
                 </div>
                 <h3 className="text-[19px] font-bold tracking-tight text-[#071B24] mb-2">
                   Analiza el movimiento
@@ -440,15 +446,15 @@ export default function LandingPage({ onLaunchApp }) {
               <img
                 src="/landing-assets/images/motion-analysis.jpg"
                 alt="Vista de análisis de movimiento"
-                className="w-full h-40 object-cover rounded-xl border border-slate-100"
+                className="w-full h-40 object-cover rounded-[20px] border border-[#0F3D44]/[0.05]"
               />
             </article>
 
             {/* Card 2: Detecta posibles anomalías */}
-            <article className="p-6 bg-white border border-[#E1E8EA] rounded-2xl shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
+            <article className="p-6 bg-white border border-[#0F3D44]/[0.06] rounded-[28px] shadow-[0_12px_32px_-6px_rgba(7,27,36,0.06)] hover:shadow-[0_16px_38px_-6px_rgba(7,27,36,0.10)] transition-shadow flex flex-col justify-between">
               <div>
-                <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center mb-4">
-                  <img src="/landing-assets/icons/activity.svg" alt="" className="w-5 h-5 text-[#087D83]" />
+                <div className="w-11 h-11 rounded-2xl bg-[#EEF4F2] flex items-center justify-center mb-4">
+                  <img src="/landing-assets/icons/activity.svg" alt="" className="w-5 h-5 text-[#0F3D44]" />
                 </div>
                 <h3 className="text-[19px] font-bold tracking-tight text-[#071B24] mb-2">
                   Detecta anomalías
@@ -460,15 +466,15 @@ export default function LandingPage({ onLaunchApp }) {
               <img
                 src="/landing-assets/images/anomaly-analysis.jpg"
                 alt="Visualización de anomalías"
-                className="w-full h-40 object-cover rounded-xl border border-slate-100"
+                className="w-full h-40 object-cover rounded-[20px] border border-[#0F3D44]/[0.05]"
               />
             </article>
 
             {/* Card 3: Chat con IA especialista */}
-            <article className="p-6 bg-white border border-[#E1E8EA] rounded-2xl shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
+            <article className="p-6 bg-white border border-[#0F3D44]/[0.06] rounded-[28px] shadow-[0_12px_32px_-6px_rgba(7,27,36,0.06)] hover:shadow-[0_16px_38px_-6px_rgba(7,27,36,0.10)] transition-shadow flex flex-col justify-between">
               <div>
-                <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center mb-4">
-                  <img src="/landing-assets/icons/chat.svg" alt="" className="w-5 h-5 text-[#087D83]" />
+                <div className="w-11 h-11 rounded-2xl bg-[#EEF4F2] flex items-center justify-center mb-4">
+                  <img src="/landing-assets/icons/chat.svg" alt="" className="w-5 h-5 text-[#0F3D44]" />
                 </div>
                 <h3 className="text-[19px] font-bold tracking-tight text-[#071B24] mb-2">
                   Chat con IA especialista
@@ -477,22 +483,22 @@ export default function LandingPage({ onLaunchApp }) {
                   Resuelve dudas sobre cuidado, entrenamiento, rendimiento y manejo de tus caballos.
                 </p>
               </div>
-              <div className="flex flex-col gap-2.5 p-3.5 bg-slate-50 border border-slate-100 rounded-xl text-[11px]">
-                <div className="self-end bg-[#E7F1F2] text-[#25434A] px-3 py-2 rounded-xl rounded-tr-sm max-w-[90%] font-medium">
+              <div className="flex flex-col gap-2.5 p-3.5 bg-[#F4F7F6] border border-[#0F3D44]/[0.06] rounded-[20px] text-[11px]">
+                <div className="self-end bg-white text-[#071B24] px-3 py-2 rounded-2xl rounded-tr-sm max-w-[90%] font-medium shadow-sm">
                   ¿Por qué mi caballo tiene un trote irregular?
                 </div>
-                <div className="self-start bg-[#0C333C] text-white px-3 py-2 rounded-xl rounded-tl-sm max-w-[95%] font-medium flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#00D1C2] animate-pulse" />
+                <div className="self-start bg-[#0F3D44] text-white px-3 py-2 rounded-2xl rounded-tl-sm max-w-[95%] font-medium flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#D9F99D] animate-pulse" />
                   <span>Consulta a HorseVision IA</span>
                 </div>
               </div>
             </article>
 
             {/* Card 4: Gestiona tus caballos */}
-            <article className="p-6 bg-white border border-[#E1E8EA] rounded-2xl shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
+            <article className="p-6 bg-white border border-[#0F3D44]/[0.06] rounded-[28px] shadow-[0_12px_32px_-6px_rgba(7,27,36,0.06)] hover:shadow-[0_16px_38px_-6px_rgba(7,27,36,0.10)] transition-shadow flex flex-col justify-between">
               <div>
-                <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center mb-4">
-                  <img src="/landing-assets/icons/horses.svg" alt="" className="w-5 h-5 text-[#087D83]" />
+                <div className="w-11 h-11 rounded-2xl bg-[#EEF4F2] flex items-center justify-center mb-4">
+                  <img src="/landing-assets/icons/horses.svg" alt="" className="w-5 h-5 text-[#0F3D44]" />
                 </div>
                 <h3 className="text-[19px] font-bold tracking-tight text-[#071B24] mb-2">
                   Gestiona tus caballos
@@ -505,7 +511,7 @@ export default function LandingPage({ onLaunchApp }) {
                 {['Valentino', 'Lucero', 'Tornado'].map((horse, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center justify-between px-3 py-2 bg-[#F0F4F5] border border-[#E3EAEC] rounded-xl text-[12px] font-semibold text-slate-800"
+                    className="flex items-center justify-between px-3.5 py-2.5 bg-[#F4F7F6] border border-[#0F3D44]/[0.05] rounded-2xl text-[12px] font-semibold text-[#071B24]"
                   >
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-[#00D1C2]" />
@@ -523,22 +529,22 @@ export default function LandingPage({ onLaunchApp }) {
       {/* =========================================================================
           4. PRODUCT SECTION (Dashboard & Multiplatform Showcase)
           ========================================================================= */}
-      <section className="py-20 sm:py-28 px-4 sm:px-8 lg:px-16 bg-gradient-to-br from-[#071B24] via-[#0B3038] to-[#0D3A43] text-white">
+      <section className="py-20 sm:py-28 px-4 sm:px-8 lg:px-16 bg-gradient-to-br from-[#071B24] via-[#0B3038] to-[#0F3D44] text-white">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Laptop / Screen Preview */}
           <div className="lg:col-span-7">
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10 group">
+            <div className="relative rounded-[28px] overflow-hidden shadow-2xl border border-white/15 group">
               <img
                 src="/landing-assets/images/dashboard-preview.jpg"
                 alt="Panel de análisis HorseVision"
                 className="w-full h-auto object-cover transform group-hover:scale-[1.01] transition-transform duration-500"
               />
-              <div className="absolute bottom-4 left-4 right-4 p-3 bg-black/60 backdrop-blur-md rounded-xl text-[12px] text-white/90 flex items-center justify-between border border-white/10">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#EBFF00]" />
-                  <span className="font-mono">Disponible en Móvil (PWA) y Computadora</span>
+              <div className="absolute bottom-4 left-4 right-4 px-4 py-3 bg-[#071B24]/75 backdrop-blur-xl rounded-full text-[12px] text-white/90 flex items-center justify-between border border-white/15 gap-2">
+                <div className="flex items-center gap-2 truncate">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#D9F99D] shrink-0" />
+                  <span className="font-mono truncate">Disponible en Móvil (PWA) y Computadora</span>
                 </div>
-                <span className="text-[#00D1C2] font-semibold">Sin sensores requeridos</span>
+                <span className="text-[#00D1C2] font-semibold shrink-0">Sin sensores requeridos</span>
               </div>
             </div>
           </div>
@@ -564,8 +570,8 @@ export default function LandingPage({ onLaunchApp }) {
                 'Planes flexibles para 1, 5 y hasta 50 caballos'
               ].map((item, idx) => (
                 <li key={idx} className="flex items-start gap-3 text-[14px] text-[#E1EBED]">
-                  <div className="w-5 h-5 rounded-full bg-[#EBFF00]/15 flex items-center justify-center shrink-0 mt-0.5">
-                    <Check className="w-3.5 h-3.5 text-[#EBFF00] stroke-[3]" />
+                  <div className="w-5 h-5 rounded-full bg-[#D9F99D]/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <Check className="w-3.5 h-3.5 text-[#D9F99D] stroke-[3]" />
                   </div>
                   <span>{item}</span>
                 </li>
@@ -575,7 +581,7 @@ export default function LandingPage({ onLaunchApp }) {
             <div>
               <a
                 href="#planes"
-                className="inline-flex items-center gap-2 text-[15px] font-bold text-[#00D1C2] hover:text-[#EBFF00] transition-colors"
+                className="inline-flex items-center gap-2 text-[15px] font-bold text-[#00D1C2] hover:text-[#D9F99D] transition-colors"
               >
                 <span>Conoce los planes y precios</span>
                 <span className="text-[18px]">→</span>
@@ -586,13 +592,13 @@ export default function LandingPage({ onLaunchApp }) {
       </section>
 
       {/* =========================================================================
-          5. STEPS SECTION (Cómo funciona)
+          5. STEPS SECTION (Cómo funciona - Bento Cards)
           ========================================================================= */}
       <section className="py-20 sm:py-28 px-4 sm:px-8 lg:px-16 bg-white" id="como-funciona">
         <div className="max-w-7xl mx-auto">
           {/* Heading */}
           <div className="text-center max-w-xl mx-auto mb-16">
-            <p className="text-[11px] font-extrabold tracking-[2.6px] text-[#078F92] uppercase mb-3">
+            <p className="text-[11px] font-extrabold tracking-[2.6px] text-[#0F3D44] uppercase mb-3">
               SENCILLO Y DIRECTO
             </p>
             <h2 className="text-[32px] sm:text-[44px] font-extrabold tracking-[-1.5px] text-[#071B24]">
@@ -600,42 +606,60 @@ export default function LandingPage({ onLaunchApp }) {
             </h2>
           </div>
 
-          {/* 3 Steps Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12 max-w-5xl mx-auto">
+          {/* 3 Steps Bento Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {/* Step 1 */}
-            <article className="relative pl-16">
-              <span className="absolute left-0 top-0 w-11 h-11 rounded-2xl bg-teal-50 text-[#078F92] font-black font-mono text-[16px] flex items-center justify-center border border-teal-100">
-                01
-              </span>
-              <img src="/landing-assets/icons/upload.svg" alt="" className="w-8 h-8 text-[#0B737A] mb-3" />
-              <h3 className="text-[20px] font-bold text-[#071B24] mb-2">Sube un video</h3>
-              <p className="text-[14px] text-[#63747A] leading-relaxed">
-                Graba el trote de tu caballo (10-15s en línea recta lateral) y cárgalo en la plataforma desde tu teléfono.
-              </p>
+            <article className="rounded-[28px] bg-[#F4F7F6] border border-[#0F3D44]/[0.06] p-7 shadow-[0_8px_24px_-4px_rgba(7,27,36,0.04)] flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-6">
+                <span className="w-11 h-11 rounded-2xl bg-[#0F3D44] text-[#D9F99D] font-extrabold text-[15px] flex items-center justify-center tabular-nums shadow-sm">
+                  01
+                </span>
+                <div className="w-11 h-11 rounded-2xl bg-white flex items-center justify-center shadow-sm">
+                  <img src="/landing-assets/icons/upload.svg" alt="" className="w-6 h-6 text-[#0F3D44]" />
+                </div>
+              </div>
+              <div>
+                <h3 className="text-[20px] font-bold text-[#071B24] mb-2">Sube un video</h3>
+                <p className="text-[14px] text-[#586A70] leading-relaxed">
+                  Graba el trote de tu caballo (10-15s en línea recta lateral) y cárgalo en la plataforma desde tu teléfono.
+                </p>
+              </div>
             </article>
 
             {/* Step 2 */}
-            <article className="relative pl-16">
-              <span className="absolute left-0 top-0 w-11 h-11 rounded-2xl bg-teal-50 text-[#078F92] font-black font-mono text-[16px] flex items-center justify-center border border-teal-100">
-                02
-              </span>
-              <img src="/landing-assets/icons/activity.svg" alt="" className="w-8 h-8 text-[#0B737A] mb-3" />
-              <h3 className="text-[20px] font-bold text-[#071B24] mb-2">Analiza con IA</h3>
-              <p className="text-[14px] text-[#63747A] leading-relaxed">
-                Nuestra tecnología con visión artificial procesa el movimiento, detecta los puntos articulares y calcula la simetría.
-              </p>
+            <article className="rounded-[28px] bg-[#F4F7F6] border border-[#0F3D44]/[0.06] p-7 shadow-[0_8px_24px_-4px_rgba(7,27,36,0.04)] flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-6">
+                <span className="w-11 h-11 rounded-2xl bg-[#0F3D44] text-[#D9F99D] font-extrabold text-[15px] flex items-center justify-center tabular-nums shadow-sm">
+                  02
+                </span>
+                <div className="w-11 h-11 rounded-2xl bg-white flex items-center justify-center shadow-sm">
+                  <img src="/landing-assets/icons/activity.svg" alt="" className="w-6 h-6 text-[#0F3D44]" />
+                </div>
+              </div>
+              <div>
+                <h3 className="text-[20px] font-bold text-[#071B24] mb-2">Analiza con IA</h3>
+                <p className="text-[14px] text-[#586A70] leading-relaxed">
+                  Nuestra tecnología con visión artificial procesa el movimiento, detecta los puntos articulares y calcula la simetría.
+                </p>
+              </div>
             </article>
 
             {/* Step 3 */}
-            <article className="relative pl-16">
-              <span className="absolute left-0 top-0 w-11 h-11 rounded-2xl bg-teal-50 text-[#078F92] font-black font-mono text-[16px] flex items-center justify-center border border-teal-100">
-                03
-              </span>
-              <img src="/landing-assets/icons/chart.svg" alt="" className="w-8 h-8 text-[#0B737A] mb-3" />
-              <h3 className="text-[20px] font-bold text-[#071B24] mb-2">Obtén resultados</h3>
-              <p className="text-[14px] text-[#63747A] leading-relaxed">
-                Revisa métricas clave, visualizaciones cinemáticas e informes para compartir con tu veterinario o entrenador.
-              </p>
+            <article className="rounded-[28px] bg-[#F4F7F6] border border-[#0F3D44]/[0.06] p-7 shadow-[0_8px_24px_-4px_rgba(7,27,36,0.04)] flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-6">
+                <span className="w-11 h-11 rounded-2xl bg-[#0F3D44] text-[#D9F99D] font-extrabold text-[15px] flex items-center justify-center tabular-nums shadow-sm">
+                  03
+                </span>
+                <div className="w-11 h-11 rounded-2xl bg-white flex items-center justify-center shadow-sm">
+                  <img src="/landing-assets/icons/chart.svg" alt="" className="w-6 h-6 text-[#0F3D44]" />
+                </div>
+              </div>
+              <div>
+                <h3 className="text-[20px] font-bold text-[#071B24] mb-2">Obtén resultados</h3>
+                <p className="text-[14px] text-[#586A70] leading-relaxed">
+                  Revisa métricas clave, visualizaciones cinemáticas e informes para compartir con tu veterinario o entrenador.
+                </p>
+              </div>
             </article>
           </div>
 
@@ -646,13 +670,13 @@ export default function LandingPage({ onLaunchApp }) {
       </section>
 
       {/* =========================================================================
-          6. PRICING SECTION (Integrated with PayPal)
+          6. PRICING SECTION (Bento Pricing aligned with App + PayPal)
           ========================================================================= */}
-      <section className="py-20 sm:py-28 px-4 sm:px-8 lg:px-16 bg-[#EAF0F2]" id="planes">
+      <section className="py-20 sm:py-28 px-4 sm:px-8 lg:px-16 bg-[#F2F5F4]" id="planes">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="text-center max-w-xl mx-auto mb-10">
-            <p className="text-[11px] font-extrabold tracking-[2.6px] text-[#078F92] uppercase mb-3">
+            <p className="text-[11px] font-extrabold tracking-[2.6px] text-[#0F3D44] uppercase mb-3">
               PLANES FLEXIBLES
             </p>
             <h2 className="text-[32px] sm:text-[44px] font-extrabold tracking-[-1.5px] text-[#071B24] mb-3">
@@ -671,43 +695,50 @@ export default function LandingPage({ onLaunchApp }) {
               return (
                 <article
                   key={plan.id}
-                  className={`relative p-8 rounded-2xl flex flex-col justify-between transition-all ${
+                  className={`relative p-8 rounded-[28px] flex flex-col justify-between transition-all ${
                     plan.popular
-                      ? 'bg-white border-2 border-[#EBFF00] shadow-xl md:-translate-y-2'
-                      : 'bg-white border border-[#DCE5E8] shadow-sm hover:shadow-md'
+                      ? 'bg-gradient-to-br from-[#0F3D44] to-[#071B24] text-white border border-white/15 shadow-[0_20px_48px_-8px_rgba(15,61,68,0.45)] md:-translate-y-2'
+                      : 'bg-white border border-[#0F3D44]/[0.06] shadow-[0_12px_32px_-6px_rgba(7,27,36,0.06)] hover:shadow-[0_16px_38px_-6px_rgba(7,27,36,0.10)]'
                   }`}
                 >
                   {plan.popular && (
-                    <span className="absolute -top-3.5 right-6 px-3.5 py-1 rounded-full bg-[#EBFF00] text-[#10232B] font-extrabold text-[11px] uppercase tracking-wider shadow-sm">
+                    <span className="absolute -top-3.5 right-6 px-3.5 py-1 rounded-full bg-[#D9F99D] text-[#071B24] font-extrabold text-[11px] uppercase tracking-wider shadow-sm">
                       Más elegido
                     </span>
                   )}
 
                   <div>
-                    <h3 className="text-[22px] font-extrabold text-[#071B24] mb-1">
+                    <h3 className={`text-[22px] font-extrabold mb-1 ${plan.popular ? 'text-white' : 'text-[#071B24]'}`}>
                       {plan.name}
                     </h3>
-                    <p className="text-[13px] text-[#65767B] font-medium mb-6">
+                    <p className={`text-[13px] font-medium mb-6 ${plan.popular ? 'text-white/75' : 'text-[#65767B]'}`}>
                       {plan.limit}
                     </p>
 
                     <div className="mb-6">
-                      <div className="text-[32px] font-extrabold text-[#071B24] tracking-tight">
+                      <div className={`text-[32px] font-extrabold tracking-tight tabular-nums ${plan.popular ? 'text-white' : 'text-[#071B24]'}`}>
                         {priceDisplay}
-                        <small className="text-[13px] font-normal text-[#66777C] ml-1">/ mes</small>
+                        <small className={`text-[13px] font-normal ml-1 ${plan.popular ? 'text-white/70' : 'text-[#66777C]'}`}>/ mes</small>
                       </div>
                       {plan.trial && (
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 font-semibold text-[11px] mt-2">
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EEF4F2] text-[#0F3D44] font-bold text-[11px] mt-2">
                           <Check className="w-3 h-3" />
                           <span>{plan.trial}</span>
                         </div>
                       )}
                     </div>
 
-                    <ul className="space-y-3 mb-8 pt-4 border-t border-slate-100">
+                    <ul className={`space-y-3 mb-8 pt-4 border-t ${plan.popular ? 'border-white/15' : 'border-slate-100'}`}>
                       {plan.features.map((feat, fIdx) => (
-                        <li key={fIdx} className="flex items-start gap-2.5 text-[13px] text-[#53666C]">
-                          <Check className="w-4 h-4 text-[#0A9992] shrink-0 mt-0.5 stroke-[2.5]" />
+                        <li
+                          key={fIdx}
+                          className={`flex items-start gap-2.5 text-[13px] ${plan.popular ? 'text-white/90' : 'text-[#53666C]'}`}
+                        >
+                          <Check
+                            className={`w-4 h-4 shrink-0 mt-0.5 stroke-[2.5] ${
+                              plan.popular ? 'text-[#D9F99D]' : 'text-[#00D1C2]'
+                            }`}
+                          />
                           <span>{feat}</span>
                         </li>
                       ))}
@@ -718,12 +749,12 @@ export default function LandingPage({ onLaunchApp }) {
                     <button
                       type="button"
                       onClick={() => handleSelectPlan(plan)}
-                      className={`w-full py-3.5 rounded-xl font-bold text-[14px] transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 ${
+                      className={`w-full py-3.5 px-5 rounded-full font-extrabold text-[14px] transition-all hover:scale-[1.01] active:scale-[0.98] flex items-center justify-center gap-2 ${
                         plan.popular
-                          ? 'bg-[#EBFF00] text-[#071820] hover:bg-[#d8ec00] shadow-md'
+                          ? 'bg-[#D9F99D] text-[#071B24] hover:bg-[#ccf482] shadow-lg'
                           : plan.trial
-                          ? 'bg-[#00D1C2] text-[#071820] hover:bg-[#00baa7] shadow-md'
-                          : 'bg-[#0A2932] text-white hover:bg-[#071d24]'
+                          ? 'bg-[#00D1C2] text-[#071B24] hover:bg-[#00baa7] shadow-md'
+                          : 'bg-[#0F3D44] text-white hover:bg-[#09282D] shadow-md'
                       }`}
                     >
                       {plan.trial ? (
@@ -738,9 +769,15 @@ export default function LandingPage({ onLaunchApp }) {
                         </>
                       )}
                     </button>
-                    <p className={`text-center text-[11px] mt-2 font-medium ${
-                      plan.trial ? 'text-emerald-700' : 'text-slate-400 font-mono text-[10px]'
-                    }`}>
+                    <p
+                      className={`text-center text-[11px] mt-2.5 font-medium ${
+                        plan.popular
+                          ? 'text-white/65'
+                          : plan.trial
+                          ? 'text-[#0F3D44]'
+                          : 'text-slate-400 text-[10.5px]'
+                      }`}
+                    >
                       {plan.trial
                         ? 'Acceso instantáneo · Sin cobro hoy'
                         : 'Pago seguro con PayPal / Tarjeta de Débito y Crédito'}
@@ -754,12 +791,12 @@ export default function LandingPage({ onLaunchApp }) {
       </section>
 
       {/* =========================================================================
-          7. FAQ SECTION
+          7. FAQ SECTION (Rounded Capsules)
           ========================================================================= */}
       <section className="py-20 sm:py-28 px-4 sm:px-8 lg:px-16 bg-white" id="faq">
         <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
           <div className="lg:col-span-5">
-            <p className="text-[11px] font-extrabold tracking-[2.6px] text-[#078F92] uppercase mb-3">
+            <p className="text-[11px] font-extrabold tracking-[2.6px] text-[#0F3D44] uppercase mb-3">
               PREGUNTAS FRECUENTES
             </p>
             <h2 className="text-[32px] sm:text-[42px] font-extrabold tracking-[-1.5px] leading-tight text-[#071B24] mb-4">
@@ -770,23 +807,26 @@ export default function LandingPage({ onLaunchApp }) {
             </p>
           </div>
 
-          <div className="lg:col-span-7 divide-y divide-slate-100">
+          <div className="lg:col-span-7 space-y-3">
             {faqs.map((faq, idx) => {
               const isOpen = openFaqIndex === idx;
               return (
-                <div key={idx} className="py-5">
+                <div
+                  key={idx}
+                  className="rounded-[22px] bg-[#F4F7F6] border border-[#0F3D44]/[0.06] px-5 py-4 transition-colors"
+                >
                   <button
                     type="button"
                     onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
-                    className="w-full flex items-center justify-between text-left font-bold text-[16px] text-[#071B24] hover:text-[#078F92] transition-colors"
+                    className="w-full flex items-center justify-between gap-3 text-left font-bold text-[15.5px] text-[#071B24] hover:text-[#0F3D44] transition-colors"
                   >
                     <span>{faq.q}</span>
-                    <span className="text-[20px] text-[#078F92] ml-4 font-mono font-bold">
+                    <span className="w-8 h-8 rounded-full bg-white text-[#0F3D44] shadow-sm flex items-center justify-center shrink-0 font-bold text-[18px]">
                       {isOpen ? '−' : '+'}
                     </span>
                   </button>
                   {isOpen && (
-                    <p className="mt-3 text-[14px] text-[#617278] leading-relaxed pr-4">
+                    <p className="mt-3 text-[14px] text-[#586A70] leading-relaxed pr-4">
                       {faq.a}
                     </p>
                   )}
@@ -800,14 +840,16 @@ export default function LandingPage({ onLaunchApp }) {
       {/* =========================================================================
           8. FOOTER
           ========================================================================= */}
-      <footer className="py-12 px-4 sm:px-8 lg:px-16 bg-[#061820] text-[#C6D4D7] border-t border-white/10">
+      <footer className="py-12 px-4 sm:px-8 lg:px-16 bg-[#071B24] text-[#C6D4D7] border-t border-white/10">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <img
-              src="/landing-assets/logo/horsevision-mark.png"
-              alt="HorseVision"
-              className="w-9 h-9 object-contain drop-shadow"
-            />
+            <div className="w-9 h-9 rounded-full bg-white p-1.5 flex items-center justify-center shadow-sm">
+              <img
+                src="/landing-assets/logo/horsevision-mark.png"
+                alt="HorseVision"
+                className="w-full h-full object-contain"
+              />
+            </div>
             <div className="flex items-baseline">
               <span className="font-extrabold text-[20px] text-white tracking-tight">HorseVision</span>
               <sup className="text-[9px] text-[#00D1C2] font-mono ml-0.5">®</sup>
@@ -829,11 +871,11 @@ export default function LandingPage({ onLaunchApp }) {
           ========================================================================= */}
       {selectedPlanForCheckout && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
-          <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden text-[#071B24]">
+          <div className="relative w-full max-w-lg bg-white rounded-[32px] shadow-2xl border border-[#0F3D44]/10 overflow-hidden text-[#071B24]">
             {/* Modal Header */}
-            <div className="p-6 bg-[#071820] text-white flex items-center justify-between">
+            <div className="p-6 bg-[#071B24] text-white flex items-center justify-between">
               <div>
-                <span className="text-[11px] font-bold font-mono tracking-wider text-[#00D1C2] uppercase">
+                <span className="text-[11px] font-bold tracking-wider text-[#00D1C2] uppercase">
                   Suscripción Segura
                 </span>
                 <h3 className="text-[20px] font-extrabold">
@@ -843,7 +885,7 @@ export default function LandingPage({ onLaunchApp }) {
               <button
                 type="button"
                 onClick={() => setSelectedPlanForCheckout(null)}
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -865,17 +907,17 @@ export default function LandingPage({ onLaunchApp }) {
                 </div>
               ) : (
                 <>
-                  <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl mb-6 border border-slate-100">
+                  <div className="flex items-center justify-between p-4 bg-[#F4F7F6] rounded-[22px] mb-6 border border-[#0F3D44]/[0.06]">
                     <div>
                       <p className="text-[14px] font-bold">{selectedPlanForCheckout.limit}</p>
                       <p className="text-[12px] text-slate-500">Facturación mensual recurrente</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[22px] font-black text-[#071B24]">
+                      <p className="text-[22px] font-black text-[#071B24] tabular-nums">
                         ${selectedPlanForCheckout.price} USD
                       </p>
                       {selectedPlanForCheckout.trial && (
-                        <span className="text-[11px] font-bold text-emerald-600">
+                        <span className="text-[11px] font-bold text-[#0F3D44]">
                           {selectedPlanForCheckout.trial}
                         </span>
                       )}
@@ -883,7 +925,7 @@ export default function LandingPage({ onLaunchApp }) {
                   </div>
 
                   {checkoutError && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-[12px] text-red-700 flex items-center gap-2 mb-4">
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-2xl text-[12px] text-red-700 flex items-center gap-2 mb-4">
                       <AlertCircle className="w-4 h-4 shrink-0" />
                       <span>{checkoutError}</span>
                     </div>
@@ -897,14 +939,14 @@ export default function LandingPage({ onLaunchApp }) {
                     />
 
                     {(!sdkReady || isProcessing) && (
-                      <div className="py-4 text-center text-[12px] text-slate-400 font-mono animate-pulse">
+                      <div className="py-4 text-center text-[12px] text-slate-400 animate-pulse">
                         Cargando pasarela de pago segura...
                       </div>
                     )}
                   </div>
 
-                  <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-center gap-2 text-[11px] text-slate-400 font-mono">
-                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-center gap-2 text-[11px] text-slate-400">
+                    <ShieldCheck className="w-4 h-4 text-[#0F3D44]" />
                     <span>Cifrado SSL de 256 bits · Procesado por PayPal</span>
                   </div>
                 </>
@@ -919,16 +961,16 @@ export default function LandingPage({ onLaunchApp }) {
           ========================================================================= */}
       {showDemoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-4xl bg-[#071820] rounded-3xl border border-white/20 overflow-hidden shadow-2xl">
-            <div className="p-4 flex items-center justify-between border-b border-white/10 text-white">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#EBFF00]" />
+          <div className="relative w-full max-w-4xl bg-[#071B24] rounded-[32px] border border-white/20 overflow-hidden shadow-2xl">
+            <div className="p-4 sm:px-6 flex items-center justify-between border-b border-white/10 text-white">
+              <div className="flex items-center gap-2.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#D9F99D]" />
                 <span className="font-bold text-[14px]">Demostración de Análisis Cinemático (HorseVision AI)</span>
               </div>
               <button
                 type="button"
                 onClick={() => setShowDemoModal(false)}
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white"
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -938,15 +980,15 @@ export default function LandingPage({ onLaunchApp }) {
                 src="/demo_horse_trot.mp4"
                 controls
                 autoPlay
-                className="w-full max-h-[70vh] rounded-2xl border border-white/10"
+                className="w-full max-h-[70vh] rounded-[22px] border border-white/10"
               />
             </div>
-            <div className="p-4 bg-[#071820] flex items-center justify-between text-white text-[12px]">
-              <span className="text-white/60">Extracción de articulaciones y cálculo de simetría en tiempo real.</span>
+            <div className="p-4 sm:px-6 bg-[#071B24] flex flex-wrap items-center justify-between gap-3 text-white text-[12px]">
+              <span className="text-white/65">Extracción de articulaciones y cálculo de simetría en tiempo real.</span>
               <button
                 type="button"
                 onClick={() => { setShowDemoModal(false); handleGoToApp('signup'); }}
-                className="px-4 py-2 rounded-xl bg-[#EBFF00] text-[#071820] font-bold hover:bg-[#d8ec00]"
+                className="px-5 py-2.5 rounded-full bg-[#D9F99D] text-[#071B24] font-extrabold hover:bg-[#ccf482] transition"
               >
                 Probar en mi caballo
               </button>
