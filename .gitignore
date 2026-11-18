@@ -27,3 +27,5 @@ supabase/.temp/
 .DS_Store
 Thumbs.db
 .agent/
+.wrangler/
+frontend/.wrangler/
