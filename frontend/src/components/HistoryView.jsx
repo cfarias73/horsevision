@@ -79,9 +79,13 @@ export default function HistoryView({
   horses = [],
   onSelectSession,
   onClearDemoSessions,
+  onDeleteSession,
+  onDeleteAllSessions,
   onSelectNav,
 }) {
   const [filter, setFilter] = useState('Todos');
+  const [deletingId, setDeletingId] = useState(null);
+  const [confirmClearAll, setConfirmClearAll] = useState(false);
 
   // Dynamic filter chips derived from both registered horses and session records
   const horseFilterOptions = useMemo(() => {
@@ -130,15 +134,51 @@ export default function HistoryView({
           </div>
         </div>
 
-        {hasDemoSessions && onClearDemoSessions && (
-          <button
-            type="button"
-            onClick={onClearDemoSessions}
-            className="text-[10.5px] font-bold text-slate-500 hover:text-red-500 dark:text-zinc-400 dark:hover:text-red-400 px-2.5 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 transition shrink-0 active:scale-95"
-          >
-            Limpiar demos
-          </button>
-        )}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {hasDemoSessions && onClearDemoSessions && (
+            <button
+              type="button"
+              onClick={onClearDemoSessions}
+              className="text-[10px] font-bold text-slate-500 hover:text-red-500 dark:text-zinc-400 dark:hover:text-red-400 px-2 py-1 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 transition shrink-0 active:scale-95"
+            >
+              Limpiar demos
+            </button>
+          )}
+
+          {onDeleteAllSessions && filteredSessions.length > 0 && (
+            <div>
+              {confirmClearAll ? (
+                <div className="flex items-center gap-1 animate-fadeIn">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onDeleteAllSessions(filter === 'Todos' ? null : filter);
+                      setConfirmClearAll(false);
+                    }}
+                    className="px-2 py-1 rounded-full bg-red-500 text-white font-mono text-[9.5px] font-extrabold hover:bg-red-600 transition"
+                  >
+                    Confirmar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmClearAll(false)}
+                    className="px-1.5 py-1 rounded-full bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-zinc-400 font-mono text-[9.5px]"
+                  >
+                    X
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setConfirmClearAll(true)}
+                  className="text-[10px] font-bold text-slate-500 hover:text-red-500 dark:text-zinc-400 dark:hover:text-red-400 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 transition shrink-0 active:scale-95"
+                >
+                  {filter === 'Todos' ? 'Borrar todas' : `Borrar de ${filter}`}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Dynamic Horse Filter Chips */}
@@ -167,6 +207,8 @@ export default function HistoryView({
         horseName={chartHorseName}
         sessions={sessions}
         onSelectSession={onSelectSession}
+        onDeleteSession={onDeleteSession}
+        onDeleteAllSessions={onDeleteAllSessions}
       />
 
       {/* Session Cards Title */}
@@ -208,6 +250,7 @@ export default function HistoryView({
           {filteredSessions.map((session) => {
             const isOptimal = session.status === 'optimal';
             const scoreColor = isOptimal ? '#10B981' : '#F59E0B';
+            const isDeleting = deletingId === session.id;
 
             return (
               <div
@@ -236,21 +279,67 @@ export default function HistoryView({
                     </span>
                   </div>
 
-                  {/* Score Badge */}
-                  <div
-                    className="px-2.5 py-1 rounded-xl flex items-center gap-1.5 font-mono text-[12px] font-extrabold border"
-                    style={{
-                      backgroundColor: `${scoreColor}18`,
-                      color: scoreColor,
-                      borderColor: `${scoreColor}35`,
-                    }}
-                  >
-                    {isOptimal ? (
-                      <CheckCircle2 className="w-3.5 h-3.5" />
+                  {/* Actions & Score Badge */}
+                  <div className="flex items-center gap-1.5">
+                    {isDeleting ? (
+                      <div className="flex items-center gap-1 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/50 rounded-xl p-1 animate-fadeIn">
+                        <span className="text-[9px] font-mono text-red-600 dark:text-red-400 font-bold px-1">
+                          ¿Borrar?
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteSession?.(session.id);
+                            setDeletingId(null);
+                          }}
+                          className="px-2 py-0.5 rounded bg-red-500 text-white font-mono text-[9px] font-extrabold hover:bg-red-600 transition"
+                        >
+                          Sí
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeletingId(null);
+                          }}
+                          className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-zinc-300 font-mono text-[9px]"
+                        >
+                          No
+                        </button>
+                      </div>
                     ) : (
-                      <AlertCircle className="w-3.5 h-3.5" />
+                      <>
+                        {onDeleteSession && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeletingId(session.id);
+                            }}
+                            className="p-1.5 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition"
+                            title="Eliminar esta evaluación"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                        <div
+                          className="px-2.5 py-1 rounded-xl flex items-center gap-1.5 font-mono text-[12px] font-extrabold border"
+                          style={{
+                            backgroundColor: `${scoreColor}18`,
+                            color: scoreColor,
+                            borderColor: `${scoreColor}35`,
+                          }}
+                        >
+                          {isOptimal ? (
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                          ) : (
+                            <AlertCircle className="w-3.5 h-3.5" />
+                          )}
+                          <span>{session.score}%</span>
+                        </div>
+                      </>
                     )}
-                    <span>{session.score}%</span>
                   </div>
                 </div>
 

@@ -29,6 +29,8 @@ export default function HorsesView({
   onOpenEditHorseModal,
   onSelectHorseForEvaluation,
   onSelectSession,
+  onDeleteSession,
+  onDeleteAllSessions,
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDiscipline, setSelectedDiscipline] = useState('Todos');
@@ -250,6 +252,8 @@ export default function HorsesView({
                     horseName={horse.name}
                     sessions={sessions}
                     onSelectSession={onSelectSession}
+                    onDeleteSession={onDeleteSession}
+                    onDeleteAllSessions={onDeleteAllSessions}
                   />
                 </div>
               )}

@@ -634,6 +634,75 @@ export default function App({ onBackToLanding, initialAuthMode = 'signup', skipS
     saveSessionsToStorage(realSessions);
   };
 
+  const handleDeleteSession = (sessionId) => {
+    const sessionToDelete = sessions.find((s) => s.id === sessionId);
+    const updated = sessions.filter((s) => s.id !== sessionId);
+    saveSessionsToStorage(updated);
+
+    if (sessionToDelete) {
+      const horseName = sessionToDelete.horse;
+      const remainingHorseSessions = updated.filter(
+        (s) => (s.horse || '').toLowerCase() === (horseName || '').toLowerCase()
+      );
+      const latestRemaining = remainingHorseSessions[0];
+      setHorses((prev) => {
+        const next = prev.map((h) => {
+          if (h.name?.toLowerCase() === horseName?.toLowerCase()) {
+            return {
+              ...h,
+              last_score: latestRemaining ? (latestRemaining.score ?? null) : null,
+              last_asymmetry_mm: latestRemaining
+                ? (parseFloat(latestRemaining.asymmetryMm) || null)
+                : null,
+              status: latestRemaining ? (latestRemaining.status || 'optimal') : 'optimal',
+            };
+          }
+          return h;
+        });
+        try {
+          localStorage.setItem('hv_horses', JSON.stringify(next));
+        } catch {}
+        return next;
+      });
+    }
+  };
+
+  const handleDeleteAllSessions = (horseName = null) => {
+    let updated;
+    if (horseName && horseName !== 'Todos') {
+      updated = sessions.filter(
+        (s) => (s.horse || '').toLowerCase() !== horseName.toLowerCase()
+      );
+      setHorses((prev) => {
+        const next = prev.map((h) => {
+          if (h.name?.toLowerCase() === horseName.toLowerCase()) {
+            return { ...h, last_score: null, last_asymmetry_mm: null, status: 'optimal' };
+          }
+          return h;
+        });
+        try {
+          localStorage.setItem('hv_horses', JSON.stringify(next));
+        } catch {}
+        return next;
+      });
+    } else {
+      updated = [];
+      setHorses((prev) => {
+        const next = prev.map((h) => ({
+          ...h,
+          last_score: null,
+          last_asymmetry_mm: null,
+          status: 'optimal',
+        }));
+        try {
+          localStorage.setItem('hv_horses', JSON.stringify(next));
+        } catch {}
+        return next;
+      });
+    }
+    saveSessionsToStorage(updated);
+  };
+
   const handleSelectHistorySession = async (session) => {
     // If session already holds full analysis payload, load it directly
     if (session.analysis_data) {
@@ -835,6 +904,8 @@ export default function App({ onBackToLanding, initialAuthMode = 'signup', skipS
               maxHorses={maxHorses}
               onOpenPricing={() => setIsPricingOpen(true)}
               onSelectSession={handleSelectHistorySession}
+              onDeleteSession={handleDeleteSession}
+              onDeleteAllSessions={handleDeleteAllSessions}
               onOpenNewHorseModal={handleOpenNewHorseOrUpgrade}
               onOpenEditHorseModal={(horse) => {
                 setHorseToEdit(horse);
@@ -862,6 +933,8 @@ export default function App({ onBackToLanding, initialAuthMode = 'signup', skipS
               horses={horses}
               onSelectSession={handleSelectHistorySession}
               onClearDemoSessions={handleClearDemoSessions}
+              onDeleteSession={handleDeleteSession}
+              onDeleteAllSessions={handleDeleteAllSessions}
               onSelectNav={setActiveNav}
             />
           )}

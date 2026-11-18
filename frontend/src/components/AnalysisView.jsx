@@ -348,12 +348,19 @@ export default function AnalysisView({ analysisData, horse, onViewReport }) {
     };
   }, [analysisData.time_series, lastValidFrameIdx]);
 
-  const resW = analysisData.resolution
-    ? analysisData.resolution.width || analysisData.resolution[0] || 16
-    : 16;
-  const resH = analysisData.resolution
-    ? analysisData.resolution.height || analysisData.resolution[1] || 9
-    : 9;
+  const [resW, resH] = useMemo(() => {
+    if (typeof analysisData.resolution === 'string') {
+      const parts = analysisData.resolution.split('x').map(Number);
+      if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+        return parts;
+      }
+    } else if (analysisData.resolution?.width && analysisData.resolution?.height) {
+      return [Number(analysisData.resolution.width), Number(analysisData.resolution.height)];
+    } else if (Array.isArray(analysisData.resolution) && analysisData.resolution.length >= 2) {
+      return [Number(analysisData.resolution[0]), Number(analysisData.resolution[1])];
+    }
+    return [16, 9];
+  }, [analysisData.resolution]);
 
   // Precompute stabilized 4:3 moving camera crop windows centered on the horse bbox
   const cropWindows = useMemo(() => {
