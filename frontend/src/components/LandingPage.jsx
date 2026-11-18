@@ -18,6 +18,7 @@ export default function LandingPage({ onLaunchApp }) {
   const [selectedPlanForCheckout, setSelectedPlanForCheckout] = useState(null);
   const [showDemoModal, setShowDemoModal] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
+  const [legalModalTab, setLegalModalTab] = useState(null); // 'terms' | 'privacy' | null
 
   // PayPal checkout modal state
   const [sdkReady, setSdkReady] = useState(false);
@@ -838,30 +839,64 @@ export default function LandingPage({ onLaunchApp }) {
       </section>
 
       {/* =========================================================================
-          8. FOOTER
+          8. FOOTER (With Privacy Policy, Terms & Clinical/Trainer Disclaimer)
           ========================================================================= */}
       <footer className="py-12 px-4 sm:px-8 lg:px-16 bg-[#071B24] text-[#C6D4D7] border-t border-white/10">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-white p-1.5 flex items-center justify-center shadow-sm">
-              <img
-                src="/landing-assets/logo/horsevision-mark.png"
-                alt="HorseVision"
-                className="w-full h-full object-contain"
-              />
+        <div className="max-w-7xl mx-auto flex flex-col gap-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-white p-1.5 flex items-center justify-center shadow-sm">
+                <img
+                  src="/landing-assets/logo/horsevision-mark.png"
+                  alt="HorseVision"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <div className="flex items-baseline">
+                <span className="font-extrabold text-[20px] text-white tracking-tight">HorseVision</span>
+                <sup className="text-[9px] text-[#00D1C2] font-mono ml-0.5">®</sup>
+              </div>
             </div>
-            <div className="flex items-baseline">
-              <span className="font-extrabold text-[20px] text-white tracking-tight">HorseVision</span>
-              <sup className="text-[9px] text-[#00D1C2] font-mono ml-0.5">®</sup>
+
+            {/* Legal Navigation Links */}
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-[13px] font-semibold">
+              <button
+                type="button"
+                onClick={() => setLegalModalTab('terms')}
+                className="text-[#D4E0E2] hover:text-[#D9F99D] underline-offset-4 hover:underline transition-colors"
+              >
+                Términos y Condiciones
+              </button>
+              <button
+                type="button"
+                onClick={() => setLegalModalTab('privacy')}
+                className="text-[#D4E0E2] hover:text-[#D9F99D] underline-offset-4 hover:underline transition-colors"
+              >
+                Política de Privacidad
+              </button>
+              <button
+                type="button"
+                onClick={() => setLegalModalTab('terms')}
+                className="text-[#00D1C2] hover:text-[#D9F99D] underline-offset-4 hover:underline transition-colors"
+              >
+                Deslinde de Responsabilidad
+              </button>
+            </div>
+
+            <div className="text-[12px] text-[#91A4A9] font-mono text-center md:text-right">
+              © {new Date().getFullYear()} HorseVision. Todos los derechos reservados.
             </div>
           </div>
 
-          <p className="text-[13px] text-[#91A4A9] text-center sm:text-left">
-            Plataforma equina con herramientas de análisis e inteligencia artificial.
-          </p>
-
-          <div className="text-[12px] text-[#91A4A9] font-mono">
-            © {new Date().getFullYear()} HorseVision. Todos los derechos reservados.
+          {/* Explicit Non-Veterinarian & Non-Trainer Disclaimer Banner */}
+          <div className="rounded-[20px] bg-white/[0.04] border border-white/10 px-5 py-4 text-[12px] text-[#B8C7CA] leading-relaxed flex flex-col sm:flex-row items-start gap-3">
+            <ShieldCheck className="w-5 h-5 text-[#00D1C2] shrink-0 mt-0.5" />
+            <p>
+              <strong className="text-white">Aviso Legal y Deslinde de Responsabilidad:</strong> HorseVision®{' '}
+              <strong className="text-[#D9F99D]">no es una clínica veterinaria, médico veterinario ni entrenador ecuestre</strong>.
+              Es una herramienta tecnológica de apoyo y análisis biomecánico por visión artificial con fines exclusivamente informativos y de seguimiento. Sus métricas, reportes e interacciones con IA{' '}
+              <strong className="text-white">no constituyen un diagnóstico clínico ni un plan profesional de entrenamiento</strong>, y no sustituyen en ningún caso la evaluación presencial de un médico veterinario colegiado ni la dirección de un entrenador certificado.
+            </p>
           </div>
         </div>
       </footer>
@@ -991,6 +1026,173 @@ export default function LandingPage({ onLaunchApp }) {
                 className="px-5 py-2.5 rounded-full bg-[#D9F99D] text-[#071B24] font-extrabold hover:bg-[#ccf482] transition"
               >
                 Probar en mi caballo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          LEGAL MODAL (Términos y Condiciones & Política de Privacidad)
+          ========================================================================= */}
+      {legalModalTab && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in"
+          onClick={() => setLegalModalTab(null)}
+        >
+          <div
+            className="relative w-full max-w-2xl max-h-[88vh] bg-white rounded-[32px] shadow-2xl border border-[#0F3D44]/10 overflow-hidden text-[#071B24] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="p-5 sm:p-6 bg-[#071B24] text-white flex items-center justify-between shrink-0">
+              <div>
+                <span className="text-[11px] font-bold tracking-wider text-[#00D1C2] uppercase">
+                  Marco Legal · HorseVision®
+                </span>
+                <h3 className="text-[20px] font-extrabold">
+                  {legalModalTab === 'terms' ? 'Términos y Condiciones' : 'Política de Privacidad'}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLegalModalTab(null)}
+                aria-label="Cerrar ventana legal"
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Segmented Tab Switcher */}
+            <div className="px-5 sm:px-6 pt-4 pb-2 bg-[#F2F5F4] border-b border-[#0F3D44]/10 shrink-0">
+              <div className="grid grid-cols-2 gap-1.5 p-1 rounded-full bg-white border border-[#0F3D44]/10 shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => setLegalModalTab('terms')}
+                  className={`py-2 px-3 rounded-full text-[12.5px] font-bold transition ${
+                    legalModalTab === 'terms'
+                      ? 'bg-[#0F3D44] text-white shadow-sm'
+                      : 'text-slate-600 hover:text-[#071B24]'
+                  }`}
+                >
+                  Términos y Condiciones
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLegalModalTab('privacy')}
+                  className={`py-2 px-3 rounded-full text-[12.5px] font-bold transition ${
+                    legalModalTab === 'privacy'
+                      ? 'bg-[#0F3D44] text-white shadow-sm'
+                      : 'text-slate-600 hover:text-[#071B24]'
+                  }`}
+                >
+                  Política de Privacidad
+                </button>
+              </div>
+            </div>
+
+            {/* Scrollable Legal Content */}
+            <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 text-[13.5px] text-[#3B4E54] leading-relaxed">
+              {legalModalTab === 'terms' ? (
+                <>
+                  <div className="rounded-[22px] bg-[#EEF4F2] border border-[#0F3D44]/15 p-4 text-[#071B24]">
+                    <p className="font-extrabold text-[14px] mb-1">
+                      1. Herramienta de apoyo y análisis — No somos veterinarios ni entrenadores
+                    </p>
+                    <p className="text-[13px] text-[#33464C]">
+                      HorseVision® es exclusivamente una plataforma tecnológica de apoyo y análisis biomecánico asistida por visión artificial e inteligencia artificial. <strong>No somos médicos veterinarios, clínicos equinos ni entrenadores ecuestres</strong>, ni brindamos diagnósticos médicos, tratamientos farmacológicos o planes oficiales de entrenamiento deportivo.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-bold text-[#071B24] mb-1">
+                      2. Limitación de responsabilidad clínica y deportiva
+                    </h4>
+                    <p>
+                      Toda métrica de simetría, ángulo dorsal, oscilación vertical o sugerencia generada por el asistente IA tiene carácter meramente informativo y orientativo. Ante cualquier sospecha de cojera, dolor agudo, lesión o bajo rendimiento, el usuario debe consultar obligatoriamente a un médico veterinario colegiado y/o a su entrenador profesional presencial antes de tomar decisiones de carga de trabajo o salud sobre el caballo.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-bold text-[#071B24] mb-1">
+                      3. Planes y suscripciones (1, 5 y 50 caballos)
+                    </h4>
+                    <p>
+                      El acceso se rige según la capacidad de ejemplares del plan contratado: Básico (1 caballo con prueba gratuita de 7 días), Profesional (hasta 5 caballos) y Haras / Pro (hasta 50 caballos). El usuario puede cancelar su suscripción en cualquier momento antes del siguiente periodo de facturación mensual en dólares estadounidenses (USD).
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-bold text-[#071B24] mb-1">
+                      4. Uso responsable y seguridad en pista
+                    </h4>
+                    <p>
+                      El manejo físico del caballo durante la grabación de video a la cuerda o en línea recta es responsabilidad íntegra del propietario, jinete o manejador. Realiza siempre las grabaciones en superficies seguras, sin jinete y respetando la distancia recomendada para evitar riesgos.
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="rounded-[22px] bg-[#EEF4F2] border border-[#0F3D44]/15 p-4 text-[#071B24]">
+                    <p className="font-extrabold text-[14px] mb-1">
+                      Compromiso de Privacidad HorseVision®
+                    </p>
+                    <p className="text-[13px] text-[#33464C]">
+                      Protegemos tus datos personales, las fichas de tus caballos y los videos que analizas en nuestra herramienta de apoyo y análisis biomecánico.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-bold text-[#071B24] mb-1">
+                      1. Datos que recopilamos
+                    </h4>
+                    <p>
+                      Al crear tu cuenta mediante Supabase Auth recopilamos tu correo electrónico de acceso y las fichas descriptivas de los ejemplares que registres voluntariamente (nombre, raza, disciplina, edad y notas evolutivas).
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-bold text-[#071B24] mb-1">
+                      2. Procesamiento privado de videos y métricas biomecánicas
+                    </h4>
+                    <p>
+                      Los videos subidos o grabados se procesan únicamente para calcular los puntos articulares y métricas de simetría de tu sesión. No vendemos, alquilamos ni compartimos videos ni historiales de tus caballos con terceros con fines publicitarios.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-bold text-[#071B24] mb-1">
+                      3. Pagos seguros con PayPal
+                    </h4>
+                    <p>
+                      Todas las transacciones de suscripción se procesan directamente a través de la pasarela oficial de PayPal bajo cifrado SSL. HorseVision® no solicita ni almacena números completos de tarjetas bancarias ni códigos CVV en sus servidores.
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-bold text-[#071B24] mb-1">
+                      4. Derechos de eliminación y contacto
+                    </h4>
+                    <p>
+                      Puedes eliminar ejemplares de tu cuadra o solicitar la eliminación definitiva de tu cuenta y datos asociados escribiendo en cualquier momento a{' '}
+                      <a href="mailto:soporte@horsevision.app" className="text-[#0F3D44] font-bold underline">
+                        soporte@horsevision.app
+                      </a>.
+                    </p>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Footer Action */}
+            <div className="px-5 sm:px-6 py-4 bg-[#F2F5F4] border-t border-[#0F3D44]/10 flex justify-end shrink-0">
+              <button
+                type="button"
+                onClick={() => setLegalModalTab(null)}
+                className="px-6 py-2.5 rounded-full bg-[#0F3D44] text-white text-[13px] font-bold hover:bg-[#09282D] transition"
+              >
+                Entendido
               </button>
             </div>
           </div>
