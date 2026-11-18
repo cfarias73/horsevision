@@ -15,7 +15,6 @@ const PAYPAL_CLIENT_ID = 'BAANE3LHKnrMKf-jZ-ez5-Xkoi3dhx19UkuhHfyj6c5uWRy1lb3B5F
 
 export default function LandingPage({ onLaunchApp }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [currency, setCurrency] = useState('MXN'); // 'MXN' | 'USD'
   const [selectedPlanForCheckout, setSelectedPlanForCheckout] = useState(null);
   const [showDemoModal, setShowDemoModal] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
@@ -27,14 +26,13 @@ export default function LandingPage({ onLaunchApp }) {
   const [checkoutSuccess, setCheckoutSuccess] = useState(null);
   const paypalContainerRef = useRef(null);
 
-  // Plans data aligned with proposal & PayPal backend
+  // Plans data in USD aligned with PayPal backend
   const plans = [
     {
-      id: 'basic',
+      id: '1-horse',
       name: 'Básico',
       limit: '1 caballo',
-      priceMXN: '199',
-      priceUSD: '6.99',
+      price: '6.99',
       trial: '7 días de prueba gratis',
       popular: false,
       features: [
@@ -44,11 +42,10 @@ export default function LandingPage({ onLaunchApp }) {
       ]
     },
     {
-      id: 'pro',
+      id: '3-horses',
       name: 'Profesional',
       limit: 'Hasta 10 caballos',
-      priceMXN: '499',
-      priceUSD: '15.99',
+      price: '15.99',
       trial: null,
       popular: true,
       features: [
@@ -59,11 +56,10 @@ export default function LandingPage({ onLaunchApp }) {
       ]
     },
     {
-      id: 'unlimited',
+      id: '50-horses',
       name: 'Ilimitado',
       limit: 'Caballos ilimitados',
-      priceMXN: '999',
-      priceUSD: '99.00',
+      price: '99.00',
       trial: null,
       popular: false,
       features: [
@@ -140,7 +136,7 @@ export default function LandingPage({ onLaunchApp }) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                  plan_id: selectedPlanForCheckout.id === 'basic' ? '1-horse' : selectedPlanForCheckout.id === 'pro' ? '3-horses' : '50-horses',
+                  plan_id: selectedPlanForCheckout.id,
                   billing_cycle: 'monthly',
                 }),
               });
@@ -640,36 +636,14 @@ export default function LandingPage({ onLaunchApp }) {
               Una suscripción para cada necesidad
             </h2>
             <p className="text-[15px] text-[#66777C]">
-              Empieza con un caballo y amplía tu plan cuando lo necesites. Cancela cuando quieras.
+              Precios en dólares (USD). Empieza con tu prueba gratis o elige el plan para tu cuadra. Cancela cuando quieras.
             </p>
-
-            {/* Currency Selector */}
-            <div className="inline-flex items-center gap-1 p-1 bg-white border border-[#DCE5E8] rounded-xl mt-6 shadow-sm">
-              <button
-                type="button"
-                onClick={() => setCurrency('MXN')}
-                className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-all ${
-                  currency === 'MXN' ? 'bg-[#071B24] text-white shadow' : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                MXN ($)
-              </button>
-              <button
-                type="button"
-                onClick={() => setCurrency('USD')}
-                className={`px-3 py-1.5 rounded-lg text-[12px] font-bold transition-all ${
-                  currency === 'USD' ? 'bg-[#071B24] text-white shadow' : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                USD ($)
-              </button>
-            </div>
           </div>
 
           {/* 3 Pricing Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-stretch">
             {plans.map((plan) => {
-              const priceDisplay = currency === 'MXN' ? `$${plan.priceMXN} MXN` : `$${plan.priceUSD} USD`;
+              const priceDisplay = `$${plan.price} USD`;
 
               return (
                 <article
@@ -860,7 +834,7 @@ export default function LandingPage({ onLaunchApp }) {
                     </div>
                     <div className="text-right">
                       <p className="text-[22px] font-black text-[#071B24]">
-                        {currency === 'MXN' ? `$${selectedPlanForCheckout.priceMXN} MXN` : `$${selectedPlanForCheckout.priceUSD} USD`}
+                        ${selectedPlanForCheckout.price} USD
                       </p>
                       {selectedPlanForCheckout.trial && (
                         <span className="text-[11px] font-bold text-emerald-600">
