@@ -1,10 +1,9 @@
-// HorseVision PWA Service Worker
-const CACHE_NAME = 'horsevision-pwa-v3';
+// HorseVision PWA Service Worker (Network-first, never caches HTML or legacy images)
+const CACHE_NAME = 'horsevision-pwa-v4';
 const ASSETS_TO_CACHE = [
-  '/app',
   '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  '/icon-192-2026.png?v=20261118',
+  '/icon-512-2026.png?v=20261118'
 ];
 
 self.addEventListener('install', (event) => {
@@ -28,13 +27,12 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests for app shell
   if (event.request.method !== 'GET') return;
-  // Let API requests pass straight through to backend
   if (event.request.url.includes('/api/')) return;
 
+  // Network-first without writing HTML or image responses into CacheStorage
   event.respondWith(
-    fetch(event.request).catch(() => {
+    fetch(event.request, { cache: 'no-store' }).catch(() => {
       return caches.match(event.request);
     })
   );

@@ -141,11 +141,11 @@ const NativeShell = React.memo(function NativeShell({
             </button>
           ) : (
             <div
-              className="w-10 h-10 rounded-2xl p-1.5 shadow-md shrink-0 border border-teal-500/25 bg-slate-900/85 dark:bg-zinc-900 flex items-center justify-center"
+              className="w-10 h-10 rounded-2xl p-1.5 shadow-md shrink-0 bg-white dark:bg-[#16161B] border border-slate-200 dark:border-white/10 flex items-center justify-center"
               aria-hidden="true"
             >
               <img 
-                src="/logos/horsevision-icon.png" 
+                src="/logos/hv-mark-2026.png?v=20261118" 
                 alt="HorseVision Icon" 
                 className="w-full h-full object-contain filter drop-shadow-sm" 
               />
@@ -169,41 +169,24 @@ const NativeShell = React.memo(function NativeShell({
           </div>
 
           <div className="flex items-center gap-1.5 shrink-0">
-            {hideBottomNav ? (
-              /* Theme Toggle on Auth Screen */
-              <button
-                type="button"
-                onClick={toggleTheme}
-                aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-                title={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-                className="w-9 h-9 rounded-full card-3d-interactive flex items-center justify-center text-slate-700 dark:text-zinc-300 active:scale-90 transition-all shadow-sm"
-              >
-                {isDark ? (
-                  <Sun className="w-4 h-4 text-amber-400" />
-                ) : (
-                  <Moon className="w-4 h-4 text-[#0D3F2E]" />
-                )}
-              </button>
-            ) : (
-              /* Single Hamburger Menu Button */
-              <button
-                type="button"
-                onClick={() => setIsMenuOpen((v) => !v)}
-                aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
-                aria-expanded={isMenuOpen}
-                className="w-10 h-10 rounded-full card-3d-interactive flex items-center justify-center text-slate-700 dark:text-zinc-200 active:scale-90 transition-all shadow-sm"
-              >
-                {isMenuOpen ? (
-                  <X className="w-5 h-5" />
-                ) : (
-                  <Menu className="w-5 h-5" />
-                )}
-              </button>
-            )}
+            {/* Single Hamburger Menu Button */}
+            <button
+              type="button"
+              onClick={() => setIsMenuOpen((v) => !v)}
+              aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+              aria-expanded={isMenuOpen}
+              className="w-10 h-10 rounded-full card-3d-interactive flex items-center justify-center text-slate-700 dark:text-zinc-200 active:scale-90 transition-all shadow-sm"
+            >
+              {isMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </button>
           </div>
 
           {/* Floating Hamburger Drawer Menu */}
-          {isMenuOpen && !hideBottomNav && (
+          {isMenuOpen && (
             <>
               <div
                 className="fixed inset-0 z-30 bg-black/25 backdrop-blur-[1px]"
@@ -215,39 +198,43 @@ const NativeShell = React.memo(function NativeShell({
                 className="absolute top-full right-4 mt-1.5 z-50 w-64 rounded-[22px] card-3d p-2 shadow-2xl border border-slate-200 dark:border-[#2D2D35] view-enter flex flex-col divide-y divide-slate-100 dark:divide-white/10 font-mono text-[12px]"
               >
                 <div className="flex flex-col gap-0.5 pb-1">
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={() => {
-                      onSelectNav('historial');
-                      setIsMenuOpen(false);
-                    }}
-                    className={`w-full px-3 py-2.5 rounded-xl flex items-center gap-2.5 text-left transition ${
-                      activeNav === 'historial'
-                        ? 'bg-[#0D3F2E]/10 dark:bg-emerald-500/15 text-[#0D3F2E] dark:text-emerald-300 font-bold'
-                        : 'text-slate-700 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-white/5'
-                    }`}
-                  >
-                    <History className="w-4 h-4 shrink-0" />
-                    <span>Historial de Evaluaciones</span>
-                  </button>
+                  {!hideBottomNav && (
+                    <>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          onSelectNav('historial');
+                          setIsMenuOpen(false);
+                        }}
+                        className={`w-full px-3 py-2.5 rounded-xl flex items-center gap-2.5 text-left transition ${
+                          activeNav === 'historial'
+                            ? 'bg-[#0D3F2E]/10 dark:bg-emerald-500/15 text-[#0D3F2E] dark:text-emerald-300 font-bold'
+                            : 'text-slate-700 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-white/5'
+                        }`}
+                      >
+                        <History className="w-4 h-4 shrink-0" />
+                        <span>Historial de Evaluaciones</span>
+                      </button>
 
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={() => {
-                      onSelectNav('perfil');
-                      setIsMenuOpen(false);
-                    }}
-                    className={`w-full px-3 py-2.5 rounded-xl flex items-center gap-2.5 text-left transition ${
-                      activeNav === 'perfil'
-                        ? 'bg-[#0D3F2E]/10 dark:bg-emerald-500/15 text-[#0D3F2E] dark:text-emerald-300 font-bold'
-                        : 'text-slate-700 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-white/5'
-                    }`}
-                  >
-                    <User className="w-4 h-4 shrink-0" />
-                    <span>Mi Perfil y Cuenta</span>
-                  </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          onSelectNav('perfil');
+                          setIsMenuOpen(false);
+                        }}
+                        className={`w-full px-3 py-2.5 rounded-xl flex items-center gap-2.5 text-left transition ${
+                          activeNav === 'perfil'
+                            ? 'bg-[#0D3F2E]/10 dark:bg-emerald-500/15 text-[#0D3F2E] dark:text-emerald-300 font-bold'
+                            : 'text-slate-700 dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-white/5'
+                        }`}
+                      >
+                        <User className="w-4 h-4 shrink-0" />
+                        <span>Mi Perfil y Cuenta</span>
+                      </button>
+                    </>
+                  )}
 
                   <button
                     type="button"
@@ -283,18 +270,20 @@ const NativeShell = React.memo(function NativeShell({
                     </div>
                   </button>
 
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={() => {
-                      onReset?.();
-                      setIsMenuOpen(false);
-                    }}
-                    className="w-full px-3 py-2.5 rounded-xl flex items-center gap-2.5 text-left text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-white/5 transition"
-                  >
-                    <RotateCcw className="w-4 h-4 shrink-0" />
-                    <span>Nueva Evaluación / Reiniciar</span>
-                  </button>
+                  {!hideBottomNav && (
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        onReset?.();
+                        setIsMenuOpen(false);
+                      }}
+                      className="w-full px-3 py-2.5 rounded-xl flex items-center gap-2.5 text-left text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-white/5 transition"
+                    >
+                      <RotateCcw className="w-4 h-4 shrink-0" />
+                      <span>Nueva Evaluación / Reiniciar</span>
+                    </button>
+                  )}
                 </div>
               </div>
             </>

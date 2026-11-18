@@ -36,6 +36,48 @@ export default function Root() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // Force-clear stale browser/PWA caches, refresh legacy Service Workers, and repaint favicon immediately
+  useEffect(() => {
+    try {
+      if ('caches' in window) {
+        window.caches
+          .keys()
+          .then((keys) => Promise.all(keys.map((k) => window.caches.delete(k))))
+          .catch(() => {});
+      }
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker
+          .getRegistrations()
+          .then((regs) => {
+            regs.forEach((reg) => {
+              reg.update().catch(() => {});
+              if (!reg.active?.scriptURL?.includes('v=4')) {
+                reg.unregister().catch(() => {});
+              }
+            });
+          })
+          .catch(() => {});
+      }
+
+      document
+        .querySelectorAll('link[rel*="icon"]')
+        .forEach((el) => el.parentNode?.removeChild(el));
+
+      const freshFavicon = document.createElement('link');
+      freshFavicon.rel = 'icon';
+      freshFavicon.type = 'image/png';
+      freshFavicon.href = '/favicon-2026.png?v=20261118';
+      document.head.appendChild(freshFavicon);
+
+      const freshShortcut = document.createElement('link');
+      freshShortcut.rel = 'shortcut icon';
+      freshShortcut.type = 'image/png';
+      freshShortcut.href = '/favicon-2026.png?v=20261118';
+      document.head.appendChild(freshShortcut);
+    } catch (e) {}
+  }, []);
+
   // When on /app, register PWA Service Worker & Manifest exclusively
   useEffect(() => {
     if (route === '/app') {
@@ -56,8 +98,9 @@ export default function Root() {
           window.location.hostname === '127.0.0.1')
       ) {
         navigator.serviceWorker
-          .register('/sw.js', { scope: '/app' })
+          .register('/sw.js?v=4', { scope: '/app' })
           .then((reg) => {
+            reg.update().catch(() => {});
             console.log('HorseVision PWA ServiceWorker active with scope:', reg.scope);
           })
           .catch((err) => {

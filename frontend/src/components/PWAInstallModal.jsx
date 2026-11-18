@@ -61,8 +61,8 @@ export default function PWAInstallModal({ isOpen, onClose }) {
 
         {/* App Icon & Header */}
         <div className="flex flex-col items-center text-center gap-3 pt-2">
-          <div className="relative w-16 h-16 rounded-2xl bg-[#0D3F2E] p-1 border border-[#FED492]/40 shadow-xl overflow-hidden flex items-center justify-center">
-            <img src="/icon-192.png" alt="HorseVision Logo" className="w-full h-full object-cover rounded-xl" />
+          <div className="relative w-16 h-16 rounded-2xl bg-white p-1.5 border border-slate-200 shadow-xl overflow-hidden flex items-center justify-center">
+            <img src="/icon-192-2026.png?v=20261118" alt="HorseVision Logo" className="w-full h-full object-contain rounded-xl" />
           </div>
 
           <div>
