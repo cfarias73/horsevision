@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import subprocess
 import time
 import uuid
@@ -101,6 +102,132 @@ def _sanitize_json(obj: Any) -> Any:
     if isinstance(obj, np.ndarray):
         return [_sanitize_json(v) for v in obj.tolist()]
     return obj
+
+
+def _localize_analysis_payload(payload: Dict[str, Any], language: str) -> Dict[str, Any]:
+    """Localizes human-readable analysis labels without changing the default Spanish API."""
+    if not language.lower().startswith("en"):
+        return payload
+
+    limb_names = {
+        "LF": "Left Forelimb",
+        "RF": "Right Forelimb",
+        "LH": "Left Hindlimb",
+        "RH": "Right Hindlimb",
+    }
+    labels = {
+        "Simétrico / Óptimo": "Symmetric / Optimal",
+        "Simétrico": "Symmetric",
+        "Óptimo": "Optimal",
+        "Excelente": "Excellent",
+        "Asimetría Leve": "Mild Asymmetry",
+        "Asimetría Leve (>10%)": "Mild Asymmetry (>10%)",
+        "Asimetría Moderada/Alta (>15%)": "Moderate / High Asymmetry (>15%)",
+        "Balanceado en par anterior": "Balanced in forelimb pair",
+        "Balanceado en par posterior": "Balanced in hindlimb pair",
+        "Extremidad con descarga detectada": "Affected limb detected",
+        "Contralateral de apoyo compensatorio": "Contralateral compensating limb",
+        "Pelvic Hike / Drop": "Pelvic Hike / Drop",
+        "Head Nod / Withers Drop": "Head Nod / Withers Drop",
+        "Cinemática Global (4 Extremidades)": "Overall Movement (4 Limbs)",
+        "Miembros Posteriores (LH vs RH)": "Hindlimbs (LH vs RH)",
+        "Miembros Anteriores (LF vs RF)": "Forelimbs (LF vs RF)",
+        "Sin extremidad afectada": "No affected limb",
+        "Rodilla (Carpo)": "Knee (Carpus)",
+        "Corvejón (Tarso)": "Hock (Tarsus)",
+        "Mano Izquierda": "Left Forelimb",
+        "Mano Derecha": "Right Forelimb",
+        "Pata Izquierda": "Left Hindlimb",
+        "Pata Derecha": "Right Hindlimb",
+    }
+
+    def localize_description(text: str) -> str:
+        if not isinstance(text, str):
+            return text
+        hind = re.match(
+            r"Asimetría pélvica del ([\d.]+)% detectada durante el apoyo de (LF|RF|LH|RH) "
+            r"\(diferencia Pelvic Hike/Drop de ([\d.]+) mm en grupa y apoyo ([\d.]+) ms\)\. (.*)",
+            text,
+        )
+        if hind:
+            severity = hind.group(5)
+            if "Supera el umbral veterinario" in severity:
+                severity = "Exceeds the 15% threshold; a veterinary assessment of the hindlimb is recommended."
+            elif "Supera el umbral leve" in severity:
+                severity = "Exceeds the mild threshold (>10%); monitor movement on a circle."
+            return (
+                f"Hindlimb pelvic asymmetry of {hind.group(1)}% detected during {hind.group(2)} stance "
+                f"(Pelvic Hike/Drop difference {hind.group(3)} mm and stance time {hind.group(4)} ms). {severity}"
+            )
+
+        fore = re.match(
+            r"Asimetría de cabeceo \(Head Nod\) del ([\d.]+)% con diferencia vertical de nuca/cruz de "
+            r"([\d.]+) mm durante el apoyo de (LF|RF|LH|RH)\. (.*)",
+            text,
+        )
+        if fore:
+            severity = fore.group(4)
+            if "Patrón compatible" in severity:
+                severity = "Pattern is consistent with secondary forelimb compensation."
+            elif "Supera umbral veterinario" in severity:
+                severity = "Exceeds the 15% threshold and indicates significant forelimb unloading."
+            elif "Supera el umbral leve" in severity:
+                severity = "Exceeds the mild threshold (>10%); monitor symmetry on a firm surface."
+            return (
+                f"Head Nod asymmetry of {fore.group(1)}% with a vertical poll/withers difference of "
+                f"{fore.group(2)} mm during {fore.group(3)} stance. {severity}"
+            )
+
+        symmetric = re.match(
+            r"Simetría anterior del ([\d.]+)% \(Head Nod Δ ([\d.]+) mm\) y simetría posterior del "
+            r"([\d.]+)% \(Pelvic Hike Δ ([\d.]+) mm\)\. Ambas diagonales mantienen tiempos de apoyo y "
+            r"ángulos articulares consistentes \(≤10% umbral\)\.",
+            text,
+        )
+        if symmetric:
+            return (
+                f"Forelimb symmetry is {symmetric.group(1)}% (Head Nod Δ {symmetric.group(2)} mm) and "
+                f"hindlimb symmetry is {symmetric.group(3)}% (Pelvic Hike Δ {symmetric.group(4)} mm). "
+                "Both diagonal pairs show consistent stance times and joint angles (≤10% threshold)."
+            )
+        return labels.get(text, text)
+
+    for limb, data in (payload.get("limbs") or {}).items():
+        if limb in limb_names:
+            data["label_es"] = limb_names[limb]
+        for key in ("badge_label", "role_note", "joint_name"):
+            if isinstance(data.get(key), str):
+                data[key] = labels.get(data[key], data[key])
+
+    report = payload.get("symmetry_report") or {}
+    for key in ("badge_label",):
+        if isinstance(report.get(key), str):
+            report[key] = labels.get(report[key], report[key])
+    for finding in report.get("findings", []):
+        for key in ("region", "metric_name", "affected_limb_name"):
+            if isinstance(finding.get(key), str):
+                translated = labels.get(finding[key], finding[key])
+                if key == "affected_limb_name":
+                    for es, en in labels.items():
+                        translated = translated.replace(es, en)
+                    translated = translated.replace("Pata Izquierda", "Left Hindlimb")
+                    translated = translated.replace("Pata Derecha", "Right Hindlimb")
+                    translated = translated.replace("Mano Izquierda", "Left Forelimb")
+                    translated = translated.replace("Mano Derecha", "Right Forelimb")
+                finding[key] = translated
+        if isinstance(finding.get("title"), str):
+            title = finding["title"]
+            title = re.sub(r"^Alerta Moderada/Alta en ", "Moderate / High Asymmetry in ", title)
+            title = re.sub(r"^Asimetría Leve en ", "Mild Asymmetry in ", title)
+            title = re.sub(r"^Asimetría Moderada/Alta en ", "Moderate / High Asymmetry in ", title)
+            for es, en in labels.items():
+                title = title.replace(es, en)
+            title = title.replace(" en ", " in ").replace("Posible compensación", "Possible compensation")
+            finding["title"] = title
+        if isinstance(finding.get("description"), str):
+            finding["description"] = localize_description(finding["description"])
+
+    return payload
 
 
 def _ensure_browser_mp4(src_path: Path, dst_path: Path) -> Path:
@@ -198,7 +325,12 @@ def _read_video_frames(
     return frames, effective_fps, disp_w, disp_h
 
 
-def run_full_pipeline(video_path: Path, video_url: str, video_name: str) -> Dict[str, Any]:
+def run_full_pipeline(
+    video_path: Path,
+    video_url: str,
+    video_name: str,
+    language: str = "es",
+) -> Dict[str, Any]:
     """Executes all 4 HorseVision biomechanical modules in sequence on a real video file."""
     t_start = time.perf_counter()
 
@@ -209,12 +341,18 @@ def run_full_pipeline(video_path: Path, video_url: str, video_name: str) -> Dict
     # 1. RHDA Quality Gate (YOLOv8 / Lateral 90° / Occlusion)
     quality_records, quality_summary = quality_gate.process_frames(frames_bgr, fps=fps)
     if quality_summary["valid_frames"] < 5:
-        raise HTTPException(
-            status_code=422,
-            detail=(
+        detail = (
+            f"RHDA quality gate rejected most frames ({quality_summary['valid_frames']}/{total_frames} valid). "
+            "Record a clear 90° side view without obstructions."
+            if language.lower().startswith("en")
+            else (
                 f"Gate de calidad RHDA rechazó la mayoría de cuadros ({quality_summary['valid_frames']}/"
                 f"{total_frames} válidos). Asegúrate de grabar en vista lateral 90° sin obstrucciones."
-            ),
+            )
+        )
+        raise HTTPException(
+            status_code=422,
+            detail=detail,
         )
 
     # 2. SuperAnimal-Quadruped / DLC_Horse Pose Extraction + Savitzky-Golay AJC
@@ -297,7 +435,7 @@ def run_full_pipeline(video_path: Path, video_url: str, video_name: str) -> Dict
         "time_series": symmetry["time_series"],
         "symmetry_report": sym_report,
     }
-    return _sanitize_json(payload)
+    return _localize_analysis_payload(_sanitize_json(payload), language)
 
 
 @app.get("/api/health")
@@ -332,37 +470,56 @@ def serve_video(filename: str) -> FileResponse:
 async def analyze_video(
     video: Optional[UploadFile] = File(None),
     demo_preset: Optional[str] = Form(None),
+    language: str = Form("es"),
 ) -> Dict[str, Any]:
     """
     Receives an uploaded .mp4/.mov video (or selects a real demo video file when
     demo_preset is provided), executes all 4 biomechanical pipeline modules in
     sequence, and returns the strict analysis JSON.
     """
+    english = language.lower().startswith("en")
     if video is not None:
         ext = Path(video.filename or "upload.mp4").suffix.lower()
         if ext not in (".mp4", ".mov", ".m4v", ".avi"):
-            raise HTTPException(status_code=400, detail="Formato no soportado. Usa .mp4 o .mov.")
+            raise HTTPException(
+                status_code=400,
+                detail="Unsupported format. Use .mp4 or .mov." if english else "Formato no soportado. Usa .mp4 o .mov.",
+            )
 
         uid = uuid.uuid4().hex[:10]
         raw_path = UPLOADS_DIR / f"horse_{uid}{ext}"
         content = await video.read()
         if not content:
-            raise HTTPException(status_code=400, detail="El archivo de video está vacío.")
+            raise HTTPException(
+                status_code=400,
+                detail="The video file is empty." if english else "El archivo de video está vacío.",
+            )
         raw_path.write_bytes(content)
 
         playable_path = _ensure_browser_mp4(raw_path, UPLOADS_DIR / f"horse_{uid}_h264.mp4")
         video_url = f"/api/videos/{playable_path.name}"
-        return run_full_pipeline(playable_path, video_url=video_url, video_name=video.filename or playable_path.name)
+        return run_full_pipeline(
+            playable_path,
+            video_url=video_url,
+            video_name=video.filename or playable_path.name,
+            language=language,
+        )
 
     if demo_preset:
         preset_key = demo_preset.strip().lower()
         if preset_key not in DEMO_VIDEOS:
-            raise HTTPException(status_code=400, detail=f"Demo preset inválido: {demo_preset}")
+            detail = f"Invalid demo preset: {demo_preset}" if english else f"Demo preset inválido: {demo_preset}"
+            raise HTTPException(status_code=400, detail=detail)
         demo_path = DEMO_VIDEOS[preset_key]
         video_url = f"/api/videos/{demo_path.name}"
-        return run_full_pipeline(demo_path, video_url=video_url, video_name=demo_path.name)
+        return run_full_pipeline(demo_path, video_url=video_url, video_name=demo_path.name, language=language)
 
-    raise HTTPException(status_code=400, detail="Debes enviar un archivo de video o un preset demo válido.")
+    detail = (
+        "Upload a video or select a valid demo."
+        if english
+        else "Debes enviar un archivo de video o un preset demo válido."
+    )
+    raise HTTPException(status_code=400, detail=detail)
 
 
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "").strip()
@@ -374,6 +531,7 @@ class AIReportRequest(BaseModel):
     discipline: Optional[str] = "Deporte Ecuestre"
     age: Optional[str] = "No especificada"
     notes: Optional[str] = ""
+    language: Optional[str] = "es"
     symmetry_report: Optional[Dict[str, Any]] = None
     kinematics_summary: Optional[Dict[str, Any]] = None
     limbs: Optional[Dict[str, Any]] = None
@@ -404,6 +562,7 @@ async def generate_ai_report(request: AIReportRequest) -> Dict[str, Any]:
             f"Elevación Casco={l_data.get('max_clearance_mm', 0)}mm, ROM={l_data.get('rom_deg', 0)}°.\n"
         )
 
+    response_language = "English" if (request.language or "es").lower().startswith("en") else "Spanish"
     system_prompt = (
         "Eres un Médico Veterinario de Élite Especialista en Biomecánica y Medicina Deportiva Equina "
         "(Diplomate ACVSMR / ECVSMR con experiencia en sistemas objetivos Sleip y Lameness Locator). "
@@ -433,6 +592,7 @@ async def generate_ai_report(request: AIReportRequest) -> Dict[str, Any]:
         '  "farriery_and_vet_notes": "Indicaciones para el herrador (balance podal) y veterinario de campo...",\n'
         '  "followup_recommendation": "Plazo sugerido para el próximo re-escaneo con la app (ej: 21 días) y signos de alerta."\n'
         "}"
+        f"\n\nCRITICAL LANGUAGE REQUIREMENT: Write every report value, explanation, recommendation, and exercise instruction in {response_language}. Keep the JSON keys exactly as specified."
     )
 
     user_content = (
@@ -452,7 +612,11 @@ async def generate_ai_report(request: AIReportRequest) -> Dict[str, Any]:
         f"- Cadencia: {kin.get('cadence_spm', 0)} pasos/min\n\n"
         f"DESGLOSE POR EXTREMIDAD:\n"
         f"{limbs_str}\n"
-        f"Por favor, elabora el reporte médico detallado en español con un plan de rehabilitación ejecutable."
+        + (
+            "Please write the detailed report in English and include an actionable rehabilitation plan."
+            if response_language == "English"
+            else "Por favor, elabora el reporte médico detallado en español con un plan de rehabilitación ejecutable."
+        )
     )
 
     try:
@@ -515,6 +679,7 @@ class ChatMessage(BaseModel):
 class AIChatRequest(BaseModel):
     horse_name: Optional[str] = "Equino"
     discipline: Optional[str] = "Deporte Ecuestre"
+    language: Optional[str] = None
     symmetry_report: Optional[Dict[str, Any]] = None
     kinematics_summary: Optional[Dict[str, Any]] = None
     messages: List[ChatMessage]
@@ -529,6 +694,7 @@ async def chat_with_vet_ai(request: AIChatRequest) -> Dict[str, Any]:
     """
     sym = request.symmetry_report or {}
     kin = request.kinematics_summary or {}
+    fallback_language = "English" if (request.language or "es").lower().startswith("en") else "Spanish"
 
     if sym.get("global_score") is not None:
         back_rom = kin.get("back_rom_deg") or 8.2
@@ -547,7 +713,7 @@ async def chat_with_vet_ai(request: AIChatRequest) -> Dict[str, Any]:
             "1. Sé empático, claro, profesional y directo (máximo 2 a 3 párrafos cortos).\n"
             f"2. Basa tus recomendaciones específicamente en sus métricas (ej: dorso de {back_rom}° o la asimetría medida). Ten presente que HorseVision analiza video 2D con la cámara del teléfono, nunca menciones sensores físicos ni acelerómetros.\n"
             "3. Da pautas prácticas sobre manejo, ejercicios, herraje y cuándo llamar a su veterinario de cabecera si hay dolor agudo.\n"
-            "4. Responde siempre en español y en texto limpio, sin usar encabezados ### ni abuso de símbolos markdown."
+            "4. Reply in the same language as the user's latest message. That message's language is authoritative. Use clean text without ### headings or excessive markdown."
         )
     else:
         context_block = (
@@ -558,7 +724,7 @@ async def chat_with_vet_ai(request: AIChatRequest) -> Dict[str, Any]:
             "1. Sé empático, claro, práctico y profesional (máximo 2 a 3 párrafos cortos).\n"
             "2. Responde consultas sobre entrenamiento, cuidado, calentamiento, herraje, biomecánica preventiva y bienestar equino.\n"
             "3. Recomienda cuándo es conveniente grabar un trote de 20 segundos en línea recta o círculo a la cuerda con la cámara de HorseVision o consultar a su veterinario presencial ante señales de dolor.\n"
-            "4. Responde siempre en español y en texto limpio, sin usar encabezados ### ni abuso de símbolos markdown."
+            "4. Reply in the same language as the user's latest message. That message's language is authoritative. Use clean text without ### headings or excessive markdown."
         )
 
     system_prompt = (
@@ -567,7 +733,8 @@ async def chat_with_vet_ai(request: AIChatRequest) -> Dict[str, Any]:
         f"(Disciplina: {request.discipline}).\n"
         f"{context_block}"
         f"PAUTAS DE RESPUESTA:\n"
-        f"{guidelines_block}"
+        f"{guidelines_block}\n"
+        f"MANDATORY LANGUAGE RULE: Respond entirely in the same language used by the user's most recent message. The question's language overrides the app language and all earlier context. If the latest message is too short to identify, use {fallback_language}. Do not switch languages."
     )
 
     deepseek_messages = [{"role": "system", "content": system_prompt}]
@@ -611,10 +778,7 @@ PAYPAL_CLIENT_ID = os.getenv(
     "PAYPAL_CLIENT_ID",
     "BAANE3LHKnrMKf-jZ-ez5-Xkoi3dhx19UkuhHfyj6c5uWRy1lb3B5FiOt1NBUej1AatHi1xHGVjeQAZ2ag",
 )
-PAYPAL_SECRET_KEY = os.getenv(
-    "PAYPAL_SECRET_KEY",
-    "EIp6oQ30-F4htQSMaEdFYBOQNm5NO_3V6YHRHlm70RnWVn2viIMarz3-2zQ0YcJ02ZAXEF4wsgjT-Q-B",
-)
+PAYPAL_SECRET_KEY = os.getenv("PAYPAL_SECRET_KEY", "").strip()
 PAYPAL_API_BASE = os.getenv("PAYPAL_API_BASE", "https://api-m.paypal.com")
 PAYPAL_ENV = os.getenv("PAYPAL_ENV", "live")
 
@@ -651,6 +815,12 @@ class PayPalCaptureOrderRequest(BaseModel):
     plan_id: str = "1-horse"
 
 async def get_paypal_token() -> str:
+    if not PAYPAL_CLIENT_ID.strip() or not PAYPAL_SECRET_KEY:
+        raise HTTPException(
+            status_code=503,
+            detail="Credenciales de PayPal no configuradas en el servidor.",
+        )
+
     async with httpx.AsyncClient(timeout=15.0) as client:
         res = await client.post(
             f"{PAYPAL_API_BASE}/v1/oauth2/token",
