@@ -9,7 +9,8 @@ import {
   ShieldCheck,
   AlertCircle,
   Menu,
-  Globe
+  Globe,
+  Sparkles
 } from 'lucide-react';
 
 const PAYPAL_CLIENT_ID = 'BAANE3LHKnrMKf-jZ-ez5-Xkoi3dhx19UkuhHfyj6c5uWRy1lb3B5FiOt1NBUej1AatHi1xHGVjeQAZ2ag';
@@ -20,6 +21,49 @@ export default function LandingPage({ onLaunchApp }) {
   const [showDemoModal, setShowDemoModal] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const [legalModalTab, setLegalModalTab] = useState(null); // 'terms' | 'privacy' | null
+  const [showTrialPopup, setShowTrialPopup] = useState(false);
+
+  // 7-day free trial popup triggered 5 seconds after entry
+  useEffect(() => {
+    try {
+      const dismissed = sessionStorage.getItem('hv_trial_popup_dismissed');
+      if (dismissed) return;
+    } catch (e) {}
+
+    const timer = setTimeout(() => {
+      setShowTrialPopup(true);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleCloseTrialPopup = () => {
+    setShowTrialPopup(false);
+    try {
+      sessionStorage.setItem('hv_trial_popup_dismissed', 'true');
+    } catch (e) {}
+  };
+
+  const handleAcceptTrial = () => {
+    setShowTrialPopup(false);
+    try {
+      sessionStorage.setItem('hv_trial_popup_dismissed', 'true');
+      localStorage.removeItem('hv_selected_plan_intent');
+      localStorage.setItem('hv_trial_active', 'true');
+      localStorage.setItem('hv_active_plan', '1-horse');
+    } catch (e) {}
+    handleGoToApp('signup');
+  };
+
+  // Close popup with Escape key
+  useEffect(() => {
+    if (!showTrialPopup) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') handleCloseTrialPopup();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showTrialPopup]);
 
   // Language toggle via Google Translate (ES / EN) — Landing Page only
   const [currentLang, setCurrentLang] = useState(() => {
@@ -1338,6 +1382,92 @@ export default function LandingPage({ onLaunchApp }) {
                 Entendido
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          7-DAY FREE TRIAL POPUP MODAL (CRO Conversion & PWA Traffic Campaign)
+          ========================================================================= */}
+      {showTrialPopup && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in"
+          onClick={handleCloseTrialPopup}
+        >
+          <div
+            className="relative w-full max-w-[460px] bg-gradient-to-b from-[#0F3D44] via-[#092B31] to-[#071B24] rounded-[32px] border border-white/20 p-6 sm:p-8 shadow-[0_32px_80px_rgba(0,0,0,0.7)] text-white overflow-hidden text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Ambient luxury glows */}
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#00D1C2]/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-[#D9F99D]/15 rounded-full blur-3xl pointer-events-none" />
+
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={handleCloseTrialPopup}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition cursor-pointer z-10"
+              aria-label="Cerrar modal"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Pill Badge */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D9F99D]/15 border border-[#D9F99D]/30 text-[#D9F99D] text-[11px] font-mono font-extrabold tracking-wider uppercase mb-3.5 shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-[#D9F99D]" />
+              <span>Acceso Exclusivo · 7 Días Gratis</span>
+            </div>
+
+            {/* Headline */}
+            <h3 className="text-[22px] sm:text-[24px] font-extrabold text-white tracking-tight leading-snug mb-2">
+              Prueba HorseVision gratis en tus caballos
+            </h3>
+
+            {/* Subtitle */}
+            <p className="text-[13px] sm:text-[13.5px] text-[#D9E3E5] leading-relaxed mb-5">
+              Analiza el trote, detecta asimetrías y consulta al Asistente Veterinario IA directamente desde tu móvil sin compromiso.
+            </p>
+
+            {/* Value bullets */}
+            <div className="bg-white/5 rounded-2xl border border-white/10 p-3.5 mb-5 text-left flex flex-col gap-2.5 text-[12.5px] text-white/90">
+              <div className="flex items-center gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-[#00D1C2]/20 flex items-center justify-center text-[#00D1C2] shrink-0">
+                  <Check className="w-3 h-3 stroke-[3]" />
+                </div>
+                <span>Análisis cinemático del trote y simetrías</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-[#00D1C2]/20 flex items-center justify-center text-[#00D1C2] shrink-0">
+                  <Check className="w-3 h-3 stroke-[3]" />
+                </div>
+                <span>Chat con Asistente Veterinario IA 24/7</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-[#D9F99D]/20 flex items-center justify-center text-[#D9F99D] shrink-0">
+                  <Check className="w-3 h-3 stroke-[3]" />
+                </div>
+                <span className="font-semibold text-white">Sin ingresar tarjeta de crédito</span>
+              </div>
+            </div>
+
+            {/* CTA Button */}
+            <button
+              type="button"
+              onClick={handleAcceptTrial}
+              className="w-full py-3.5 px-6 rounded-full bg-[#D9F99D] hover:bg-[#ccf482] text-[#071B24] font-extrabold text-[15px] shadow-[0_12px_28px_rgba(217,249,157,0.35)] transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 group mb-3 cursor-pointer"
+            >
+              <span>Comenzar mis 7 días gratis</span>
+              <ChevronRight className="w-4 h-4 stroke-[2.5] group-hover:translate-x-0.5 transition-transform" />
+            </button>
+
+            {/* Dismiss link */}
+            <button
+              type="button"
+              onClick={handleCloseTrialPopup}
+              className="text-[12px] font-medium text-white/50 hover:text-white/80 transition-colors cursor-pointer"
+            >
+              Continuar explorando la web
+            </button>
           </div>
         </div>
       )}
