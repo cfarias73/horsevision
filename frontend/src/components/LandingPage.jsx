@@ -8,7 +8,8 @@ import {
   CreditCard,
   ShieldCheck,
   AlertCircle,
-  Menu
+  Menu,
+  Globe
 } from 'lucide-react';
 
 const PAYPAL_CLIENT_ID = 'BAANE3LHKnrMKf-jZ-ez5-Xkoi3dhx19UkuhHfyj6c5uWRy1lb3B5FiOt1NBUej1AatHi1xHGVjeQAZ2ag';
@@ -19,6 +20,75 @@ export default function LandingPage({ onLaunchApp }) {
   const [showDemoModal, setShowDemoModal] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const [legalModalTab, setLegalModalTab] = useState(null); // 'terms' | 'privacy' | null
+
+  // Language toggle via Google Translate (ES / EN) — Landing Page only
+  const [currentLang, setCurrentLang] = useState(() => {
+    try {
+      const match = document.cookie.match(/googtrans=\/es\/([a-z]{2})/i);
+      if (match && match[1]) {
+        return match[1].toLowerCase();
+      }
+    } catch (e) {}
+    return 'es';
+  });
+
+  const handleLanguageChange = (targetLang) => {
+    if (targetLang === currentLang) return;
+    try {
+      const domain = window.location.hostname;
+      if (targetLang === 'es') {
+        // Clear Google Translate cookies for original Spanish
+        document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${domain};`;
+        if (domain !== 'localhost' && !domain.includes('127.0.0.1')) {
+          document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${domain};`;
+        }
+        document.cookie = 'googtrans=/es/es; path=/;';
+
+        const select = document.querySelector('.goog-te-combo');
+        if (select) {
+          const hasEs = Array.from(select.options || []).some((o) => o.value === 'es');
+          select.value = hasEs ? 'es' : '';
+          select.dispatchEvent(new Event('change'));
+          setTimeout(() => {
+            window.location.reload();
+          }, 150);
+        } else {
+          window.location.reload();
+        }
+      } else {
+        const cookieVal = `/es/${targetLang}`;
+        document.cookie = `googtrans=${cookieVal}; path=/;`;
+        if (domain !== 'localhost' && !domain.includes('127.0.0.1')) {
+          document.cookie = `googtrans=${cookieVal}; path=/; domain=.${domain};`;
+        }
+
+        const select = document.querySelector('.goog-te-combo');
+        if (select) {
+          select.value = targetLang;
+          select.dispatchEvent(new Event('change'));
+        } else {
+          let attempts = 0;
+          const interval = setInterval(() => {
+            attempts++;
+            const s = document.querySelector('.goog-te-combo');
+            if (s) {
+              clearInterval(interval);
+              s.value = targetLang;
+              s.dispatchEvent(new Event('change'));
+            } else if (attempts > 12) {
+              clearInterval(interval);
+              window.location.reload();
+            }
+          }, 100);
+        }
+      }
+      setCurrentLang(targetLang);
+    } catch (err) {
+      console.warn('Translate switch error:', err);
+      window.location.reload();
+    }
+  };
 
   // PayPal checkout modal state
   const [sdkReady, setSdkReady] = useState(false);
@@ -236,7 +306,7 @@ export default function LandingPage({ onLaunchApp }) {
           <button
             type="button"
             onClick={() => handleGoToApp('signup')}
-            className="flex items-center gap-2.5 text-left group"
+            className="notranslate flex items-center gap-2.5 text-left group"
           >
             <div className="w-9 h-9 rounded-full bg-white p-1.5 flex items-center justify-center shrink-0 shadow-sm">
               <img
@@ -260,7 +330,38 @@ export default function LandingPage({ onLaunchApp }) {
           </nav>
 
           {/* Header Actions */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* Language Toggle Switch (ES / EN) — Google Translate */}
+            <div className="notranslate flex items-center bg-white/10 p-0.5 rounded-full border border-white/15 text-[11px] font-bold">
+              <div className="pl-2 pr-1 text-white/50 flex items-center" title="Idioma / Language">
+                <Globe className="w-3.5 h-3.5 text-[#00D1C2]" />
+              </div>
+              <button
+                type="button"
+                onClick={() => handleLanguageChange('es')}
+                className={`px-2 py-0.5 rounded-full transition-all duration-200 ${
+                  currentLang === 'es'
+                    ? 'bg-[#00D1C2] text-[#071B24] font-extrabold shadow-sm'
+                    : 'text-white/70 hover:text-white'
+                }`}
+                aria-label="Español"
+              >
+                ES
+              </button>
+              <button
+                type="button"
+                onClick={() => handleLanguageChange('en')}
+                className={`px-2 py-0.5 rounded-full transition-all duration-200 ${
+                  currentLang === 'en'
+                    ? 'bg-[#00D1C2] text-[#071B24] font-extrabold shadow-sm'
+                    : 'text-white/70 hover:text-white'
+                }`}
+                aria-label="English"
+              >
+                EN
+              </button>
+            </div>
+
             <button
               type="button"
               onClick={() => handleGoToApp('login')}
@@ -291,6 +392,36 @@ export default function LandingPage({ onLaunchApp }) {
       {/* Mobile Nav Floating Drawer */}
       {mobileMenuOpen && (
         <div className="fixed inset-x-4 top-[88px] z-40 rounded-[28px] bg-[#071B24]/95 backdrop-blur-xl border border-white/15 p-6 flex flex-col gap-3 text-white text-[15px] font-semibold md:hidden shadow-[0_24px_60px_rgba(7,27,36,0.45)]">
+          <div className="notranslate flex items-center justify-between pb-3 border-b border-white/10 mb-1">
+            <span className="text-[13px] text-white/70 font-medium flex items-center gap-2">
+              <Globe className="w-4 h-4 text-[#00D1C2]" />
+              Idioma / Language
+            </span>
+            <div className="flex items-center bg-white/10 p-0.5 rounded-full border border-white/15 text-[11px] font-bold">
+              <button
+                type="button"
+                onClick={() => { handleLanguageChange('es'); setMobileMenuOpen(false); }}
+                className={`px-3 py-1 rounded-full transition-all duration-200 ${
+                  currentLang === 'es'
+                    ? 'bg-[#00D1C2] text-[#071B24] font-extrabold shadow-sm'
+                    : 'text-white/70 hover:text-white'
+                }`}
+              >
+                ES
+              </button>
+              <button
+                type="button"
+                onClick={() => { handleLanguageChange('en'); setMobileMenuOpen(false); }}
+                className={`px-3 py-1 rounded-full transition-all duration-200 ${
+                  currentLang === 'en'
+                    ? 'bg-[#00D1C2] text-[#071B24] font-extrabold shadow-sm'
+                    : 'text-white/70 hover:text-white'
+                }`}
+              >
+                EN
+              </button>
+            </div>
+          </div>
           <a href="#funciones" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#00D1C2]">Funciones</a>
           <a href="#como-funciona" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#00D1C2]">Cómo funciona</a>
           <a href="#planes" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#00D1C2]">Planes</a>

@@ -115,6 +115,22 @@ export default function Root() {
       if (path === '/app') {
         setAuthMode(mode);
         setSkipSplash(true);
+        // Ensure translation is isolated to landing page only
+        try {
+          const domain = window.location.hostname;
+          document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+          document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${domain};`;
+          if (domain !== 'localhost' && !domain.includes('127.0.0.1')) {
+            document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${domain};`;
+          }
+          document.cookie = 'googtrans=/es/es; path=/;';
+          const select = document.querySelector('.goog-te-combo');
+          if (select) {
+            const hasEs = Array.from(select.options || []).some((o) => o.value === 'es');
+            select.value = hasEs ? 'es' : '';
+            select.dispatchEvent(new Event('change'));
+          }
+        } catch (e) {}
       }
       window.history.pushState({}, '', path);
       setRoute(path);

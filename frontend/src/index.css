@@ -248,7 +248,9 @@ body {
 .goog-te-banner-frame.skiptranslate,
 #goog-gt-tt,
 .goog-te-balloon-frame,
-.goog-te-spinner-pos {
+.goog-te-spinner-pos,
+iframe.goog-te-banner-frame,
+iframe.skiptranslate {
   display: none !important;
   visibility: hidden !important;
 }
